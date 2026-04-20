@@ -1,0 +1,37 @@
+---
+description: Layout rules for food item cards in mockup HTML files
+globs: mockups/**/*.html
+alwaysApply: false
+---
+
+# Item Card Layout
+
+All food item cards (`.item-card`) use a consistent layout pattern:
+
+## Structure
+
+Each card contains three elements in order: **graphic**, **name**, **tag** (optional).
+
+```html
+<div class="item-card">
+  <div class="sa sa-apple"></div>
+  <div class="item-name">Apple</div>
+  <div class="item-tag tag-fibre">Fibre+</div>
+</div>
+```
+
+## Positioning Rules
+
+- Cards use `display: flex; flex-direction: column; align-items: center` with a `min-height`
+- The graphic (`.sa`) gets `margin-top: auto` to push it **down** away from the top border
+- The food name (`.item-name`) gets a fixed `margin-top` (e.g. `6px`) to create consistent spacing between graphic and text
+- Name and tag sit at the **bottom** of the card, consistently aligned across all cards regardless of graphic height
+
+```css
+.item-card > .sa { margin-top: auto; }
+.item-name { margin-top: 6px; }
+```
+
+## Key Principle
+
+Graphics float toward the bottom-center of the card. Text anchors at the bottom. The empty space is always **above** the graphic, never between graphic and text.
