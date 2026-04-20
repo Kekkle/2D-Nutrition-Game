@@ -1,37 +1,37 @@
 ---
-description: Layout rules for food item cards in mockup HTML files
+description: Layout rules for item and entity cards in mockup HTML files
 globs: mockups/**/*.html
 alwaysApply: false
 ---
 
-# Item Card Layout
+# Card Layout Rules
 
-All food item cards (`.item-card`) use a consistent layout pattern:
+All cards in mockup pages follow consistent layout patterns.
 
-## Structure
+## Food Item Cards (`.item-card`)
 
-Each card contains three elements in order: **graphic**, **name**, **tag** (optional).
-
-```html
-<div class="item-card">
-  <div class="sa sa-apple"></div>
-  <div class="item-name">Apple</div>
-  <div class="item-tag tag-fibre">Fibre+</div>
-</div>
-```
-
-## Positioning Rules
+Structure: **graphic**, **name**, **tag** (optional).
 
 - Cards use `display: flex; flex-direction: column; align-items: center` with a `min-height`
 - The graphic (`.sa`) gets `margin-top: auto` to push it **down** away from the top border
-- The food name (`.item-name`) gets a fixed `margin-top` (e.g. `6px`) to create consistent spacing between graphic and text
-- Name and tag sit at the **bottom** of the card, consistently aligned across all cards regardless of graphic height
+- The food name (`.item-name`) gets a fixed `margin-top` (e.g. `6px`) for consistent spacing
+- Name and tag sit at the **bottom**, aligned across all cards regardless of graphic height
+
+## Entity Cards (`.entity-card`)
+
+Structure: **sprite-area** (64x64), **name**, **behavior**, **theme** (italic).
+
+- Cards use a **fixed height** (`height: 170px`), `flex-direction: column`, `align-items: center`, `gap: 6px`
+- The sprite area (`.sprite-area`, 64x64px) is centered at the top with `margin-bottom: 8px` for a paragraph-sized gap before text
+- The theme line (`.entity-theme`, italic) gets `margin-top: auto` to **pin it to the bottom** of the card, ensuring consistent positioning regardless of behavior text length
+- All text between sprite and theme flows naturally with the flex gap
 
 ```css
-.item-card > .sa { margin-top: auto; }
-.item-name { margin-top: 6px; }
+.entity-card { height: 170px; gap: 6px; }
+.sprite-area { margin-bottom: 8px; }
+.entity-theme { margin-top: auto; }
 ```
 
 ## Key Principle
 
-Graphics float toward the bottom-center of the card. Text anchors at the bottom. The empty space is always **above** the graphic, never between graphic and text.
+Sprites/graphics are top-anchored with consistent spacing to text below. The bottom-most label is always pinned to the card bottom via `margin-top: auto`. Empty space distributes between the flowing text and the pinned bottom label — never between the sprite and its name.

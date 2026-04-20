@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Enemies & Hazards (16-Bit Styles)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0e0e1c;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    image-rendering: pixelated;
+  }
+  h1 {
+    font-size: 18px;
+    color: #f0c040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 30px;
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.5;
+  }
+  .style-section {
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 50px;
+  }
+  .style-header {
+    font-size: 14px;
+    color: #f0c040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #2a2a4a;
+    padding-bottom: 8px;
+  }
+  .style-desc {
+    font-size: 10px;
+    color: #888;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .group-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .enemy-label { background: #66228830; color: #cc66cc; }
+  .hazard-label { background: #88442230; color: #ee8844; }
+  .group { margin-bottom: 30px; }
+
+  .items-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .entity-card {
+    width: 160px;
+    height: 170px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    background: #161628;
+    border: 1px solid #2a2a4a;
+    border-radius: 6px;
+  }
+  .entity-card:hover { border-color: #f0c04044; }
+  .entity-name {
+    font-size: 10px;
+    color: #fff;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  .entity-behavior {
+    font-size: 7px;
+    color: #999;
+    text-align: center;
+    line-height: 1.4;
+    max-width: 140px;
+  }
+  .entity-theme {
+    font-size: 7px;
+    color: #666;
+    text-align: center;
+    font-style: italic;
+    max-width: 140px;
+    margin-top: auto;
+  }
+  .sprite-area {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  /* ============================================================ */
+  /* STYLE A: BOLD OUTLINED                                       */
+  /* ============================================================ */
+
+  /* --- ENEMIES --- */
+
+  /* Fatigue Phantom */
+  .sa-phantom {
+    position: relative;
+    width: 48px;
+    height: 56px;
+  }
+  .sa-phantom-body {
+    width: 48px;
+    height: 40px;
+    background: #8866aa;
+    border: 3px solid #222;
+    border-radius: 50% 50% 0 0;
+    position: relative;
+  }
+  .sa-phantom-eye {
+    position: absolute;
+    width: 10px;
+    height: 3px;
+    background: #222;
+    border: none;
+    border-radius: 1px;
+    top: 18px;
+  }
+  .sa-phantom-eye.l { left: 7px; }
+  .sa-phantom-eye.r { right: 7px; }
+  .sa-phantom-pupil {
+    display: none;
+  }
+  .sa-phantom-mouth {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 2px;
+    background: #222;
+    border: none;
+    border-radius: 1px;
+  }
+  .sa-phantom-tail {
+    display: flex;
+    gap: 0;
+  }
+  .sa-phantom-wisp {
+    width: 12px;
+    height: 16px;
+    background: #8866aa;
+    border-left: 3px solid #222;
+    border-right: 3px solid #222;
+    border-bottom: 3px solid #222;
+    border-radius: 0 0 50% 50%;
+  }
+  .sa-phantom-wisp:first-child { border-left: 3px solid #222; }
+
+  /* Stress Sprite */
+  .sa-sprite {
+    position: relative;
+    width: 32px;
+    height: 32px;
+  }
+  .sa-sprite-body {
+    width: 32px;
+    height: 32px;
+    background: #44aaee;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 0 3px #44aaee44;
+  }
+  .sa-sprite-eye {
+    position: absolute;
+    width: 7px;
+    height: 8px;
+    background: #fff;
+    border: 2px solid #222;
+    border-radius: 50%;
+    top: 8px;
+  }
+  .sa-sprite-eye.l { left: 4px; }
+  .sa-sprite-eye.r { right: 4px; }
+  .sa-sprite-zap {
+    position: absolute;
+    width: 10px;
+    height: 14px;
+    background: #fff;
+    border: 1px solid #222;
+    clip-path: polygon(50% 0, 100% 40%, 60% 40%, 80% 100%, 0 50%, 40% 50%);
+  }
+  .sa-sprite-zap.z1 { top: -10px; left: 2px; }
+  .sa-sprite-zap.z2 { top: -8px; right: -2px; transform: rotate(30deg); }
+  .sa-sprite-zap.z3 { bottom: -6px; right: 2px; transform: rotate(-20deg); }
+
+  /* Free Radical */
+  .sa-radical {
+    position: relative;
+    width: 38px;
+    height: 38px;
+  }
+  .sa-radical-body {
+    width: 28px;
+    height: 28px;
+    background: #aaee44;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+    margin: 5px auto 0;
+  }
+  .sa-radical-eye {
+    position: absolute;
+    width: 8px;
+    height: 5px;
+    background: #222;
+    border-radius: 0;
+    top: 8px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  .sa-radical-eye.l { left: 4px; }
+  .sa-radical-eye.r { right: 4px; }
+  .sa-radical-spike {
+    position: absolute;
+    width: 12px;
+    height: 14px;
+    background: #aaee44;
+    border: none;
+    border-radius: 0;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    filter: drop-shadow(0 0 1.5px #222) drop-shadow(0 0 1.5px #222);
+  }
+  .sa-radical-spike.s1 { top: -8px; left: 50%; transform: translateX(-50%); }
+  .sa-radical-spike.s2 { top: 0; right: -6px; transform: rotate(60deg); }
+  .sa-radical-spike.s3 { bottom: 0; right: -6px; transform: rotate(120deg); }
+  .sa-radical-spike.s4 { bottom: -8px; left: 50%; transform: translateX(-50%) rotate(180deg); }
+  .sa-radical-spike.s5 { bottom: 0; left: -6px; transform: rotate(-120deg); }
+  .sa-radical-spike.s6 { top: 0; left: -6px; transform: rotate(-60deg); }
+
+  /* Entropy Blob */
+  .sa-blob {
+    position: relative;
+    width: 58px;
+    height: 44px;
+  }
+  .sa-blob-body {
+    width: 58px;
+    height: 44px;
+    background: #554466;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-blob-eye {
+    position: absolute;
+    width: 8px;
+    height: 6px;
+    background: #aa88cc;
+    border: 2px solid #222;
+    border-radius: 50%;
+    top: 16px;
+  }
+  .sa-blob-eye.l { left: 14px; }
+  .sa-blob-eye.r { right: 14px; }
+  .sa-blob-drip {
+    display: none;
+  }
+
+  /* Sedentary Slime */
+  .sa-slime {
+    position: relative;
+    width: 36px;
+    height: 36px;
+  }
+  .sa-slime-body {
+    width: 36px;
+    height: 36px;
+    background: #88aa44;
+    border: 3px solid #222;
+    border-radius: 4px;
+    position: relative;
+  }
+  .sa-slime-eye {
+    position: absolute;
+    width: 8px;
+    height: 6px;
+    background: #fff;
+    border: 2px solid #222;
+    border-radius: 50%;
+    top: 10px;
+  }
+  .sa-slime-eye.l { left: 6px; }
+  .sa-slime-eye.r { right: 6px; }
+  .sa-slime-puddle {
+    display: none;
+  }
+
+  /* Brain Fog Wisp */
+  .sa-wisp {
+    position: relative;
+    width: 44px;
+    height: 36px;
+  }
+  .sa-wisp-body {
+    width: 36px;
+    height: 28px;
+    background: #9999bb;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto;
+  }
+  .sa-wisp-eye {
+    position: absolute;
+    width: 7px;
+    height: 5px;
+    background: #ddd;
+    border: 2px solid #222;
+    border-radius: 50%;
+    top: 10px;
+  }
+  .sa-wisp-eye.l { left: 5px; }
+  .sa-wisp-eye.r { right: 5px; }
+  .sa-wisp-trail {
+    width: 8px;
+    height: 8px;
+    background: #9999bb;
+    border: 2px solid #222;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -2px;
+    filter: blur(2px);
+  }
+  .sa-wisp-trail.t1 { left: -2px; width: 10px; height: 10px; }
+  .sa-wisp-trail.t2 { right: -4px; width: 12px; height: 12px; bottom: 2px; }
+  .sa-wisp-fog {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: #9999bb;
+    border: 2px solid #222;
+    border-radius: 50%;
+    opacity: 0.6;
+    filter: blur(2px);
+  }
+
+  /* --- HAZARDS --- */
+
+  /* Soda Geyser */
+  .sa-geyser {
+    position: relative;
+    width: 36px;
+    height: 52px;
+  }
+  .sa-geyser-base {
+    width: 36px;
+    height: 20px;
+    background: #cc4444;
+    border: 3px solid #222;
+    border-radius: 4px 4px 8px 8px;
+    position: absolute;
+    bottom: 0;
+  }
+  .sa-geyser-label {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 6px;
+    background: #fff;
+    border: 1px solid #222;
+    border-radius: 2px;
+  }
+  .sa-geyser-spray {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .sa-geyser-drop {
+    width: 6px;
+    height: 8px;
+    background: #ee8844;
+    border: 2px solid #222;
+    border-radius: 50% 50% 50% 50%;
+    position: absolute;
+  }
+  .sa-geyser-drop.d1 { bottom: 0; left: 0; }
+  .sa-geyser-drop.d2 { bottom: 8px; left: -6px; width: 5px; height: 6px; }
+  .sa-geyser-drop.d3 { bottom: 12px; left: 4px; width: 5px; height: 7px; }
+  .sa-geyser-drop.d4 { bottom: 20px; left: -2px; width: 4px; height: 5px; }
+
+  /* Crash Pit */
+  .sa-crashpit {
+    position: relative;
+    width: 60px;
+    height: 20px;
+    margin-top: 10px;
+  }
+  .sa-crashpit-body {
+    width: 60px;
+    height: 14px;
+    background: repeating-linear-gradient(90deg, #8a6a30 0px, #8a6a30 5px, #6a5020 5px, #6a5020 10px);
+    border: 3px solid #222;
+    border-radius: 3px;
+    position: relative;
+  }
+  .sa-crashpit-wave {
+    position: absolute;
+    top: -8px;
+    left: 4px;
+    font-size: 10px;
+    color: #aa8840;
+    letter-spacing: 2px;
+  }
+
+  /* Fog Bank */
+  .sa-fogbank {
+    position: relative;
+    width: 56px;
+    height: 40px;
+  }
+  .sa-fog-puff {
+    position: absolute;
+    background: #aaaacc;
+    border: 3px solid #222;
+    border-radius: 50%;
+    filter: blur(2px);
+  }
+  .sa-fog-puff.f1 { width: 28px; height: 22px; bottom: 0; left: 0; }
+  .sa-fog-puff.f2 { width: 32px; height: 24px; bottom: 4px; right: 0; }
+  .sa-fog-puff.f3 { width: 24px; height: 18px; top: 0; left: 12px; }
+
+  /* Inflammation Zone */
+  .sa-inflam {
+    position: relative;
+    width: 52px;
+    height: 36px;
+  }
+  .sa-inflam-body {
+    width: 52px;
+    height: 28px;
+    background: #dd4444;
+    border: 3px solid #222;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 0 0 4px #dd444433;
+  }
+  .sa-inflam-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    background: #ff8844;
+    border: 2px solid #222;
+    border-radius: 50%;
+  }
+  .sa-inflam-pulse::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: #ffcc44;
+    border: 1px solid #222;
+    border-radius: 50%;
+  }
+  .sa-inflam-wave {
+    position: absolute;
+    bottom: -6px;
+    left: 4px;
+    right: 4px;
+    height: 4px;
+    background: #dd4444;
+    border: 2px solid #222;
+    border-radius: 0 0 4px 4px;
+    border-top: none;
+    opacity: 0.5;
+  }
+
+  /* Misleading Labels */
+  .sa-mislead {
+    position: relative;
+    width: 32px;
+    height: 38px;
+  }
+  .sa-mislead-body {
+    width: 32px;
+    height: 32px;
+    background: #55aa55;
+    border: 3px solid #222;
+    border-radius: 4px;
+    position: relative;
+  }
+  .sa-mislead-check {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #222;
+  }
+  .sa-mislead-x {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    background: #dd4444;
+    border: 2px solid #222;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .sa-mislead-lines {
+    position: absolute;
+    bottom: 4px;
+    left: 5px;
+    right: 5px;
+    height: 2px;
+    background: #fff;
+    border-radius: 1px;
+    box-shadow: 0 -4px 0 #fff;
+  }
+
+
+  /* ============================================================ */
+  /* STYLE B: SOFT SHADED                                         */
+  /* ============================================================ */
+
+  /* --- ENEMIES --- */
+
+  /* Fatigue Phantom */
+  .sb-phantom {
+    position: relative;
+    width: 48px;
+    height: 56px;
+    filter: drop-shadow(0 0 6px rgba(136,102,170,0.4));
+  }
+  .sb-phantom-body {
+    width: 48px;
+    height: 40px;
+    background: radial-gradient(ellipse at 50% 35%, rgba(160,120,200,0.85), rgba(120,80,160,0.6), rgba(80,50,120,0.35));
+    border-radius: 50% 50% 0 0;
+    position: relative;
+  }
+  .sb-phantom-eye {
+    position: absolute;
+    width: 12px;
+    height: 14px;
+    background: radial-gradient(circle at 45% 40%, #e8d0ff, #c8a8e8);
+    border-radius: 50%;
+    top: 10px;
+    box-shadow: 0 0 4px rgba(200,168,232,0.5);
+  }
+  .sb-phantom-eye.l { left: 6px; }
+  .sb-phantom-eye.r { right: 6px; }
+  .sb-phantom-pupil {
+    position: absolute;
+    width: 5px;
+    height: 6px;
+    background: radial-gradient(circle, #3a1858, #5a2878);
+    border-radius: 50%;
+    bottom: 2px;
+    right: 2px;
+  }
+  .sb-phantom-pupil::after {
+    content: '';
+    position: absolute;
+    width: 2px; height: 2px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    top: 0; right: 0;
+  }
+  .sb-phantom-mouth {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 5px;
+    border-bottom: 2px solid rgba(100,60,140,0.5);
+    border-radius: 0 0 50% 50%;
+  }
+  .sb-phantom-tail {
+    display: flex;
+    justify-content: center;
+    gap: 1px;
+    margin-top: -3px;
+  }
+  .sb-phantom-wisp {
+    width: 11px;
+    height: 18px;
+    background: linear-gradient(180deg, rgba(140,100,180,0.5), rgba(100,60,140,0.15), transparent);
+    border-radius: 0 0 50% 50%;
+  }
+
+  /* Stress Sprite */
+  .sb-sprite {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    filter: drop-shadow(0 0 5px rgba(68,170,238,0.4));
+  }
+  .sb-sprite-body {
+    width: 32px;
+    height: 32px;
+    background: radial-gradient(circle at 40% 35%, #78ccf8, #48aae8, #3088c8);
+    border: 2px solid #2070a8;
+    border-radius: 50%;
+    position: relative;
+    margin: 2px auto 0;
+  }
+  .sb-sprite-eye {
+    position: absolute;
+    width: 7px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    top: 8px;
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .sb-sprite-eye.l { left: 5px; }
+  .sb-sprite-eye.r { right: 5px; }
+  .sb-sprite-pupil2 {
+    width: 3px;
+    height: 4px;
+    background: #1a3050;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 1px;
+    right: 0;
+  }
+  .sb-sprite-zap {
+    position: absolute;
+    color: #b0e0ff;
+    font-size: 10px;
+    text-shadow: 0 0 3px rgba(176,224,255,0.5);
+  }
+  .sb-sprite-zap.z1 { top: -6px; left: 2px; }
+  .sb-sprite-zap.z2 { top: -4px; right: 0; transform: rotate(30deg); }
+  .sb-sprite-zap.z3 { bottom: -2px; right: 2px; transform: rotate(-20deg); }
+
+  /* Free Radical */
+  .sb-radical {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(0 0 5px rgba(170,238,68,0.4));
+  }
+  .sb-radical-body {
+    width: 28px;
+    height: 28px;
+    background: radial-gradient(circle at 38% 32%, #ccff68, #a8e040, #88c028);
+    border: 2px solid #68a018;
+    border-radius: 50%;
+    position: relative;
+    margin: 6px auto 0;
+  }
+  .sb-radical-eye {
+    position: absolute;
+    width: 5px;
+    height: 6px;
+    background: #2a4010;
+    border-radius: 50%;
+    top: 8px;
+  }
+  .sb-radical-eye.l { left: 5px; }
+  .sb-radical-eye.r { right: 5px; }
+  .sb-radical-spike {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  .sb-radical-spike.s1 { top: -2px; left: 50%; transform: translateX(-50%);
+    border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 10px solid #a8e040; }
+  .sb-radical-spike.s2 { top: 4px; right: -2px;
+    border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 10px solid #a8e040; }
+  .sb-radical-spike.s3 { bottom: 4px; right: -2px;
+    border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 10px solid #88c028; }
+  .sb-radical-spike.s4 { bottom: -2px; left: 50%; transform: translateX(-50%);
+    border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 10px solid #88c028; }
+  .sb-radical-spike.s5 { bottom: 4px; left: -2px;
+    border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-right: 10px solid #88c028; }
+  .sb-radical-spike.s6 { top: 4px; left: -2px;
+    border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-right: 10px solid #a8e040; }
+
+  /* Entropy Blob */
+  .sb-blob {
+    position: relative;
+    width: 52px;
+    height: 42px;
+    filter: drop-shadow(0 0 5px rgba(85,68,102,0.4));
+  }
+  .sb-blob-body {
+    width: 52px;
+    height: 36px;
+    background: radial-gradient(ellipse at 45% 40%, #6a5880, #554466, #443855);
+    border: 2px solid #332848;
+    border-radius: 50% 50% 40% 40%;
+    position: relative;
+  }
+  .sb-blob-eye {
+    position: absolute;
+    width: 8px;
+    height: 6px;
+    background: radial-gradient(circle, #bb99dd, #9978bb);
+    border-radius: 50%;
+    top: 13px;
+    box-shadow: 0 0 3px rgba(153,120,187,0.4);
+  }
+  .sb-blob-eye.l { left: 10px; }
+  .sb-blob-eye.r { right: 10px; }
+  .sb-blob-drip {
+    position: absolute;
+    bottom: -5px;
+    background: linear-gradient(180deg, #554466, rgba(85,68,102,0.3));
+    border-radius: 0 0 50% 50%;
+  }
+  .sb-blob-drip.d1 { left: 8px; width: 7px; height: 6px; }
+  .sb-blob-drip.d2 { left: 22px; width: 8px; height: 10px; }
+  .sb-blob-drip.d3 { right: 8px; width: 6px; height: 7px; }
+
+  /* Sedentary Slime */
+  .sb-slime {
+    position: relative;
+    width: 48px;
+    height: 32px;
+    filter: drop-shadow(0 0 4px rgba(136,170,68,0.3));
+  }
+  .sb-slime-body {
+    width: 48px;
+    height: 24px;
+    background: radial-gradient(ellipse at 50% 35%, #a8cc58, #88aa44, #709830);
+    border: 2px solid #588020;
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+  }
+  .sb-slime-eye {
+    position: absolute;
+    width: 8px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    top: 6px;
+    border: 1px solid rgba(88,128,32,0.5);
+  }
+  .sb-slime-eye.l { left: 8px; }
+  .sb-slime-eye.r { right: 8px; }
+  .sb-slime-pupil3 {
+    width: 3px;
+    height: 4px;
+    background: #2a3a10;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 0;
+    right: 1px;
+  }
+  .sb-slime-puddle {
+    position: absolute;
+    bottom: -3px;
+    left: -6px;
+    right: -6px;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, rgba(136,170,68,0.4), rgba(136,170,68,0.5), rgba(136,170,68,0.4), transparent);
+    border-radius: 50%;
+  }
+
+  /* Brain Fog Wisp */
+  .sb-wisp {
+    position: relative;
+    width: 48px;
+    height: 40px;
+    filter: drop-shadow(0 0 6px rgba(153,153,187,0.3));
+  }
+  .sb-wisp-body {
+    width: 36px;
+    height: 28px;
+    background: radial-gradient(circle at 45% 40%, rgba(170,170,200,0.8), rgba(140,140,170,0.6));
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto;
+  }
+  .sb-wisp-eye {
+    position: absolute;
+    width: 7px;
+    height: 5px;
+    background: rgba(230,230,240,0.8);
+    border-radius: 50%;
+    top: 10px;
+    box-shadow: 0 0 3px rgba(230,230,240,0.3);
+  }
+  .sb-wisp-eye.l { left: 6px; }
+  .sb-wisp-eye.r { right: 6px; }
+  .sb-wisp-trail {
+    position: absolute;
+    background: radial-gradient(circle, rgba(153,153,187,0.4), transparent);
+    border-radius: 50%;
+  }
+  .sb-wisp-trail.t1 { bottom: 0; left: -2px; width: 14px; height: 14px; }
+  .sb-wisp-trail.t2 { bottom: 4px; right: -6px; width: 16px; height: 16px; }
+  .sb-wisp-fog {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, rgba(153,153,187,0.35), transparent);
+    border-radius: 50%;
+  }
+
+  /* --- HAZARDS --- */
+
+  /* Soda Geyser */
+  .sb-geyser {
+    position: relative;
+    width: 36px;
+    height: 52px;
+    filter: drop-shadow(0 0 4px rgba(204,68,68,0.3));
+  }
+  .sb-geyser-base {
+    width: 36px;
+    height: 20px;
+    background: linear-gradient(180deg, #d84848, #c83838, #b02828);
+    border: 2px solid #901818;
+    border-radius: 4px 4px 8px 8px;
+    position: absolute;
+    bottom: 0;
+    box-shadow: 0 2px 0 #781010;
+  }
+  .sb-geyser-label {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 5px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 2px;
+  }
+  .sb-geyser-drop {
+    width: 6px;
+    height: 8px;
+    background: radial-gradient(circle at 40% 30%, #ffa858, #e88030);
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 0 3px rgba(232,128,48,0.4);
+  }
+  .sb-geyser-drop.d1 { bottom: 18px; left: 14px; }
+  .sb-geyser-drop.d2 { bottom: 26px; left: 8px; width: 5px; height: 6px; }
+  .sb-geyser-drop.d3 { bottom: 30px; left: 18px; width: 5px; height: 7px; }
+  .sb-geyser-drop.d4 { bottom: 38px; left: 12px; width: 4px; height: 5px; }
+
+  /* Crash Pit */
+  .sb-crashpit {
+    position: relative;
+    width: 60px;
+    height: 20px;
+  }
+  .sb-crashpit-body {
+    width: 60px;
+    height: 12px;
+    background: linear-gradient(180deg, #9a8a48, #7a6a30, #6a5a28);
+    border: 2px solid #5a4a20;
+    border-radius: 3px;
+    position: relative;
+    box-shadow: 0 2px 0 #4a3a18;
+  }
+  .sb-crashpit-shimmer {
+    position: absolute;
+    top: -6px;
+    left: 6px;
+    right: 6px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(180,160,80,0.3), transparent);
+    border-radius: 3px;
+  }
+
+  /* Fog Bank */
+  .sb-fogbank {
+    position: relative;
+    width: 56px;
+    height: 40px;
+    filter: drop-shadow(0 0 6px rgba(170,170,204,0.2));
+  }
+  .sb-fog-puff {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .sb-fog-puff.f1 { width: 30px; height: 22px; bottom: 0; left: 0;
+    background: radial-gradient(circle at 40% 40%, rgba(180,180,210,0.6), rgba(150,150,180,0.3)); }
+  .sb-fog-puff.f2 { width: 34px; height: 26px; bottom: 4px; right: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(170,170,200,0.55), rgba(140,140,170,0.25)); }
+  .sb-fog-puff.f3 { width: 26px; height: 20px; top: 0; left: 12px;
+    background: radial-gradient(circle at 45% 35%, rgba(190,190,220,0.5), rgba(160,160,190,0.2)); }
+
+  /* Inflammation Zone */
+  .sb-inflam {
+    position: relative;
+    width: 52px;
+    height: 36px;
+    filter: drop-shadow(0 0 8px rgba(220,60,60,0.35));
+  }
+  .sb-inflam-body {
+    width: 52px;
+    height: 28px;
+    background: radial-gradient(ellipse at 50% 50%, rgba(230,70,50,0.7), rgba(200,50,40,0.5), rgba(170,40,30,0.3));
+    border-radius: 10px;
+    position: relative;
+  }
+  .sb-inflam-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle, rgba(255,140,60,0.8), rgba(230,80,50,0.4));
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255,140,60,0.4);
+  }
+  .sb-inflam-pulse::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 7px; height: 7px;
+    background: radial-gradient(circle, rgba(255,200,80,0.9), rgba(255,160,60,0.5));
+    border-radius: 50%;
+  }
+  .sb-inflam-wave {
+    position: absolute;
+    bottom: -4px;
+    left: 8px;
+    right: 8px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(220,60,50,0.3), transparent);
+    border-radius: 50%;
+  }
+
+  /* Misleading Labels */
+  .sb-mislead {
+    position: relative;
+    width: 32px;
+    height: 38px;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+  }
+  .sb-mislead-body {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(180deg, #5ab858, #48a048, #388838);
+    border: 2px solid #287828;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 2px 0 #206820;
+  }
+  .sb-mislead-check {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .sb-mislead-lines {
+    position: absolute;
+    bottom: 4px;
+    left: 5px;
+    right: 5px;
+    height: 2px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 1px;
+    box-shadow: 0 -4px 0 rgba(255,255,255,0.6);
+  }
+  .sb-mislead-x {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 45% 40%, #ee5544, #cc3333);
+    border: 1px solid #aa2222;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: bold;
+    color: #fff;
+    box-shadow: 0 1px 0 #881818;
+  }
+</style>
+</head>
+<body>
+
+<h1>Enemies & Hazards — 16-Bit Styles</h1>
+<p class="page-sub">All 6 enemies and 5 hazards rendered in both art styles. Enemies are abstract physiological threats — no food is the villain.</p>
+
+<!-- ==================== STYLE A ==================== -->
+<div class="style-section">
+  <div class="style-header">Style A — Bold Outlined</div>
+  <div class="style-desc">Thick dark outlines, flat fills, strong silhouettes. High contrast and immediately readable.</div>
+
+  <div class="group">
+    <div class="group-label enemy-label">Enemies</div>
+    <div class="items-row">
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-phantom">
+            <div class="sa-phantom-body">
+              <div class="sa-phantom-eye l"><div class="sa-phantom-pupil"></div></div>
+              <div class="sa-phantom-eye r"><div class="sa-phantom-pupil"></div></div>
+              <div class="sa-phantom-mouth"></div>
+            </div>
+            <div class="sa-phantom-tail">
+              <div class="sa-phantom-wisp"></div>
+              <div class="sa-phantom-wisp"></div>
+              <div class="sa-phantom-wisp"></div>
+              <div class="sa-phantom-wisp"></div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-name">Fatigue Phantom</div>
+        <div class="entity-behavior">Drifts toward player; faster when energy is low</div>
+        <div class="entity-theme">Exhaustion</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-sprite">
+            <div class="sa-sprite-body">
+              <div class="sa-sprite-eye l"></div>
+              <div class="sa-sprite-eye r"></div>
+            </div>
+            <div class="sa-sprite-zap z1">⚡</div>
+            <div class="sa-sprite-zap z2">⚡</div>
+            <div class="sa-sprite-zap z3">⚡</div>
+          </div>
+        </div>
+        <div class="entity-name">Stress Sprite</div>
+        <div class="entity-behavior">Erratic clusters; unpredictable zigzag</div>
+        <div class="entity-theme">Stress</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-radical">
+            <div class="sa-radical-spike s1"></div>
+            <div class="sa-radical-spike s2"></div>
+            <div class="sa-radical-spike s3"></div>
+            <div class="sa-radical-spike s4"></div>
+            <div class="sa-radical-spike s5"></div>
+            <div class="sa-radical-spike s6"></div>
+            <div class="sa-radical-body">
+              <div class="sa-radical-eye l"></div>
+              <div class="sa-radical-eye r"></div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-name">Free Radical</div>
+        <div class="entity-behavior">Bounces off walls; splits into two when stomped</div>
+        <div class="entity-theme">Oxidative stress</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-blob">
+            <div class="sa-blob-body">
+              <div class="sa-blob-eye l"></div>
+              <div class="sa-blob-eye r"></div>
+            </div>
+            <div class="sa-blob-drip d1"></div>
+            <div class="sa-blob-drip d2"></div>
+            <div class="sa-blob-drip d3"></div>
+          </div>
+        </div>
+        <div class="entity-name">Entropy Blob</div>
+        <div class="entity-behavior">Expands over time to block paths</div>
+        <div class="entity-theme">System disorder</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-slime">
+            <div class="sa-slime-body">
+              <div class="sa-slime-eye l"></div>
+              <div class="sa-slime-eye r"></div>
+            </div>
+            <div class="sa-slime-puddle"></div>
+          </div>
+        </div>
+        <div class="entity-name">Sedentary Slime</div>
+        <div class="entity-behavior">Grows to cover platforms; sticks player</div>
+        <div class="entity-theme">Sluggishness</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-wisp">
+            <div class="sa-wisp-trail t1"></div>
+            <div class="sa-wisp-trail t2"></div>
+            <div class="sa-wisp-body">
+              <div class="sa-wisp-eye l"></div>
+              <div class="sa-wisp-eye r"></div>
+            </div>
+            <div class="sa-wisp-fog"></div>
+          </div>
+        </div>
+        <div class="entity-name">Brain Fog Wisp</div>
+        <div class="entity-behavior">Drops fog patches that obscure view</div>
+        <div class="entity-theme">Brain fog</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label hazard-label">Hazards</div>
+    <div class="items-row">
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-geyser">
+            <div class="sa-geyser-base"><div class="sa-geyser-label"></div></div>
+            <div class="sa-geyser-spray">
+              <div class="sa-geyser-drop d1"></div>
+              <div class="sa-geyser-drop d2"></div>
+              <div class="sa-geyser-drop d3"></div>
+              <div class="sa-geyser-drop d4"></div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-name">Soda Geyser</div>
+        <div class="entity-behavior">Launches player uncontrollably upward</div>
+        <div class="entity-theme">Sugar rush</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-crashpit">
+            <div class="sa-crashpit-wave">~ ~ ~</div>
+            <div class="sa-crashpit-body"></div>
+          </div>
+        </div>
+        <div class="entity-name">Crash Pit</div>
+        <div class="entity-behavior">Quicksand zones that slow movement</div>
+        <div class="entity-theme">Energy crash</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-fogbank">
+            <div class="sa-fog-puff f1"></div>
+            <div class="sa-fog-puff f2"></div>
+            <div class="sa-fog-puff f3"></div>
+          </div>
+        </div>
+        <div class="entity-name">Fog Bank</div>
+        <div class="entity-behavior">Obscures upcoming platforms and items</div>
+        <div class="entity-theme">Brain fog</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-inflam">
+            <div class="sa-inflam-body">
+              <div class="sa-inflam-pulse"></div>
+            </div>
+            <div class="sa-inflam-wave"></div>
+          </div>
+        </div>
+        <div class="entity-name">Inflammation Zone</div>
+        <div class="entity-behavior">Pulsing area that drains energy over time</div>
+        <div class="entity-theme">Chronic inflammation</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sa-mislead">
+            <div class="sa-mislead-body">
+              <div class="sa-mislead-check">✓</div>
+              <div class="sa-mislead-lines"></div>
+            </div>
+            <div class="sa-mislead-x">✕</div>
+          </div>
+        </div>
+        <div class="entity-name">Misleading Label</div>
+        <div class="entity-behavior">Looks healthy but isn't what it seems</div>
+        <div class="entity-theme">Food marketing</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STYLE B ==================== -->
+<div class="style-section">
+  <div class="style-header">Style B — Soft Shaded</div>
+  <div class="style-desc">Gradient fills, glow effects, no hard outlines. Ethereal enemies and atmospheric hazards.</div>
+
+  <div class="group">
+    <div class="group-label enemy-label">Enemies</div>
+    <div class="items-row">
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-phantom">
+            <div class="sb-phantom-body">
+              <div class="sb-phantom-eye l"><div class="sb-phantom-pupil"></div></div>
+              <div class="sb-phantom-eye r"><div class="sb-phantom-pupil"></div></div>
+              <div class="sb-phantom-mouth"></div>
+            </div>
+            <div class="sb-phantom-tail">
+              <div class="sb-phantom-wisp"></div>
+              <div class="sb-phantom-wisp"></div>
+              <div class="sb-phantom-wisp"></div>
+              <div class="sb-phantom-wisp"></div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-name">Fatigue Phantom</div>
+        <div class="entity-behavior">Drifts toward player; faster when energy is low</div>
+        <div class="entity-theme">Exhaustion</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-sprite">
+            <div class="sb-sprite-zap z1">⚡</div>
+            <div class="sb-sprite-zap z2">⚡</div>
+            <div class="sb-sprite-zap z3">⚡</div>
+            <div class="sb-sprite-body">
+              <div class="sb-sprite-eye l"><div class="sb-sprite-pupil2"></div></div>
+              <div class="sb-sprite-eye r"><div class="sb-sprite-pupil2"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-name">Stress Sprite</div>
+        <div class="entity-behavior">Erratic clusters; unpredictable zigzag</div>
+        <div class="entity-theme">Stress</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-radical">
+            <div class="sb-radical-spike s1"></div>
+            <div class="sb-radical-spike s2"></div>
+            <div class="sb-radical-spike s3"></div>
+            <div class="sb-radical-spike s4"></div>
+            <div class="sb-radical-spike s5"></div>
+            <div class="sb-radical-spike s6"></div>
+            <div class="sb-radical-body">
+              <div class="sb-radical-eye l"></div>
+              <div class="sb-radical-eye r"></div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-name">Free Radical</div>
+        <div class="entity-behavior">Bounces off walls; splits into two when stomped</div>
+        <div class="entity-theme">Oxidative stress</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-blob">
+            <div class="sb-blob-body">
+              <div class="sb-blob-eye l"></div>
+              <div class="sb-blob-eye r"></div>
+            </div>
+            <div class="sb-blob-drip d1"></div>
+            <div class="sb-blob-drip d2"></div>
+            <div class="sb-blob-drip d3"></div>
+          </div>
+        </div>
+        <div class="entity-name">Entropy Blob</div>
+        <div class="entity-behavior">Expands over time to block paths</div>
+        <div class="entity-theme">System disorder</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-slime">
+            <div class="sb-slime-body">
+              <div class="sb-slime-eye l"><div class="sb-slime-pupil3"></div></div>
+              <div class="sb-slime-eye r"><div class="sb-slime-pupil3"></div></div>
+            </div>
+            <div class="sb-slime-puddle"></div>
+          </div>
+        </div>
+        <div class="entity-name">Sedentary Slime</div>
+        <div class="entity-behavior">Grows to cover platforms; sticks player</div>
+        <div class="entity-theme">Sluggishness</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-wisp">
+            <div class="sb-wisp-trail t1"></div>
+            <div class="sb-wisp-trail t2"></div>
+            <div class="sb-wisp-body">
+              <div class="sb-wisp-eye l"></div>
+              <div class="sb-wisp-eye r"></div>
+            </div>
+            <div class="sb-wisp-fog"></div>
+          </div>
+        </div>
+        <div class="entity-name">Brain Fog Wisp</div>
+        <div class="entity-behavior">Drops fog patches that obscure view</div>
+        <div class="entity-theme">Brain fog</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label hazard-label">Hazards</div>
+    <div class="items-row">
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-geyser">
+            <div class="sb-geyser-base"><div class="sb-geyser-label"></div></div>
+            <div class="sb-geyser-drop d1"></div>
+            <div class="sb-geyser-drop d2"></div>
+            <div class="sb-geyser-drop d3"></div>
+            <div class="sb-geyser-drop d4"></div>
+          </div>
+        </div>
+        <div class="entity-name">Soda Geyser</div>
+        <div class="entity-behavior">Launches player uncontrollably upward</div>
+        <div class="entity-theme">Sugar rush</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-crashpit">
+            <div class="sb-crashpit-body">
+              <div class="sb-crashpit-shimmer"></div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-name">Crash Pit</div>
+        <div class="entity-behavior">Quicksand zones that slow movement</div>
+        <div class="entity-theme">Energy crash</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-fogbank">
+            <div class="sb-fog-puff f1"></div>
+            <div class="sb-fog-puff f2"></div>
+            <div class="sb-fog-puff f3"></div>
+          </div>
+        </div>
+        <div class="entity-name">Fog Bank</div>
+        <div class="entity-behavior">Obscures upcoming platforms and items</div>
+        <div class="entity-theme">Brain fog</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-inflam">
+            <div class="sb-inflam-body">
+              <div class="sb-inflam-pulse"></div>
+            </div>
+            <div class="sb-inflam-wave"></div>
+          </div>
+        </div>
+        <div class="entity-name">Inflammation Zone</div>
+        <div class="entity-behavior">Pulsing area that drains energy over time</div>
+        <div class="entity-theme">Chronic inflammation</div>
+      </div>
+
+      <div class="entity-card">
+        <div class="sprite-area">
+          <div class="sb-mislead">
+            <div class="sb-mislead-body">
+              <div class="sb-mislead-check">✓</div>
+              <div class="sb-mislead-lines"></div>
+            </div>
+            <div class="sb-mislead-x">✕</div>
+          </div>
+        </div>
+        <div class="entity-name">Misleading Label</div>
+        <div class="entity-behavior">Looks healthy but isn't what it seems</div>
+        <div class="entity-theme">Food marketing</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
