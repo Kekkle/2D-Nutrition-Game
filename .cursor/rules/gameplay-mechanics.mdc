@@ -19,6 +19,18 @@ These rules apply to all levels and game modes.
 
 Enemies use **solid fills with bold 3px outlines** matching `mockups/enemies-hazards-transparent.html`. They are distinct, visible threats — not translucent. Sprite backgrounds are transparent; the enemies themselves are opaque with clear outlines.
 
+## Enemy Stomping
+
+The player can **jump on top of enemies** without losing energy. Landing on an enemy from above (stomp) bounces the player upward and damages the enemy. Only side/front contact causes energy loss. This applies to all levels.
+
+## Energy Ball Attack
+
+The player can **throw energy balls** by clicking with the mouse. The ball travels toward the cursor's world position. Hitting an active enemy damages it. Each throw costs a small amount of energy (`BALL_COST`). This applies to all levels.
+
+## Enemy HP
+
+Enemies have **3 HP**. Each stomp or energy ball hit reduces HP by 1. The enemy flashes and shows remaining HP on each hit. The enemy is only defeated when HP reaches 0. This applies to all levels.
+
 ## Clouds
 
 Clouds are always **fully opaque** (`alpha: 1`), not translucent.

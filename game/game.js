@@ -72,22 +72,24 @@ const FOOD_DEFS = {
 
 const L1 = {
   platforms: [
-    { x: 280,  y: 320, w: 120 },
-    { x: 630,  y: 260, w: 100 },
-    { x: 980,  y: 300, w: 140 },
-    { x: 1470, y: 280, w: 120 },
-    { x: 1890, y: 340, w: 100 },
-    { x: 2310, y: 230, w: 120 },
-    { x: 2660, y: 310, w: 100 },
-    { x: 3010, y: 260, w: 140 },
-    { x: 3430, y: 190, w: 100 },
-    { x: 3780, y: 320, w: 120 },
-    { x: 4200, y: 280, w: 100 },
-    { x: 4620, y: 340, w: 140 },
-    { x: 4970, y: 220, w: 100 },
-    { x: 5390, y: 300, w: 120 },
-    { x: 5810, y: 270, w: 100 },
-    { x: 6230, y: 320, w: 140 },
+    { x: 280,  y: 320, w: 120 },   // 0
+    { x: 630,  y: 260, w: 100 },   // 1
+    { x: 980,  y: 300, w: 140 },   // 2
+    { x: 1470, y: 280, w: 120 },   // 3
+    { x: 1890, y: 340, w: 100 },   // 4
+    { x: 2310, y: 230, w: 120 },   // 5
+    { x: 2660, y: 310, w: 100 },   // 6
+    { x: 3010, y: 260, w: 140 },   // 7
+    { x: 3220, y: 320, w: 80 },    // 8  stepping stone toward plat 9
+    { x: 3430, y: 190, w: 100 },   // 9  (was 8) high platform — sushi & pear
+    { x: 3780, y: 320, w: 120 },   // 10
+    { x: 4200, y: 280, w: 100 },   // 11
+    { x: 4620, y: 340, w: 140 },   // 12
+    { x: 4970, y: 220, w: 100 },   // 13
+    { x: 5390, y: 300, w: 120 },   // 14
+    { x: 5600, y: 340, w: 80 },    // 15 stepping stone toward plat 16
+    { x: 5810, y: 270, w: 100 },   // 16 (was 14) sweet potato
+    { x: 6230, y: 320, w: 140 },   // 17
   ],
   foods: [
     // Starchy carbs — ground (easy pickups)
@@ -108,12 +110,12 @@ const L1 = {
     { id: 'brown_rice',  x: 1930, platIdx: 4 },
     { id: 'orange',      x: 2350, platIdx: 5 },
     { id: 'sweetcorn',   x: 3050, platIdx: 7 },
-    { id: 'pear',        x: 3460, platIdx: 8 },
-    { id: 'raspberries', x: 3820, platIdx: 9 },
-    { id: 'watermelon',  x: 4240, platIdx: 10 },
-    { id: 'cherry',      x: 4660, platIdx: 11 },
-    { id: 'carrots',     x: 5430, platIdx: 13 },
-    { id: 'sweetpotato', x: 5850, platIdx: 14 },
+    { id: 'pear',        x: 3460, platIdx: 9 },
+    { id: 'raspberries', x: 3820, platIdx: 10 },
+    { id: 'watermelon',  x: 4240, platIdx: 11 },
+    { id: 'cherry',      x: 4660, platIdx: 12 },
+    { id: 'carrots',     x: 5430, platIdx: 14 },
+    { id: 'sweetpotato', x: 5850, platIdx: 16 },
     // Fibre+ carbs — ground (mixed in)
     { id: 'broccoli',    x: 2100, onGround: true },
     { id: 'tomato',      x: 3640, onGround: true },
@@ -129,7 +131,7 @@ const L1 = {
     { id: 'fries',       x: 2940, onGround: true, fun: true },
     { id: 'donut',       x: 5040, onGround: true, fun: true },
     // Rare item — hidden on high platform
-    { id: 'sushi',       x: 3470, platIdx: 8, rare: true },
+    { id: 'sushi',       x: 3470, platIdx: 9, rare: true },
   ],
   energyCells: [
     450, 480, 800, 830, 1220, 1250, 1280, 1640, 1670,
@@ -142,8 +144,8 @@ const L1 = {
     { x: 650, pi: 1 },  { x: 690, pi: 1 },
     { x: 1490, pi: 3 }, { x: 1530, pi: 3 },
     { x: 2330, pi: 5 }, { x: 2370, pi: 5 },
-    { x: 3450, pi: 8 }, { x: 3480, pi: 8 },
-    { x: 4990, pi: 12 }, { x: 5020, pi: 12 },
+    { x: 3450, pi: 9 }, { x: 3480, pi: 9 },
+    { x: 4990, pi: 13 }, { x: 5020, pi: 13 },
   ],
   phantoms: [
     { x: 2940 }, { x: 3780 }, { x: 4490 }, { x: 5180 }, { x: 6020 },
@@ -172,6 +174,7 @@ class BootScene extends Phaser.Scene {
     this.generateNibble();
     this.generateFoods();
     this.generateEnergyCell();
+    this.generateEnergyBall();
     this.generatePhantom();
     this.generateStar();
     this.generateFinishFlag();
@@ -543,6 +546,15 @@ class BootScene extends Phaser.Scene {
     g.destroy();
   }
 
+  generateEnergyBall() {
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0x40e8a0); g.fillCircle(6, 6, 6);
+    g.fillStyle(0x80ffd0, 0.7); g.fillCircle(5, 5, 4);
+    g.fillStyle(0xffffff, 0.6); g.fillCircle(4, 3, 2);
+    g.generateTexture('energy_ball', 12, 12);
+    g.destroy();
+  }
+
   generatePhantom() {
     const g = this.make.graphics({ add: false });
     const P = 2;
@@ -647,12 +659,15 @@ class SplashScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.add.text(cx, cy + 85, 'WATCH OUT:', { fontFamily: 'Courier New', fontSize: '14px', color: '#cc6666' }).setOrigin(0.5);
-    this.add.text(cx, cy + 104, 'Fatigue Phantoms drain your energy\nif they catch you!', {
+    this.add.text(cx, cy + 104, 'Fatigue Phantoms drain your energy!\nJump on them or throw energy balls.', {
       fontFamily: 'Courier New', fontSize: '12px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
     }).setOrigin(0.5);
 
-    this.add.text(cx, cy + 140, '← → Move    ↑ / SPACE Jump    ↓ Duck', {
+    this.add.text(cx, cy + 130, '← → Move    ↑ / SPACE Jump    ↓ Duck', {
       fontFamily: 'Courier New', fontSize: '10px', color: '#666666',
+    }).setOrigin(0.5);
+    this.add.text(cx, cy + 146, 'CLICK to throw energy balls at enemies!', {
+      fontFamily: 'Courier New', fontSize: '10px', color: '#40e8a0',
     }).setOrigin(0.5);
 
     const btnY = cy + 170;
@@ -709,10 +724,17 @@ class GameScene extends Phaser.Scene {
     this.createFinish();
     this.createHUD();
 
+    this.createEnergyBalls();
+
     this.cameras.main.startFollow(this.player, true, 0.08, 0);
     this.cameras.main.setDeadzone(100, GAME_H);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+    this.input.on('pointerdown', (pointer) => {
+      if (this.levelComplete || this.levelFailed || this.isPaused) return;
+      this.fireEnergyBall(pointer);
+    });
   }
 
   drawBackground() {
@@ -917,6 +939,7 @@ class GameScene extends Phaser.Scene {
       phantom.setData('active', false);
       phantom.setData('telegraph', telegraph);
       phantom.setData('originX', p.x);
+      phantom.setData('hp', 3);
       this.phantomData.push(phantom);
     }
     this.physics.add.overlap(this.player, this.phantomGroup, this.phantomHit, null, this);
@@ -924,6 +947,17 @@ class GameScene extends Phaser.Scene {
 
   phantomHit(player, phantom) {
     if (this.isInvincible || !phantom.getData('active') || this.levelComplete || this.levelFailed) return;
+
+    const playerBottom = player.body.y + player.body.height;
+    const phantomTop = phantom.body.y;
+    const isStomp = player.body.velocity.y > 0 && playerBottom < phantomTop + 16;
+
+    if (isStomp) {
+      player.setVelocityY(PLAYER_JUMP * 0.6);
+      this.damagePhantom(phantom, 'Stomped!');
+      return;
+    }
+
     this.energy = Math.max(0, this.energy - PHANTOM_DMG);
     this.dmgTaken = true;
     this.isInvincible = true;
@@ -1008,6 +1042,53 @@ class GameScene extends Phaser.Scene {
       this.showCollectFX(ax, ay - 20, '#f0c040', '★ Hidden Alcove!');
       starHint.destroy();
     }, null, this);
+  }
+
+  createEnergyBalls() {
+    this.ballGroup = this.physics.add.group({ allowGravity: false });
+    this.physics.add.overlap(this.ballGroup, this.phantomGroup, this.ballHitPhantom, null, this);
+  }
+
+  fireEnergyBall(pointer) {
+    const BALL_SPEED = 500;
+    const BALL_COST = 2;
+    if (this.energy < BALL_COST + 5) return;
+    this.energy -= BALL_COST;
+
+    const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const ball = this.ballGroup.create(this.player.x, this.player.y - 10, 'energy_ball');
+    ball.setDepth(11);
+    ball.body.setCircle(6);
+
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y - 10, worldPoint.x, worldPoint.y);
+    ball.body.setVelocity(Math.cos(angle) * BALL_SPEED, Math.sin(angle) * BALL_SPEED);
+
+    this.time.delayedCall(2000, () => { if (ball.active) ball.destroy(); });
+  }
+
+  ballHitPhantom(ball, phantom) {
+    if (!phantom.getData('active')) return;
+    this.damagePhantom(phantom, 'Hit!');
+    ball.destroy();
+  }
+
+  damagePhantom(phantom, label) {
+    const hp = phantom.getData('hp') - 1;
+    phantom.setData('hp', hp);
+    if (hp <= 0) {
+      this.showCollectFX(phantom.x, phantom.y - 20, '#40e8a0', 'Defeated!');
+      phantom.setData('active', false);
+      this.tweens.add({
+        targets: phantom, alpha: 0, scale: 0.3, duration: 400,
+        onComplete: () => phantom.destroy(),
+      });
+    } else {
+      this.showCollectFX(phantom.x, phantom.y - 20, '#80ccaa', label + ' ' + hp + '/3');
+      this.tweens.add({
+        targets: phantom, alpha: 0.3, duration: 80, yoyo: true, repeat: 2,
+        onComplete: () => phantom.setAlpha(1),
+      });
+    }
   }
 
   createFinish() {
