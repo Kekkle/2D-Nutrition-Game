@@ -1,0 +1,1330 @@
+// =================================================================
+// NutriRun — Level 1: Carbohydrates
+// A 2D nutrition platformer built with Phaser 3
+// Style: 16-Bit Pixel Art (Style A — Bold Outlined / Thin-outline food)
+// =================================================================
+
+const GAME_W = 960;
+const GAME_H = 540;
+const LEVEL_W = 6800;
+const GROUND_Y = 420;
+const GROUND_H = 120;
+
+const PLAYER_SPEED = 250;
+const PLAYER_JUMP = -520;
+const DUCK_SPEED = 120;
+const PHANTOM_SPEED = 55;
+const PHANTOM_DETECT = 280;
+
+const ENERGY_START = 100;
+const ENERGY_DRAIN = 0.85;
+const ENERGY_DRAIN_IDLE = 0.2;
+const ENERGY_CARB = 7;
+const ENERGY_FIBRE = 9;
+const ENERGY_NEUTRAL = 3;
+const ENERGY_FUN = 12;
+const ENERGY_RARE = 15;
+const PHANTOM_DMG = 10;
+const CARBS_NEEDED = 14;
+
+// All food definitions — matches food-items-inventory-thin.html
+const FOOD_DEFS = {
+  // L1 Starchy (texture size includes 2px padding each side)
+  white_bread:  { name: 'White Bread',  type: 'starchy', w: 32, h: 28 },
+  white_rice:   { name: 'White Rice',   type: 'starchy', w: 34, h: 26 },
+  pasta:        { name: 'Pasta',        type: 'starchy', w: 30, h: 22 },
+  potato:       { name: 'Potato',       type: 'starchy', w: 30, h: 24 },
+  cereal:       { name: 'Cereal',       type: 'starchy', w: 32, h: 24 },
+  tortilla:     { name: 'Tortilla',     type: 'starchy', w: 32, h: 20 },
+  pita:         { name: 'Pita Bread',   type: 'starchy', w: 32, h: 22 },
+  // L1 Fibre+
+  brown_bread:  { name: 'Whole Grain',  type: 'fibre',   w: 32, h: 28 },
+  brown_rice:   { name: 'Brown Rice',   type: 'fibre',   w: 34, h: 26 },
+  oats:         { name: 'Oats',         type: 'fibre',   w: 32, h: 24 },
+  banana:       { name: 'Banana',       type: 'fibre',   w: 32, h: 18 },
+  apple:        { name: 'Apple',        type: 'fibre',   w: 28, h: 37 },
+  orange:       { name: 'Orange',       type: 'fibre',   w: 28, h: 32 },
+  sweetcorn:    { name: 'Sweetcorn',    type: 'fibre',   w: 18, h: 37 },
+  pear:         { name: 'Pear',         type: 'fibre',   w: 24, h: 37 },
+  raspberries:  { name: 'Raspberries',  type: 'fibre',   w: 26, h: 24 },
+  watermelon:   { name: 'Watermelon',   type: 'fibre',   w: 32, h: 20 },
+  grapes:       { name: 'Grapes',       type: 'fibre',   w: 22, h: 26 },
+  cherry:       { name: 'Cherry',       type: 'fibre',   w: 28, h: 26 },
+  broccoli:     { name: 'Broccoli',     type: 'fibre',   w: 28, h: 34 },
+  carrots:      { name: 'Carrots',      type: 'fibre',   w: 18, h: 38 },
+  tomato:       { name: 'Tomato',       type: 'fibre',   w: 28, h: 28 },
+  cucumber:     { name: 'Cucumber',     type: 'fibre',   w: 18, h: 30 },
+  sweetpotato:  { name: 'Sweet Potato', type: 'fibre',   w: 32, h: 22 },
+  chia:         { name: 'Chia Seeds',   type: 'fibre',   w: 28, h: 28 },
+  // L2 Protein (neutral in L1)
+  egg:          { name: 'Egg',          type: 'neutral', w: 26, h: 30 },
+  chicken:      { name: 'Chicken',      type: 'neutral', w: 50, h: 22 },
+  cheese:       { name: 'Cheese',       type: 'neutral', w: 30, h: 26 },
+  // Fun foods — quick energy
+  fries:        { name: 'Fries',        type: 'fun',     w: 28, h: 32 },
+  cookie:       { name: 'Cookie',       type: 'fun',     w: 30, h: 30 },
+  donut:        { name: 'Donut',        type: 'fun',     w: 34, h: 32 },
+  // Rare items
+  sushi:        { name: 'Sushi',        type: 'rare',    w: 28, h: 26 },
+};
+
+// ----- Level 1 layout -----
+
+const L1 = {
+  platforms: [
+    { x: 280,  y: 320, w: 120 },
+    { x: 630,  y: 260, w: 100 },
+    { x: 980,  y: 300, w: 140 },
+    { x: 1470, y: 280, w: 120 },
+    { x: 1890, y: 340, w: 100 },
+    { x: 2310, y: 230, w: 120 },
+    { x: 2660, y: 310, w: 100 },
+    { x: 3010, y: 260, w: 140 },
+    { x: 3430, y: 190, w: 100 },
+    { x: 3780, y: 320, w: 120 },
+    { x: 4200, y: 280, w: 100 },
+    { x: 4620, y: 340, w: 140 },
+    { x: 4970, y: 220, w: 100 },
+    { x: 5390, y: 300, w: 120 },
+    { x: 5810, y: 270, w: 100 },
+    { x: 6230, y: 320, w: 140 },
+  ],
+  foods: [
+    // Starchy carbs — ground (easy pickups)
+    { id: 'white_bread', x: 350,  onGround: true },
+    { id: 'white_rice',  x: 770,  onGround: true },
+    { id: 'pasta',       x: 1190, onGround: true },
+    { id: 'potato',      x: 1680, onGround: true },
+    { id: 'cereal',      x: 2450, onGround: true },
+    { id: 'tortilla',    x: 3300, onGround: true },
+    { id: 'pita',        x: 4000, onGround: true },
+    { id: 'white_bread', x: 4760, onGround: true },
+    { id: 'pasta',       x: 5740, onGround: true },
+    // Fibre+ carbs — platforms (reward exploration)
+    { id: 'oats',        x: 320,  platIdx: 0 },
+    { id: 'banana',      x: 670,  platIdx: 1 },
+    { id: 'apple',       x: 1020, platIdx: 2 },
+    { id: 'brown_bread', x: 1510, platIdx: 3 },
+    { id: 'brown_rice',  x: 1930, platIdx: 4 },
+    { id: 'orange',      x: 2350, platIdx: 5 },
+    { id: 'sweetcorn',   x: 3050, platIdx: 7 },
+    { id: 'pear',        x: 3460, platIdx: 8 },
+    { id: 'raspberries', x: 3820, platIdx: 9 },
+    { id: 'watermelon',  x: 4240, platIdx: 10 },
+    { id: 'cherry',      x: 4660, platIdx: 11 },
+    { id: 'carrots',     x: 5430, platIdx: 13 },
+    { id: 'sweetpotato', x: 5850, platIdx: 14 },
+    // Fibre+ carbs — ground (mixed in)
+    { id: 'broccoli',    x: 2100, onGround: true },
+    { id: 'tomato',      x: 3640, onGround: true },
+    { id: 'grapes',      x: 4340, onGround: true },
+    { id: 'cucumber',    x: 5180, onGround: true },
+    { id: 'chia',        x: 6160, onGround: true },
+    // Neutral protein/fat items
+    { id: 'egg',         x: 630,  onGround: true, neutral: true },
+    { id: 'chicken',     x: 2660, onGround: true, neutral: true },
+    { id: 'cheese',      x: 4490, onGround: true, neutral: true },
+    // Fun foods — quick energy
+    { id: 'cookie',      x: 1470, onGround: true, fun: true },
+    { id: 'fries',       x: 2940, onGround: true, fun: true },
+    { id: 'donut',       x: 5040, onGround: true, fun: true },
+    // Rare item — hidden on high platform
+    { id: 'sushi',       x: 3470, platIdx: 8, rare: true },
+  ],
+  energyCells: [
+    450, 480, 800, 830, 1220, 1250, 1280, 1640, 1670,
+    2130, 2160, 2550, 2580, 3080, 3110, 3600, 3630,
+    4020, 4050, 4440, 4470, 5050, 5080, 5460, 5490,
+    5880, 5910, 6240, 6270, 6310,
+  ],
+  cellsOnPlats: [
+    { x: 310, pi: 0 },  { x: 360, pi: 0 },
+    { x: 650, pi: 1 },  { x: 690, pi: 1 },
+    { x: 1490, pi: 3 }, { x: 1530, pi: 3 },
+    { x: 2330, pi: 5 }, { x: 2370, pi: 5 },
+    { x: 3450, pi: 8 }, { x: 3480, pi: 8 },
+    { x: 4990, pi: 12 }, { x: 5020, pi: 12 },
+  ],
+  phantoms: [
+    { x: 2940 }, { x: 3780 }, { x: 4490 }, { x: 5180 }, { x: 6020 },
+  ],
+  crashPits: [
+    { x: 1990, w: 240 },
+    { x: 4870, w: 240 },
+  ],
+  finishX: 6600,
+};
+
+const FIBRE_IDS = [
+  'brown_bread','brown_rice','oats','banana','apple','orange','sweetcorn',
+  'pear','raspberries','watermelon','grapes','cherry','broccoli','carrots',
+  'tomato','cucumber','sweetpotato','chia',
+];
+
+// =================================================================
+// BOOT SCENE — Generate all textures
+// =================================================================
+
+class BootScene extends Phaser.Scene {
+  constructor() { super('Boot'); }
+
+  create() {
+    this.generateNibble();
+    this.generateFoods();
+    this.generateEnergyCell();
+    this.generatePhantom();
+    this.generateStar();
+    this.generateFinishFlag();
+    this.scene.start('Splash');
+  }
+
+
+  generateNibble() {
+    const P = 2;
+    const states = [
+      { key: 'nibble',           body: 0x48a8e0, border: 0x2868a0, shadow: 0x1a4878, foot: 0x48a8e0, footBorder: 0x2868a0, highlight: 0x68c8f8, hlAlpha: 0.6, blush: 0xf08ca0, smile: 0x1a4878 },
+      { key: 'nibble_energized', body: 0xf0d040, border: 0xc8a020, shadow: 0xa08018, foot: 0xf0d040, footBorder: 0xc8a020, highlight: 0xf8e878, hlAlpha: 0.8, blush: 0xffa078, smile: 0xa08018 },
+      { key: 'nibble_tired',     body: 0xb0b8c0, border: 0x8890a0, shadow: 0x686878, foot: 0xb0b8c0, footBorder: 0x8890a0, highlight: 0xc8d0d8, hlAlpha: 0.3, blush: null,     smile: null },
+    ];
+    const tired = (s) => s.key === 'nibble_tired';
+
+    for (const s of states) {
+      const g = this.make.graphics({ add: false });
+      const footR = { tl: 0, tr: 0, bl: 6, br: 6 };
+
+      // Feet (drawn first, body shadow partially covers their tops)
+      g.fillStyle(s.foot);
+      g.fillRoundedRect(P + 4, P + 44, 14, 10, footR);
+      g.fillRoundedRect(P + 26, P + 44, 14, 10, footR);
+      g.lineStyle(3, s.footBorder);
+      g.strokeRoundedRect(P + 4, P + 44, 14, 10, footR);
+      g.strokeRoundedRect(P + 26, P + 44, 14, 10, footR);
+
+      // Body shadow
+      g.fillStyle(s.shadow);
+      g.fillRoundedRect(P, P + 3, 44, 44, 10);
+
+      // Main body
+      g.fillStyle(s.body);
+      g.fillRoundedRect(P, P, 44, 44, 10);
+      g.lineStyle(3, s.border);
+      g.strokeRoundedRect(P, P, 44, 44, 10);
+
+      // Highlight shine
+      g.fillStyle(s.highlight, s.hlAlpha);
+      g.fillRoundedRect(P + 5, P + 4, 14, 8, 4);
+
+      // Eyes
+      const eyeH = tired(s) ? 7 : 14;
+      const eyeY = tired(s) ? 16 : 10;
+      const eyeR = tired(s) ? { tl: 8, tr: 8, bl: 3, br: 3 } : eyeH / 2;
+      g.fillStyle(0xffffff);
+      g.fillRoundedRect(P + 5, P + eyeY, 12, eyeH, eyeR);
+      g.fillRoundedRect(P + 27, P + eyeY, 12, eyeH, eyeR);
+      g.lineStyle(2, tired(s) ? 0x999999 : 0xaaaaaa);
+      g.strokeRoundedRect(P + 5, P + eyeY, 12, eyeH, eyeR);
+      g.strokeRoundedRect(P + 27, P + eyeY, 12, eyeH, eyeR);
+
+      // Pupils
+      const pupilH = tired(s) ? 5 : 8;
+      const pupilY = P + eyeY + eyeH - pupilH;
+      g.fillStyle(0x1a2a3a);
+      g.fillEllipse(P + 14, pupilY + pupilH / 2, 6, pupilH);
+      g.fillEllipse(P + 36, pupilY + pupilH / 2, 6, pupilH);
+
+      // Pupil shine
+      if (!tired(s)) {
+        g.fillStyle(0xffffff);
+        g.fillCircle(P + 15, pupilY + 1, 1.5);
+        g.fillCircle(P + 37, pupilY + 1, 1.5);
+      }
+
+      // Blush
+      if (s.blush) {
+        g.fillStyle(s.blush, 0.45);
+        g.fillEllipse(P + 6, P + 36, 8, 5);
+        g.fillEllipse(P + 38, P + 36, 8, 5);
+      }
+
+      // Smile
+      if (s.smile) {
+        g.lineStyle(3, s.smile);
+        g.beginPath();
+        g.arc(P + 22, P + 34, 6, 0.2, Math.PI - 0.2, false);
+        g.strokePath();
+      }
+
+      g.generateTexture(s.key, 48, 58);
+      g.destroy();
+    }
+  }
+
+  generateFoods() {
+    const g = this.make.graphics({ add: false });
+    const P = 2;
+
+    // --- L1 STARCHY --- (exact colors from food-items-sprites.html)
+
+    // White Bread — sa-bread: #e8b84c / #b8882a
+    g.clear(); g.fillStyle(0xe8b84c); g.fillRoundedRect(P, P, 28, 24, { tl: 8, tr: 8, bl: 3, br: 3 });
+    g.lineStyle(2, 0xb8882a); g.strokeRoundedRect(P, P, 28, 24, { tl: 8, tr: 8, bl: 3, br: 3 });
+    g.fillStyle(0xd4a040); g.fillRoundedRect(P+3, P+4, 22, 3, 2);
+    g.fillStyle(0xdaa848); g.fillRoundedRect(P+3, P+9, 22, 3, 2);
+    g.generateTexture('food_white_bread', 32, 28);
+
+    // White Rice — sa-rice: #f5f0e0 / #c0b898
+    g.clear(); g.fillStyle(0xf5f0e0); g.fillRoundedRect(P, P+4, 30, 18, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.lineStyle(2, 0xc0b898); g.strokeRoundedRect(P, P+4, 30, 18, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.fillStyle(0xf5f0e0); g.lineStyle(1, 0xc0b898);
+    g.fillCircle(P+7, P+2, 2); g.strokeCircle(P+7, P+2, 2);
+    g.fillCircle(P+14, P+1, 2); g.strokeCircle(P+14, P+1, 2);
+    g.fillCircle(P+21, P+2, 2); g.strokeCircle(P+21, P+2, 2);
+    g.generateTexture('food_white_rice', 34, 26);
+
+    // Pasta — sa-pasta: two wavy strips #f0d870 / #b8a040
+    g.clear();
+    g.fillStyle(0xf0d870); g.fillRoundedRect(P+1, P+1, 22, 5, { tl: 0, tr: 8, bl: 8, br: 0 });
+    g.lineStyle(2, 0xb8a040); g.strokeRoundedRect(P+1, P+1, 22, 5, { tl: 0, tr: 8, bl: 8, br: 0 });
+    g.fillStyle(0xf0d870); g.fillRoundedRect(P+1, P+12, 22, 5, { tl: 8, tr: 0, bl: 0, br: 8 });
+    g.lineStyle(2, 0xb8a040); g.strokeRoundedRect(P+1, P+12, 22, 5, { tl: 8, tr: 0, bl: 0, br: 8 });
+    g.generateTexture('food_pasta', 30, 22);
+
+    // Potato — sa-potato: #c8a060 / #907038
+    g.clear(); g.fillStyle(0xc8a060); g.fillEllipse(P+13, P+10, 26, 20);
+    g.lineStyle(2, 0x907038); g.strokeEllipse(P+13, P+10, 26, 20);
+    g.fillStyle(0xa08040);
+    g.fillCircle(P+6, P+6, 1.5); g.fillCircle(P+14, P+9, 1.5); g.fillCircle(P+10, P+13, 1.5);
+    g.generateTexture('food_potato', 30, 24);
+
+    // Cereal — sa-cereal: #f5e8c8 / #b8a878
+    g.clear(); g.fillStyle(0xf5e8c8); g.fillRoundedRect(P, P+4, 28, 16, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.lineStyle(2, 0xb8a878); g.strokeRoundedRect(P, P+4, 28, 16, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.fillStyle(0xd89030); g.fillRect(P+3, P+6, 4, 4); g.fillRect(P+13, P+6, 4, 4);
+    g.fillStyle(0xc87820); g.fillRect(P+8, P+7, 4, 4); g.fillRect(P+18, P+7, 4, 4);
+    g.fillStyle(0xd89030); g.fillRect(P+6, P+11, 4, 4); g.fillRect(P+16, P+11, 4, 4);
+    g.fillStyle(0xc87820); g.fillRect(P+11, P+11, 4, 4);
+    g.generateTexture('food_cereal', 32, 24);
+
+    // Tortilla — sa-tortilla: #e8d0a0 / #a89868
+    g.clear(); g.fillStyle(0xe8d0a0); g.fillEllipse(P+14, P+8, 28, 16);
+    g.lineStyle(2, 0xa89868); g.strokeEllipse(P+14, P+8, 28, 16);
+    g.fillStyle(0xc8a870);
+    g.fillCircle(P+8, P+6, 1); g.fillCircle(P+15, P+8, 1); g.fillCircle(P+22, P+7, 1);
+    g.fillCircle(P+11, P+11, 1); g.fillCircle(P+18, P+11, 1);
+    g.generateTexture('food_tortilla', 32, 20);
+
+    // Pita — sa-pita: #e0c890 / #a89060
+    g.clear(); g.fillStyle(0xe0c890); g.fillRoundedRect(P, P, 28, 18, { tl: 14, tr: 14, bl: 3, br: 3 });
+    g.lineStyle(2, 0xa89060); g.strokeRoundedRect(P, P, 28, 18, { tl: 14, tr: 14, bl: 3, br: 3 });
+    g.fillStyle(0xc0a870); g.fillRoundedRect(P+4, P+13, 20, 2, 1);
+    g.generateTexture('food_pita', 32, 22);
+
+    // --- L1 FIBRE+ ---
+
+    // Whole Grain — sa-bread-brown: #906020 / #604010
+    g.clear(); g.fillStyle(0x906020); g.fillRoundedRect(P, P, 28, 24, { tl: 8, tr: 8, bl: 3, br: 3 });
+    g.lineStyle(2, 0x604010); g.strokeRoundedRect(P, P, 28, 24, { tl: 8, tr: 8, bl: 3, br: 3 });
+    g.fillStyle(0xc89050);
+    g.fillCircle(P+6, P+6, 1.5); g.fillCircle(P+12, P+7, 1.5);
+    g.fillCircle(P+9, P+12, 1.5); g.fillCircle(P+21, P+11, 1.5);
+    g.fillStyle(0xb88040);
+    g.fillCircle(P+18, P+6, 1.5); g.fillCircle(P+15, P+11, 1.5);
+    g.generateTexture('food_brown_bread', 32, 28);
+
+    // Brown Rice — sa-rice-brown: #a08050 / #705830
+    g.clear(); g.fillStyle(0xa08050); g.fillRoundedRect(P, P+4, 30, 18, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.lineStyle(2, 0x705830); g.strokeRoundedRect(P, P+4, 30, 18, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.fillStyle(0xa08050); g.lineStyle(1, 0x705830);
+    g.fillCircle(P+7, P+2, 2); g.strokeCircle(P+7, P+2, 2);
+    g.fillCircle(P+14, P+1, 2); g.strokeCircle(P+14, P+1, 2);
+    g.fillCircle(P+21, P+2, 2); g.strokeCircle(P+21, P+2, 2);
+    g.generateTexture('food_brown_rice', 34, 26);
+
+    // Oats — sa-oats: #d4b87a / #a08848
+    g.clear(); g.fillStyle(0xd4b87a); g.fillRoundedRect(P, P+4, 28, 16, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.lineStyle(2, 0xa08848); g.strokeRoundedRect(P, P+4, 28, 16, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.fillStyle(0xc8a868); g.fillRoundedRect(P+3, P+7, 22, 3, 1); g.fillRoundedRect(P+3, P+12, 22, 3, 1);
+    g.generateTexture('food_oats', 32, 24);
+
+    // Banana — sa-banana: #f0d040 / #b8a020
+    g.clear(); g.fillStyle(0xf0d040); g.fillRoundedRect(P, P, 28, 14, { tl: 14, tr: 14, bl: 6, br: 6 });
+    g.lineStyle(2, 0xb8a020); g.strokeRoundedRect(P, P, 28, 14, { tl: 14, tr: 14, bl: 6, br: 6 });
+    g.fillStyle(0x5a3a1a); g.fillCircle(P+27, P+7, 2);
+    g.generateTexture('food_banana', 32, 18);
+
+    // Apple — sa-apple: #dd3333 / #991818
+    g.clear(); g.fillStyle(0xdd3333); g.fillRoundedRect(P, P+7, 24, 26, { tl: 12, tr: 12, bl: 10, br: 10 });
+    g.lineStyle(2, 0x991818); g.strokeRoundedRect(P, P+7, 24, 26, { tl: 12, tr: 12, bl: 10, br: 10 });
+    g.fillStyle(0x5a3a1a); g.fillRect(P+10, P, 3, 7);
+    g.lineStyle(1, 0x3a2010); g.strokeRect(P+10, P, 3, 7);
+    g.fillStyle(0x3a8a2a); g.fillRoundedRect(P+15, P, 8, 6, { tl: 4, tr: 4, bl: 0, br: 4 });
+    g.lineStyle(1, 0x286018); g.strokeRoundedRect(P+15, P, 8, 6, { tl: 4, tr: 4, bl: 0, br: 4 });
+    g.generateTexture('food_apple', 28, 37);
+
+    // Orange — sa-orange: #e89020 / #a86010
+    g.clear(); g.fillStyle(0xe89020); g.fillCircle(P+12, P+14, 12);
+    g.lineStyle(2, 0xa86010); g.strokeCircle(P+12, P+14, 12);
+    g.fillStyle(0x3a8a2a); g.fillCircle(P+12, P+2, 2.5);
+    g.lineStyle(1, 0x286018); g.strokeCircle(P+12, P+2, 2.5);
+    g.fillStyle(0xd07818);
+    g.fillRect(P+7, P+11, 3, 6); g.fillRect(P+12, P+12, 3, 6); g.fillRect(P+17, P+11, 3, 6);
+    g.generateTexture('food_orange', 28, 32);
+
+    // Sweetcorn — sa-sweetcorn: #f0d040 / #b8a020
+    g.clear(); g.fillStyle(0xf0d040); g.fillRoundedRect(P, P+5, 14, 28, 6);
+    g.lineStyle(2, 0xb8a020); g.strokeRoundedRect(P, P+5, 14, 28, 6);
+    g.fillStyle(0x3a8a2a); g.fillRoundedRect(P+3, P, 8, 6, 2);
+    g.lineStyle(1, 0x286018); g.strokeRoundedRect(P+3, P, 8, 6, 2);
+    g.fillStyle(0xc8a020);
+    for (let r = 0; r < 5; r++) { g.fillCircle(P+4, P+9+r*5, 1); g.fillCircle(P+10, P+9+r*5, 1); }
+    g.generateTexture('food_sweetcorn', 18, 37);
+
+    // Pear — sa-pear: #a8c840 / #789020
+    g.clear(); g.fillStyle(0xa8c840); g.fillRoundedRect(P, P+5, 20, 28, { tl: 8, tr: 8, bl: 10, br: 10 });
+    g.lineStyle(2, 0x789020); g.strokeRoundedRect(P, P+5, 20, 28, { tl: 8, tr: 8, bl: 10, br: 10 });
+    g.fillStyle(0x5a3a1a); g.fillRect(P+8, P, 3, 6);
+    g.lineStyle(1, 0x3a2010); g.strokeRect(P+8, P, 3, 6);
+    g.generateTexture('food_pear', 24, 37);
+
+    // Raspberries — sa-raspberries: #cc2244 / #881428
+    g.clear(); g.fillStyle(0xcc2244); g.fillEllipse(P+11, P+10, 22, 20);
+    g.lineStyle(2, 0x881428); g.strokeEllipse(P+11, P+10, 22, 20);
+    g.fillStyle(0xdd4466);
+    const rp = [[4,4],[8,4],[12,5],[16,4],[6,8],[10,7],[14,8],[4,11],[8,11],[12,10],[16,11]];
+    for (const [rx, ry] of rp) g.fillCircle(P+rx, P+ry, 1.5);
+    g.generateTexture('food_raspberries', 26, 24);
+
+    // Watermelon — sa-watermelon: #3a8a2a / #286018
+    g.clear(); g.fillStyle(0x3a8a2a); g.fillRoundedRect(P, P, 28, 16, { tl: 0, tr: 0, bl: 14, br: 14 });
+    g.lineStyle(2, 0x286018); g.strokeRoundedRect(P, P, 28, 16, { tl: 0, tr: 0, bl: 14, br: 14 });
+    g.fillStyle(0xe85060); g.fillRoundedRect(P+2, P, 24, 12, { tl: 0, tr: 0, bl: 10, br: 10 });
+    g.lineStyle(1, 0xc84050); g.beginPath(); g.moveTo(P+2, P+11); g.lineTo(P+26, P+11); g.strokePath();
+    g.generateTexture('food_watermelon', 32, 20);
+
+    // Grapes — sa-grapes: #8040a0 / #5a2070
+    g.clear();
+    g.fillStyle(0x5a3a1a); g.fillRect(P+7, P, 3, 5);
+    g.lineStyle(1, 0x3a2010); g.strokeRect(P+7, P, 3, 5);
+    g.fillStyle(0x8040a0);
+    const gp = [[4,17],[10,17],[7,12],[13,12],[10,7]];
+    for (const [gx, gy] of gp) { g.fillCircle(P+gx, P+gy, 2.5); g.lineStyle(1, 0x5a2070); g.strokeCircle(P+gx, P+gy, 2.5); }
+    g.generateTexture('food_grapes', 22, 26);
+
+    // Cherry — sa-cherry: #cc2020 / #881010
+    g.clear(); g.lineStyle(2, 0x5a3a1a); g.beginPath();
+    g.arc(P+11, P+5, 7, Math.PI, 0, false); g.strokePath();
+    g.fillStyle(0xcc2020); g.fillCircle(P+6, P+16, 5);
+    g.lineStyle(2, 0x881010); g.strokeCircle(P+6, P+16, 5);
+    g.fillStyle(0xcc2020); g.fillCircle(P+18, P+16, 5);
+    g.lineStyle(2, 0x881010); g.strokeCircle(P+18, P+16, 5);
+    g.generateTexture('food_cherry', 28, 26);
+
+    // Broccoli — sa-broccoli: top #3a8a2a/#286018, stem #5a9a3a/#3a7020
+    g.clear();
+    g.fillStyle(0x5a9a3a); g.fillRoundedRect(P+8, P+18, 8, 12, { tl: 0, tr: 0, bl: 3, br: 3 });
+    g.lineStyle(2, 0x3a7020); g.strokeRoundedRect(P+8, P+18, 8, 12, { tl: 0, tr: 0, bl: 3, br: 3 });
+    g.fillStyle(0x3a8a2a); g.fillRoundedRect(P, P+2, 24, 18, { tl: 12, tr: 12, bl: 5, br: 5 });
+    g.lineStyle(2, 0x286018); g.strokeRoundedRect(P, P+2, 24, 18, { tl: 12, tr: 12, bl: 5, br: 5 });
+    g.fillStyle(0x4a9a3a);
+    g.fillCircle(P+5, P+6, 2); g.fillCircle(P+11, P+4, 2); g.fillCircle(P+17, P+5, 2);
+    g.fillCircle(P+8, P+10, 2); g.fillCircle(P+14, P+9, 2); g.fillCircle(P+20, P+7, 2);
+    g.generateTexture('food_broccoli', 28, 34);
+
+    // Carrots — sa-carrots: #e87830 / #a85018
+    g.clear(); g.fillStyle(0xe87830); g.fillRoundedRect(P, P+6, 14, 28, { tl: 3, tr: 3, bl: 7, br: 7 });
+    g.lineStyle(2, 0xa85018); g.strokeRoundedRect(P, P+6, 14, 28, { tl: 3, tr: 3, bl: 7, br: 7 });
+    g.fillStyle(0x3a8a2a); g.fillRoundedRect(P, P, 14, 8, { tl: 4, tr: 4, bl: 0, br: 0 });
+    g.lineStyle(1, 0x286018); g.strokeRoundedRect(P, P, 14, 8, { tl: 4, tr: 4, bl: 0, br: 0 });
+    g.fillStyle(0xc86820);
+    g.fillRect(P+5, P+10, 2, 10); g.fillRect(P+7, P+12, 2, 10); g.fillRect(P+3, P+13, 2, 8);
+    g.generateTexture('food_carrots', 18, 38);
+
+    // Tomato — sa-tomato: #dd3030 / #991818
+    g.clear(); g.fillStyle(0xdd3030); g.fillCircle(P+12, P+12, 12);
+    g.lineStyle(2, 0x991818); g.strokeCircle(P+12, P+12, 12);
+    g.lineStyle(2, 0xb42828, 0.45);
+    g.beginPath(); g.arc(P+8, P+12, 5, Math.PI*0.5, Math.PI*1.5, false); g.strokePath();
+    g.beginPath(); g.arc(P+16, P+12, 5, -Math.PI*0.5, Math.PI*0.5, false); g.strokePath();
+    g.generateTexture('food_tomato', 28, 28);
+
+    // Cucumber — sa-cucumber: #3a8a3a / #286028
+    g.clear(); g.fillStyle(0x3a8a3a); g.fillRoundedRect(P, P, 14, 26, 7);
+    g.lineStyle(2, 0x286028); g.strokeRoundedRect(P, P, 14, 26, 7);
+    g.fillStyle(0xa0d8a0); g.fillRoundedRect(P+4, P+3, 5, 14, 3);
+    g.generateTexture('food_cucumber', 18, 30);
+
+    // Sweet Potato — sa-sweetpotato: #c86030 / #904018
+    g.clear(); g.fillStyle(0xc86030); g.fillEllipse(P+14, P+9, 28, 18);
+    g.lineStyle(2, 0x904018); g.strokeEllipse(P+14, P+9, 28, 18);
+    g.fillStyle(0xe88848); g.fillRoundedRect(P+7, P+5, 14, 5, 3);
+    g.generateTexture('food_sweetpotato', 32, 22);
+
+    // Chia Seeds — sa-chia: #f0ece0 / #b8b098
+    g.clear(); g.fillStyle(0xf0ece0); g.fillCircle(P+12, P+12, 12);
+    g.lineStyle(2, 0xb8b098); g.strokeCircle(P+12, P+12, 12);
+    g.fillStyle(0x555555);
+    const cp = [[5,5],[9,6],[13,5],[17,6],[4,9],[8,10],[12,9],[16,10],[6,13],[10,14],[14,13],[4,17],[8,17],[12,17]];
+    for (const [cx, cy] of cp) g.fillCircle(P+cx, P+cy, 1);
+    g.generateTexture('food_chia', 28, 28);
+
+    // --- NEUTRAL (L2 Protein) ---
+
+    // Egg — sa-egg: #f8f0e0 / #c0b898
+    g.clear(); g.fillStyle(0xf8f0e0); g.fillRoundedRect(P, P, 22, 26, { tl: 11, tr: 11, bl: 10, br: 10 });
+    g.lineStyle(2, 0xc0b898); g.strokeRoundedRect(P, P, 22, 26, { tl: 11, tr: 11, bl: 10, br: 10 });
+    g.fillStyle(0xe8a828); g.fillCircle(P+11, P+14, 5);
+    g.lineStyle(2, 0xd09020); g.strokeCircle(P+11, P+14, 5);
+    g.generateTexture('food_egg', 26, 30);
+
+    // Chicken — sa-chicken: #d8a050 / #a07028
+    g.clear(); g.fillStyle(0xd8a050); g.fillRoundedRect(P, P, 32, 18, { tl: 9, tr: 4, bl: 9, br: 4 });
+    g.lineStyle(2, 0xa07028); g.strokeRoundedRect(P, P, 32, 18, { tl: 9, tr: 4, bl: 9, br: 4 });
+    g.fillStyle(0xf0e8d0); g.beginPath(); g.moveTo(P+32, P+3); g.lineTo(P+40, P+9); g.lineTo(P+32, P+15); g.closePath(); g.fillPath();
+    g.fillStyle(0xf0e8d0); g.fillRoundedRect(P+38, P+4, 6, 10, 3);
+    g.lineStyle(2, 0xb8a890); g.strokeRoundedRect(P+38, P+4, 6, 10, 3);
+    g.generateTexture('food_chicken', 50, 22);
+
+    // Cheese — sa-cheese: #f0c840 / #b89020
+    g.clear(); g.fillStyle(0xf0c840);
+    g.beginPath(); g.moveTo(P+4, P); g.lineTo(P+26, P); g.lineTo(P+26, P+22); g.lineTo(P, P+22); g.lineTo(P+4, P+11); g.closePath(); g.fillPath();
+    g.lineStyle(2, 0xb89020);
+    g.beginPath(); g.moveTo(P+4, P); g.lineTo(P+26, P); g.lineTo(P+26, P+22); g.lineTo(P, P+22); g.lineTo(P+4, P+11); g.closePath(); g.strokePath();
+    g.fillStyle(0xd8a830); g.fillCircle(P+12, P+6, 2); g.fillCircle(P+19, P+11, 2); g.fillCircle(P+10, P+15, 2);
+    g.generateTexture('food_cheese', 30, 26);
+
+    // --- FUN FOODS ---
+
+    // Fries — sa-fries: sticks #f0d040/#c8a020, container #cc2020/#881010
+    g.clear();
+    g.fillStyle(0xf0d040); g.lineStyle(1, 0xc8a020);
+    g.fillRect(P+5, P, 3, 16); g.strokeRect(P+5, P, 3, 16);
+    g.fillStyle(0xe8c020); g.fillRect(P+10, P+2, 3, 14); g.strokeRect(P+10, P+2, 3, 14);
+    g.fillStyle(0xf0d040); g.fillRect(P+15, P, 3, 15); g.strokeRect(P+15, P, 3, 15);
+    g.fillStyle(0xcc2020); g.fillRoundedRect(P+1, P+14, 22, 14, { tl: 0, tr: 0, bl: 2, br: 2 });
+    g.lineStyle(2, 0x881010); g.strokeRoundedRect(P+1, P+14, 22, 14, { tl: 0, tr: 0, bl: 2, br: 2 });
+    g.generateTexture('food_fries', 28, 32);
+
+    // Cookie — sa-cookie: #c89040 / #906020
+    g.clear(); g.fillStyle(0xc89040); g.fillCircle(P+13, P+13, 13);
+    g.lineStyle(2, 0x906020); g.strokeCircle(P+13, P+13, 13);
+    g.fillStyle(0x503020);
+    g.fillCircle(P+6, P+7, 2); g.fillCircle(P+15, P+8, 2);
+    g.fillCircle(P+10, P+14, 2); g.fillCircle(P+19, P+14, 2); g.fillCircle(P+14, P+19, 2);
+    g.generateTexture('food_cookie', 30, 30);
+
+    // Donut — sa-donut: body #e89850/#b06828, glaze #f0a0c8/#b86888
+    g.clear();
+    g.fillStyle(0xe89850); g.fillCircle(P+15, P+15, 13);
+    g.lineStyle(2, 0xb06828); g.strokeCircle(P+15, P+15, 13);
+    g.fillStyle(0xf0a0c8); g.fillRoundedRect(P, P, 30, 15, { tl: 14, tr: 14, bl: 0, br: 0 });
+    g.lineStyle(2, 0xb86888); g.strokeRoundedRect(P, P, 30, 15, { tl: 14, tr: 14, bl: 0, br: 0 });
+    g.lineStyle(2, 0xb06828); g.strokeCircle(P+15, P+15, 3);
+    g.generateTexture('food_donut', 34, 32);
+
+    // --- RARE ---
+
+    // Sushi — sa-sushi: nori #444/#2a2a2a, rice #f5f0e0, salmon #e87830/#c86020
+    g.clear(); g.fillStyle(0x444444); g.fillRoundedRect(P, P, 24, 22, 4);
+    g.lineStyle(2, 0x2a2a2a); g.strokeRoundedRect(P, P, 24, 22, 4);
+    g.fillStyle(0xf5f0e0); g.fillRoundedRect(P+2, P+2, 20, 18, 2);
+    g.fillStyle(0xe87830); g.fillRoundedRect(P+7, P+8, 10, 6, 1);
+    g.lineStyle(1, 0xc86020); g.strokeRoundedRect(P+7, P+8, 10, 6, 1);
+    g.generateTexture('food_sushi', 28, 26);
+
+    g.destroy();
+  }
+
+  generateEnergyCell() {
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0x20cc88); g.fillCircle(8, 8, 7);
+    g.fillStyle(0x80ffcc, 0.8); g.fillCircle(7, 7, 5);
+    g.fillStyle(0xffffff, 0.5); g.fillCircle(6, 5, 2);
+    g.generateTexture('energy_cell', 16, 16);
+    g.destroy();
+  }
+
+  generatePhantom() {
+    const g = this.make.graphics({ add: false });
+    const P = 2;
+
+    // Tail wisps — draw first so body covers the junction
+    for (let i = 0; i < 4; i++) {
+      const wx = P + i * 12;
+      g.fillStyle(0x8866aa);
+      g.fillRoundedRect(wx, P + 40, 12, 16, { tl: 0, tr: 0, bl: 6, br: 6 });
+      g.lineStyle(3, 0x4a3460);
+      g.strokeRoundedRect(wx, P + 40, 12, 16, { tl: 0, tr: 0, bl: 6, br: 6 });
+    }
+
+    // Body — solid purple dome with bold dark outline (sa-phantom)
+    g.fillStyle(0x8866aa);
+    g.fillRoundedRect(P, P, 48, 40, { tl: 24, tr: 24, bl: 0, br: 0 });
+    g.lineStyle(3, 0x4a3460);
+    g.strokeRoundedRect(P, P, 48, 40, { tl: 24, tr: 24, bl: 0, br: 0 });
+
+    // Slit eyes — flat dark bars
+    g.fillStyle(0x4a3460);
+    g.fillRect(P + 7, P + 18, 10, 3);
+    g.fillRect(P + 31, P + 18, 10, 3);
+
+    // Mouth — centered horizontal bar
+    g.fillRect(P + 18, P + 30, 12, 2);
+
+    g.generateTexture('phantom', 52, 60);
+
+    // Telegraph shimmer
+    g.clear();
+    g.fillStyle(0x8866aa, 0.15);
+    g.fillCircle(28, 28, 28);
+    g.fillStyle(0xccaaff, 0.08);
+    g.fillCircle(28, 28, 18);
+    g.generateTexture('phantom_telegraph', 56, 56);
+
+    g.destroy();
+  }
+
+  generateStar() {
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0xf0c040);
+    const cx = 10, cy = 10, outer = 10, inner = 4;
+    g.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const aO = (i * 72 - 90) * Math.PI / 180;
+      const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
+      g.lineTo(cx + Math.cos(aO) * outer, cy + Math.sin(aO) * outer);
+      g.lineTo(cx + Math.cos(aI) * inner, cy + Math.sin(aI) * inner);
+    }
+    g.closePath(); g.fillPath();
+    g.generateTexture('star_icon', 20, 20);
+    g.destroy();
+  }
+
+  generateFinishFlag() {
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0x8b6914); g.fillRect(0, 0, 6, 80);
+    g.fillStyle(0xf0c040); g.fillRect(6, 0, 30, 20);
+    g.fillStyle(0xffffff);
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) {
+      if ((r + c) % 2 === 0) g.fillRect(6 + c * 5, r * 5, 5, 5);
+    }
+    g.generateTexture('finish_flag', 36, 80);
+    g.destroy();
+  }
+}
+
+// =================================================================
+// SPLASH SCENE — Instruction splash before L1
+// =================================================================
+
+class SplashScene extends Phaser.Scene {
+  constructor() { super('Splash'); }
+
+  create() {
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x1a1a2e);
+    const panelW = 620, panelH = 380;
+    this.add.rectangle(cx, cy, panelW + 4, panelH + 4, 0xf0c040);
+    this.add.rectangle(cx, cy, panelW, panelH, 0x1a1a2e);
+
+    this.add.text(cx, cy - 150, 'LEVEL 1: CARBOHYDRATES', {
+      fontFamily: 'Courier New', fontSize: '22px', color: '#f0c040', letterSpacing: 3,
+    }).setOrigin(0.5);
+
+    const iconKeys = ['food_white_bread', 'food_white_rice', 'food_banana', 'food_potato'];
+    const iconStartX = cx - (iconKeys.length - 1) * 36 / 2;
+    iconKeys.forEach((key, i) => this.add.image(iconStartX + i * 36, cy - 110, key).setScale(1.4));
+
+    this.add.text(cx, cy - 55, [
+      '"Carbs are your body\'s preferred',
+      ' quick-energy fuel. They break down into',
+      ' glucose, which powers your muscles',
+      ' and your brain."',
+    ].join('\n'), { fontFamily: 'Courier New', fontSize: '13px', color: '#cccccc', align: 'center', lineSpacing: 4 }).setOrigin(0.5);
+
+    this.add.text(cx, cy + 15, 'YOUR MISSION:', { fontFamily: 'Courier New', fontSize: '14px', color: '#f0c040' }).setOrigin(0.5);
+    this.add.text(cx, cy + 38, 'Collect all the carb-rich foods!\nSome also contain fibre — grab those\nfor bonus points.', {
+      fontFamily: 'Courier New', fontSize: '12px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
+    }).setOrigin(0.5);
+
+    this.add.text(cx, cy + 85, 'WATCH OUT:', { fontFamily: 'Courier New', fontSize: '14px', color: '#cc6666' }).setOrigin(0.5);
+    this.add.text(cx, cy + 104, 'Fatigue Phantoms drain your energy\nif they catch you!', {
+      fontFamily: 'Courier New', fontSize: '12px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
+    }).setOrigin(0.5);
+
+    this.add.text(cx, cy + 140, '← → Move    ↑ / SPACE Jump    ↓ Duck', {
+      fontFamily: 'Courier New', fontSize: '10px', color: '#666666',
+    }).setOrigin(0.5);
+
+    const btnY = cy + 170;
+    const btn = this.add.rectangle(cx, btnY, 160, 36, 0xf0c040, 1).setInteractive({ useHandCursor: true });
+    this.add.text(cx, btnY, '[ START ]', { fontFamily: 'Courier New', fontSize: '16px', color: '#1a1a2e', fontStyle: 'bold' }).setOrigin(0.5);
+    btn.on('pointerover', () => btn.setFillStyle(0xf8d868));
+    btn.on('pointerout', () => btn.setFillStyle(0xf0c040));
+    btn.on('pointerdown', () => this.scene.start('Game'));
+    this.input.keyboard.on('keydown-SPACE', () => this.scene.start('Game'));
+    this.input.keyboard.on('keydown-ENTER', () => this.scene.start('Game'));
+  }
+}
+
+// =================================================================
+// GAME SCENE — Main L1 gameplay
+// =================================================================
+
+class GameScene extends Phaser.Scene {
+  constructor() { super('Game'); }
+
+  create() {
+    this.physics.world.setBounds(0, 0, LEVEL_W, GAME_H);
+    this.cameras.main.setBounds(0, 0, LEVEL_W, GAME_H);
+
+    this.energy = ENERGY_START;
+    this.carbsCollected = 0;
+    this.fibreCollected = 0;
+    this.neutralCollected = 0;
+    this.funCollected = 0;
+    this.rareCollected = 0;
+    this.cellsCollected = 0;
+    this.totalCarbItems = 0;
+    this.totalFibreItems = 0;
+    this.dmgTaken = false;
+    this.isDucking = false;
+    this.isInvincible = false;
+    this.levelComplete = false;
+    this.levelFailed = false;
+    this.isPaused = false;
+    this.hasStartedMoving = false;
+    this.foundAlcove = false;
+    this.fibreItemsFound = [];
+    this.startTime = this.time.now;
+
+    this.drawBackground();
+    this.createGround();
+    this.createPlatforms();
+    this.createPlayer();
+    this.createFoods();
+    this.createEnergyCells();
+    this.createPhantoms();
+    this.createCrashPits();
+    this.createHiddenAlcove();
+    this.createFinish();
+    this.createHUD();
+
+    this.cameras.main.startFollow(this.player, true, 0.08, 0);
+    this.cameras.main.setDeadzone(100, GAME_H);
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+  }
+
+  drawBackground() {
+    const skyGfx = this.add.graphics();
+    skyGfx.fillGradientStyle(0x3a7ecf, 0x3a7ecf, 0x5fa8d3, 0x5fa8d3, 1);
+    skyGfx.fillRect(0, 0, LEVEL_W, GAME_H);
+    skyGfx.setScrollFactor(0.1);
+    const sun = this.add.graphics();
+    sun.fillStyle(0xf0c040); sun.fillCircle(0, 0, 25);
+    sun.setPosition(860, 45); sun.setScrollFactor(0.05);
+    this.createCloud(100, 45, 80, 0.15); this.createCloud(500, 75, 60, 0.12);
+    this.createCloud(750, 35, 70, 0.18); this.createCloud(1100, 55, 65, 0.14);
+    this.createCloud(1500, 40, 75, 0.16); this.createCloud(1900, 70, 55, 0.13);
+    this.createCloud(2300, 30, 80, 0.17); this.createCloud(2800, 60, 65, 0.15);
+    this.createHill(-50, 300, 100, 0.3); this.createHill(400, 250, 80, 0.25);
+    this.createHill(750, 200, 70, 0.3); this.createHill(1100, 280, 90, 0.25);
+    this.createHill(1500, 220, 75, 0.3); this.createHill(1900, 260, 85, 0.25);
+    this.createHill(2300, 230, 70, 0.3); this.createHill(2700, 290, 95, 0.25);
+    this.createHill(3100, 210, 80, 0.3); this.createHill(3500, 270, 88, 0.25);
+    for (let x = 20; x < LEVEL_W; x += 80 + Math.random() * 60) {
+      this.add.triangle(x, GROUND_Y - 5, 0, 14, 6, 0, 12, 14, 0x4a8e2e);
+    }
+    const fc = [0xff6688, 0xffcc44, 0xff88aa, 0x88aaff, 0xffaa66];
+    for (let x = 55; x < LEVEL_W; x += 200 + Math.random() * 150) {
+      this.add.circle(x, GROUND_Y - 3, 4, Phaser.Utils.Array.GetRandom(fc));
+      this.add.rectangle(x, GROUND_Y + 2, 2, 8, 0x3a8a2a);
+    }
+  }
+
+  createCloud(x, y, w, sf) {
+    const g = this.add.graphics(); g.fillStyle(0xffffff);
+    const h = w * 0.35;
+    g.fillRoundedRect(0, h * 0.3, w, h, h / 2);
+    g.fillEllipse(w * 0.3, h * 0.15, w * 0.45, h * 0.7);
+    g.fillEllipse(w * 0.6, h * 0.1, w * 0.5, h * 0.6);
+    g.setPosition(x, y); g.setScrollFactor(sf);
+  }
+
+  createHill(x, w, h, sf) {
+    const g = this.add.graphics(); g.fillStyle(0x4a8e2e, 0.5);
+    g.fillEllipse(w / 2, h, w, h * 2);
+    g.setPosition(x, GROUND_Y - h); g.setScrollFactor(sf);
+  }
+
+  createGround() {
+    const gg = this.add.graphics();
+    gg.fillStyle(0x5a9e3e); gg.fillRect(0, GROUND_Y, LEVEL_W, GROUND_H);
+    gg.fillStyle(0x4a8e2e); gg.fillRect(0, GROUND_Y, LEVEL_W, 6);
+    gg.fillStyle(0x8b6914); gg.fillRect(0, GROUND_Y + GROUND_H - 40, LEVEL_W, 40);
+    gg.fillStyle(0x6d5410); gg.fillRect(0, GROUND_Y + GROUND_H - 40, LEVEL_W, 4);
+    this.ground = this.physics.add.staticGroup();
+    const gb = this.add.rectangle(LEVEL_W / 2, GROUND_Y + 12, LEVEL_W, 24, 0x000000, 0);
+    this.ground.add(gb); gb.body.updateFromGameObject();
+  }
+
+  createPlatforms() {
+    this.platforms = this.physics.add.staticGroup();
+    for (const p of L1.platforms) {
+      const pg = this.add.graphics();
+      pg.fillStyle(0x8b6914); pg.fillRect(0, 4, p.w, 20);
+      pg.fillStyle(0x6d5410); pg.fillRect(0, 21, p.w, 3);
+      for (let px = 0; px < p.w; px += 8) {
+        pg.fillStyle(px % 16 < 8 ? 0x5a9e3e : 0x4a8e2e);
+        pg.fillRect(px, 0, 8, 4);
+      }
+      pg.setPosition(p.x, p.y);
+      const pb = this.add.rectangle(p.x + p.w / 2, p.y + 12, p.w, 24, 0x000000, 0);
+      this.platforms.add(pb); pb.body.updateFromGameObject();
+    }
+  }
+
+  createPlayer() {
+    this.player = this.physics.add.sprite(80, GROUND_Y - 40, 'nibble');
+    this.player.setCollideWorldBounds(true);
+    this.player.body.setSize(32, 44); this.player.body.setOffset(8, 7);
+    this.player.setDepth(10);
+    this.physics.add.collider(this.player, this.ground);
+    this.physics.add.collider(this.player, this.platforms);
+  }
+
+  createFoods() {
+    this.foodGroup = this.physics.add.group({ allowGravity: false });
+    for (const f of L1.foods) {
+      const def = FOOD_DEFS[f.id];
+      let y;
+      if (f.onGround) {
+        y = GROUND_Y - def.h / 2 - 4;
+      } else {
+        const plat = L1.platforms[f.platIdx];
+        y = plat.y - def.h / 2 - 4;
+      }
+      const sprite = this.foodGroup.create(f.x, y, 'food_' + f.id);
+      sprite.setData('foodId', f.id);
+      sprite.setData('type', def.type);
+      sprite.setData('name', def.name);
+      sprite.setData('fun', !!f.fun);
+      sprite.setData('rare', !!f.rare);
+      sprite.body.setSize(def.w, def.h); sprite.setDepth(5);
+
+      const isFibre = def.type === 'fibre';
+      const isFun = def.type === 'fun';
+      const isRare = def.type === 'rare';
+      let labelColor = '#ffffff';
+      if (isFibre) labelColor = '#aaffaa';
+      else if (def.type === 'neutral') labelColor = '#aaaaff';
+      else if (isFun) labelColor = '#ff9966';
+      else if (isRare) labelColor = '#ffcc88';
+      let labelText = def.name;
+      if (isFibre) labelText += ' ✦';
+      if (isRare) labelText += ' ★';
+
+      const label = this.add.text(f.x, y - def.h / 2 - 8, labelText, {
+        fontFamily: 'Courier New', fontSize: '8px', color: labelColor,
+        stroke: '#000000', strokeThickness: 2,
+      }).setOrigin(0.5).setDepth(5);
+      sprite.setData('label', label);
+
+      this.tweens.add({
+        targets: [sprite, label], y: '-=4',
+        duration: 1200 + Math.random() * 400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+      });
+
+      if (def.type === 'starchy' || def.type === 'fibre') {
+        this.totalCarbItems++;
+        if (def.type === 'fibre') this.totalFibreItems++;
+      }
+    }
+    this.physics.add.overlap(this.player, this.foodGroup, this.collectFood, null, this);
+  }
+
+  collectFood(player, food) {
+    const type = food.getData('type');
+    const id = food.getData('foodId');
+    const label = food.getData('label');
+    const isFun = food.getData('fun');
+    const isRare = food.getData('rare');
+
+    if (type === 'starchy') {
+      this.carbsCollected++;
+      this.energy = Math.min(100, this.energy + ENERGY_CARB);
+      this.showCollectFX(food.x, food.y, '#f0c040', '+Energy');
+    } else if (type === 'fibre') {
+      this.carbsCollected++;
+      this.fibreCollected++;
+      this.fibreItemsFound.push(id);
+      this.energy = Math.min(100, this.energy + ENERGY_FIBRE);
+      this.showCollectFX(food.x, food.y, '#80ff80', '+Fibre!');
+    } else if (type === 'fun') {
+      this.funCollected++;
+      this.energy = Math.min(100, this.energy + ENERGY_FUN);
+      this.showCollectFX(food.x, food.y, '#ff9966', '+Quick Energy!');
+    } else if (type === 'rare') {
+      this.rareCollected++;
+      this.energy = Math.min(100, this.energy + ENERGY_RARE);
+      this.showCollectFX(food.x, food.y, '#ffcc88', '+Complete Meal!');
+    } else {
+      this.neutralCollected++;
+      this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
+      this.showCollectFX(food.x, food.y, '#aaaaff', '+Energy');
+    }
+    if (label) label.destroy();
+    food.destroy();
+    this.updateHUD();
+  }
+
+  showCollectFX(x, y, color, text) {
+    const fx = this.add.text(x, y - 10, text, {
+      fontFamily: 'Courier New', fontSize: '12px', color, stroke: '#000000', strokeThickness: 2,
+    }).setOrigin(0.5).setDepth(20);
+    this.tweens.add({ targets: fx, y: y - 40, alpha: 0, duration: 800, ease: 'Power2', onComplete: () => fx.destroy() });
+  }
+
+  createEnergyCells() {
+    this.cellGroup = this.physics.add.group({ allowGravity: false });
+    for (const x of L1.energyCells) {
+      const cell = this.cellGroup.create(x, GROUND_Y - 20, 'energy_cell').setDepth(4);
+      this.tweens.add({ targets: cell, y: '-=3', duration: 800 + Math.random() * 300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
+    for (const cp of L1.cellsOnPlats) {
+      const plat = L1.platforms[cp.pi];
+      const cell = this.cellGroup.create(cp.x, plat.y - 18, 'energy_cell').setDepth(4);
+      this.tweens.add({ targets: cell, y: '-=3', duration: 800 + Math.random() * 300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
+    this.physics.add.overlap(this.player, this.cellGroup, this.collectCell, null, this);
+  }
+
+  collectCell(player, cell) {
+    this.cellsCollected++;
+    this.showCollectFX(cell.x, cell.y, '#80ffcc', '+1');
+    cell.destroy();
+    this.updateHUD();
+  }
+
+  createPhantoms() {
+    this.phantomGroup = this.physics.add.group({ allowGravity: false });
+    this.phantomData = [];
+    for (const p of L1.phantoms) {
+      const telegraph = this.add.image(p.x, GROUND_Y - 35, 'phantom_telegraph').setAlpha(0).setDepth(3);
+      const phantom = this.phantomGroup.create(p.x, GROUND_Y - 35, 'phantom');
+      phantom.setAlpha(0).setDepth(6);
+      phantom.body.setSize(36, 40);
+      phantom.setData('active', false);
+      phantom.setData('telegraph', telegraph);
+      phantom.setData('originX', p.x);
+      this.phantomData.push(phantom);
+    }
+    this.physics.add.overlap(this.player, this.phantomGroup, this.phantomHit, null, this);
+  }
+
+  phantomHit(player, phantom) {
+    if (this.isInvincible || !phantom.getData('active') || this.levelComplete || this.levelFailed) return;
+    this.energy = Math.max(0, this.energy - PHANTOM_DMG);
+    this.dmgTaken = true;
+    this.isInvincible = true;
+    this.showCollectFX(player.x, player.y - 20, '#cc4444', '-Energy!');
+    this.tweens.add({
+      targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
+      onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
+    });
+    this.updateHUD();
+  }
+
+  createCrashPits() {
+    this.crashPitZones = [];
+    for (const cp of L1.crashPits) {
+      const cpGfx = this.add.graphics();
+      for (let px = 0; px < cp.w; px += 5) {
+        cpGfx.fillStyle(Math.floor(px / 5) % 2 === 0 ? 0x8a6a30 : 0x6a5020);
+        cpGfx.fillRect(px, 0, 5, 14);
+      }
+      cpGfx.lineStyle(3, 0x3a2a10);
+      cpGfx.strokeRoundedRect(0, 0, cp.w, 14, 3);
+      cpGfx.setPosition(cp.x, GROUND_Y - 1); cpGfx.setDepth(2);
+      const waveTxt = '~ '.repeat(Math.max(3, Math.floor(cp.w / 16))).trim();
+      this.add.text(cp.x + cp.w / 2, GROUND_Y - 9, waveTxt, {
+        fontFamily: 'Courier New', fontSize: '10px', color: '#aa8840',
+      }).setOrigin(0.5, 0.5).setDepth(2);
+      const zone = this.add.zone(cp.x + cp.w / 2, GROUND_Y + 2, cp.w, 16);
+      this.physics.add.existing(zone, true);
+      this.crashPitZones.push(zone);
+    }
+  }
+
+  createHiddenAlcove() {
+    const cp2 = L1.crashPits[1];
+    const ax = cp2.x + cp2.w / 2;
+    const ay = 80;
+    const aw = 90;
+    const ah = 14;
+
+    // Alcove backdrop — a small dark recess behind the platform
+    const alcGfx = this.add.graphics();
+    alcGfx.fillStyle(0x2a4a1a, 0.6);
+    alcGfx.fillRoundedRect(-5, -8, aw + 10, 30, 6);
+    alcGfx.fillStyle(0x1a3a10, 0.4);
+    alcGfx.fillRoundedRect(0, -4, aw, 22, 4);
+    alcGfx.setPosition(ax - aw / 2, ay - 6);
+    alcGfx.setDepth(1);
+
+    // Platform the player lands on
+    const platGfx = this.add.graphics();
+    platGfx.fillStyle(0x5a9e3e);
+    platGfx.fillRoundedRect(0, 0, aw, ah, 4);
+    platGfx.fillStyle(0x4a8e2e);
+    platGfx.fillRect(0, 0, aw, 4);
+    platGfx.lineStyle(2, 0x3a7828);
+    platGfx.strokeRoundedRect(0, 0, aw, ah, 4);
+    platGfx.setPosition(ax - aw / 2, ay);
+    platGfx.setDepth(4);
+
+    // Physics body for the platform
+    const platBody = this.add.rectangle(ax, ay + ah / 2, aw, ah, 0x000000, 0);
+    this.platforms.add(platBody);
+    platBody.body.updateFromGameObject();
+
+    // Bonus energy cells on the alcove
+    for (let i = 0; i < 5; i++) {
+      const cell = this.cellGroup.create(ax - 32 + i * 16, ay - 12, 'energy_cell');
+      cell.body.allowGravity = false;
+      cell.setDepth(5);
+    }
+
+    // Small star hint floating above the alcove
+    const starHint = this.add.image(ax, ay - 28, 'star_icon').setDepth(5).setAlpha(0.6).setScale(0.7);
+    this.tweens.add({ targets: starHint, y: ay - 32, alpha: 0.9, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+    // Detection zone — triggers when player lands here
+    const alcoveZone = this.add.zone(ax, ay - 10, aw + 20, 40);
+    this.physics.add.existing(alcoveZone, true);
+    this.physics.add.overlap(this.player, alcoveZone, () => {
+      if (this.foundAlcove) return;
+      this.foundAlcove = true;
+      this.showCollectFX(ax, ay - 20, '#f0c040', '★ Hidden Alcove!');
+      starHint.destroy();
+    }, null, this);
+  }
+
+  createFinish() {
+    this.finishFlag = this.add.image(L1.finishX, GROUND_Y - 40, 'finish_flag').setOrigin(0.5, 1).setDepth(5);
+    this.finishZone = this.add.zone(L1.finishX, GROUND_Y - 30, 40, 60);
+    this.physics.add.existing(this.finishZone, true);
+    this.physics.add.overlap(this.player, this.finishZone, this.reachFinish, null, this);
+    this.add.text(L1.finishX, GROUND_Y - 90, 'FINISH', {
+      fontFamily: 'Courier New', fontSize: '14px', color: '#f0c040', stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(5);
+  }
+
+  reachFinish() {
+    if (this.levelComplete || this.levelFailed) return;
+    this.levelComplete = true;
+    const elapsed = (this.time.now - this.startTime) / 1000;
+    const stars = [];
+    if (this.fibreCollected >= this.totalFibreItems) stars.push(1);
+    if (this.foundAlcove) stars.push(2);
+    if (this.energy >= 90) stars.push(3);
+    this.scene.start('Result', {
+      success: true, carbsCollected: this.carbsCollected, totalCarbs: this.totalCarbItems,
+      fibreCollected: this.fibreCollected, totalFibre: this.totalFibreItems,
+      energy: Math.round(this.energy), cells: this.cellsCollected, stars,
+      dmgTaken: this.dmgTaken, neutralCollected: this.neutralCollected,
+      funCollected: this.funCollected, rareCollected: this.rareCollected, elapsed,
+    });
+  }
+
+  createHUD() {
+    this.hudBar = this.add.graphics();
+    this.hudBar.fillStyle(0x000000, 0.75);
+    this.hudBar.fillRect(0, 0, GAME_W, 56);
+    this.hudBar.setScrollFactor(0).setDepth(50);
+
+    this.hudEnergyLabel = this.add.text(16, 8, 'ENERGY', { fontFamily: 'Courier New', fontSize: '9px', color: '#f0c040', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
+    this.hudEnergyBg = this.add.rectangle(16 + 100, 30, 200, 14, 0x333333).setOrigin(0.5).setScrollFactor(0).setDepth(51);
+    this.hudEnergyBorder = this.add.rectangle(16 + 100, 30, 200, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xf0c040);
+    this.hudEnergyFill = this.add.rectangle(17, 24, 196 * 0.72, 10, 0x40cc60).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
+
+    this.hudCarbsLabel = this.add.text(240, 8, 'CARBS COLLECTED', { fontFamily: 'Courier New', fontSize: '9px', color: '#f0c040', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
+    this.hudCarbsBg = this.add.rectangle(240 + 90, 30, 180, 14, 0x333333).setOrigin(0.5).setScrollFactor(0).setDepth(51);
+    this.hudCarbsBorder = this.add.rectangle(240 + 90, 30, 180, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xe8b84c);
+    this.hudCarbsFill = this.add.rectangle(241, 24, 0, 10, 0xe8b84c).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
+
+    this.hudFibreLabel = this.add.text(240, 42, 'Fibre:', { fontFamily: 'Courier New', fontSize: '8px', color: '#80ff80' }).setScrollFactor(0).setDepth(51);
+    this.fibreDots = [];
+    const maxDots = Math.min(this.totalFibreItems, 18);
+    for (let i = 0; i < maxDots; i++) {
+      const dot = this.add.circle(288 + i * 10, 46, 3, 0x333333).setScrollFactor(0).setDepth(51).setStrokeStyle(1, 0x3a8a2a);
+      this.fibreDots.push(dot);
+    }
+
+    this.hudCellIcon = this.add.image(500, 14, 'energy_cell').setScrollFactor(0).setDepth(51).setScale(0.8);
+    this.hudCellText = this.add.text(512, 8, '× 0', { fontFamily: 'Courier New', fontSize: '14px', color: '#80ffcc', fontStyle: 'bold' }).setScrollFactor(0).setDepth(51);
+
+    this.hudStars = [];
+    for (let i = 0; i < 3; i++) {
+      this.hudStars.push(this.add.text(500 + i * 18, 30, '★', { fontFamily: 'Courier New', fontSize: '14px', color: '#555555' }).setScrollFactor(0).setDepth(51));
+    }
+
+    this.hudLevelName = this.add.text(GAME_W - 16, 10, 'L1 — CARBOHYDRATES', { fontFamily: 'Courier New', fontSize: '10px', color: '#f0c040', letterSpacing: 2 }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
+    this.add.text(GAME_W - 16, 38, 'P = Pause', { fontFamily: 'Courier New', fontSize: '8px', color: '#555555' }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
+
+    this.pauseOverlay = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.6).setScrollFactor(0).setDepth(100).setVisible(false);
+    this.pauseText = this.add.text(GAME_W / 2, GAME_H / 2, 'PAUSED\n\nPress P to resume', { fontFamily: 'Courier New', fontSize: '24px', color: '#f0c040', align: 'center' }).setOrigin(0.5).setScrollFactor(0).setDepth(101).setVisible(false);
+    this.input.keyboard.on('keydown-P', () => {
+      this.isPaused = !this.isPaused;
+      this.pauseOverlay.setVisible(this.isPaused);
+      this.pauseText.setVisible(this.isPaused);
+      this.physics.world.isPaused = this.isPaused;
+    });
+  }
+
+  updateHUD() {
+    const ePct = Math.max(0, this.energy / 100);
+    this.hudEnergyFill.setSize(196 * ePct, 10);
+    this.hudEnergyFill.setFillStyle(ePct > 0.5 ? 0x40cc60 : ePct > 0.25 ? 0xcccc40 : 0xcc4040);
+    this.hudCarbsFill.setSize(176 * Math.min(1, this.carbsCollected / CARBS_NEEDED), 10);
+    for (let i = 0; i < this.fibreDots.length; i++) {
+      this.fibreDots[i].setFillStyle(i < this.fibreCollected ? 0x3a8a2a : 0x333333);
+    }
+    this.hudCellText.setText('× ' + this.cellsCollected);
+  }
+
+  update(time, delta) {
+    if (this.levelComplete || this.levelFailed || this.isPaused) return;
+    const dt = delta / 1000;
+    const onGround = this.player.body.blocked.down || this.player.body.touching.down;
+
+    const speed = this.isDucking ? DUCK_SPEED : this.getPlayerSpeed();
+    const isMoving = this.cursors.left.isDown || this.cursors.right.isDown;
+    if (isMoving) this.hasStartedMoving = true;
+
+    if (this.hasStartedMoving) {
+      const drain = isMoving ? ENERGY_DRAIN : ENERGY_DRAIN_IDLE;
+      this.energy -= drain * dt;
+      if (this.energy <= 0) { this.energy = 0; this.triggerFail(); return; }
+    }
+    this.updatePlayerState();
+
+    if (this.cursors.left.isDown) { this.player.setVelocityX(-speed); this.player.setFlipX(true); }
+    else if (this.cursors.right.isDown) { this.player.setVelocityX(speed); this.player.setFlipX(false); }
+    else { this.player.setVelocityX(0); }
+
+    if ((this.cursors.up.isDown || this.spaceKey.isDown) && onGround && !this.isDucking) {
+      if (!this.hasStartedMoving) this.hasStartedMoving = true;
+      this.player.setVelocityY(this.getJumpPower());
+    }
+
+    if (this.cursors.down.isDown && onGround) {
+      if (!this.isDucking) {
+        this.isDucking = true;
+        this.player.body.setSize(32, 28);
+        this.player.body.setOffset(8, 15);
+        this.player.setScale(1, 0.7);
+      }
+    } else if (this.isDucking) {
+      this.isDucking = false;
+      this.player.body.setSize(32, 44);
+      this.player.body.setOffset(8, 7);
+      this.player.setScale(1, 1);
+    }
+
+    if (!onGround && this.isDucking) {
+      this.isDucking = false;
+      this.player.body.setSize(32, 44);
+      this.player.body.setOffset(8, 7);
+      this.player.setScale(1, 1);
+    }
+
+    const maxY = GROUND_Y - 22;
+    if (this.player.y > maxY && onGround) this.player.y = maxY;
+
+    this.checkCrashPits();
+    this.updatePhantoms(dt);
+    this.updateHUD();
+  }
+
+  getPlayerSpeed() { return this.energy < 30 ? PLAYER_SPEED * 0.7 : PLAYER_SPEED; }
+  getJumpPower() { return this.energy < 30 ? PLAYER_JUMP * 0.8 : PLAYER_JUMP; }
+
+  updatePlayerState() {
+    if (this.isInvincible) return;
+    this.player.setTexture(this.energy > 80 ? 'nibble_energized' : this.energy < 30 ? 'nibble_tired' : 'nibble');
+  }
+
+  checkCrashPits() {
+    for (const cp of L1.crashPits) {
+      if (this.player.x > cp.x && this.player.x < cp.x + cp.w && this.player.y > GROUND_Y - 30) {
+        if (!this.isDucking) this.player.setVelocityX(this.player.body.velocity.x * 0.5);
+        return;
+      }
+    }
+  }
+
+  updatePhantoms(dt) {
+    const px = this.player.x;
+    for (const phantom of this.phantomData) {
+      if (!phantom.active) continue;
+      const dist = Math.abs(px - phantom.x);
+      const telegraph = phantom.getData('telegraph');
+      const isActive = phantom.getData('active');
+      if (!isActive && dist < PHANTOM_DETECT + 100) {
+        if (telegraph.alpha < 0.6) {
+          telegraph.setAlpha(Math.min(0.6, telegraph.alpha + dt * 0.5));
+          telegraph.setPosition(phantom.getData('originX'), GROUND_Y - 35);
+        }
+        if (telegraph.alpha >= 0.5) {
+          phantom.setData('active', true); phantom.setAlpha(1);
+          this.tweens.add({ targets: telegraph, alpha: 0, duration: 500 });
+        }
+      }
+      if (isActive) {
+        const dir = px < phantom.x ? -1 : 1;
+        const originX = phantom.getData('originX');
+        if (dist < PHANTOM_DETECT) {
+          const newX = phantom.x + dir * PHANTOM_SPEED * dt;
+          if (Math.abs(newX - originX) < 200) phantom.x = newX;
+        } else {
+          const toOrigin = originX - phantom.x;
+          if (Math.abs(toOrigin) > 2) phantom.x += Math.sign(toOrigin) * PHANTOM_SPEED * 0.5 * dt;
+        }
+        phantom.y = GROUND_Y - 35 + Math.sin(this.time.now / 600 + phantom.getData('originX')) * 5;
+      }
+    }
+  }
+
+  triggerFail() {
+    if (this.levelFailed) return;
+    this.levelFailed = true;
+    this.player.setTexture('nibble_tired'); this.player.setVelocityX(0); this.player.setVelocityY(0);
+    const elapsed = (this.time.now - this.startTime) / 1000;
+    const progress = this.player.x / L1.finishX;
+    this.time.delayedCall(1200, () => {
+      this.scene.start('Result', {
+        success: false, nearMiss: progress > 0.75,
+        carbsCollected: this.carbsCollected, totalCarbs: this.totalCarbItems,
+        fibreCollected: this.fibreCollected, totalFibre: this.totalFibreItems,
+        energy: 0, cells: this.cellsCollected, stars: [],
+        dmgTaken: this.dmgTaken, neutralCollected: this.neutralCollected,
+        funCollected: this.funCollected, rareCollected: this.rareCollected, elapsed,
+      });
+    });
+  }
+}
+
+// =================================================================
+// RESULT SCENE — End-of-level feedback
+// =================================================================
+
+class ResultScene extends Phaser.Scene {
+  constructor() { super('Result'); }
+  init(data) { this.resultData = data; }
+
+  create() {
+    const d = this.resultData;
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x1a1a2e);
+    const panelW = 580, panelH = 420;
+    this.add.rectangle(cx, cy, panelW + 4, panelH + 4, 0xf0c040);
+    this.add.rectangle(cx, cy, panelW, panelH, 0x1a1a2e);
+
+    if (d.success) this.showSuccess(cx, cy, d);
+    else if (d.nearMiss) this.showNearMiss(cx, cy, d);
+    else this.showFail(cx, cy, d);
+
+    const btnY = cy + panelH / 2 - 35;
+    const btn = this.add.rectangle(cx, btnY, 180, 36, 0xf0c040).setInteractive({ useHandCursor: true });
+    this.add.text(cx, btnY, d.success ? '[ CONTINUE ]' : '[ TRY AGAIN ]', { fontFamily: 'Courier New', fontSize: '14px', color: '#1a1a2e', fontStyle: 'bold' }).setOrigin(0.5);
+    btn.on('pointerover', () => btn.setFillStyle(0xf8d868));
+    btn.on('pointerout', () => btn.setFillStyle(0xf0c040));
+    btn.on('pointerdown', () => this.scene.start(d.success ? 'Splash' : 'Game'));
+    this.input.keyboard.on('keydown-SPACE', () => this.scene.start(d.success ? 'Splash' : 'Game'));
+  }
+
+  showSuccess(cx, cy, d) {
+    this.add.text(cx, cy - 170, 'Fueled Up!', { fontFamily: 'Courier New', fontSize: '28px', color: '#f0c040', fontStyle: 'bold' }).setOrigin(0.5);
+    this.add.text(cx, cy - 110, '"Great work! You collected the carbs your\n body needs for quick energy. Carbs break\n down into glucose — the fuel your brain\n and muscles run on."', {
+      fontFamily: 'Courier New', fontSize: '11px', color: '#cccccc', align: 'center', lineSpacing: 4,
+    }).setOrigin(0.5);
+
+    const statY = cy - 40;
+    const stats = [
+      `Carb items collected: ${d.carbsCollected} / ${d.totalCarbs}`,
+      `Fibre-rich carbs found: ${d.fibreCollected} / ${d.totalFibre}`,
+      `Energy at finish: ${d.energy}%`,
+      `Energy Cells: ${d.cells}`,
+      `Time: ${d.elapsed.toFixed(1)}s`,
+    ];
+    stats.forEach((s, i) => this.add.text(cx, statY + i * 20, s, { fontFamily: 'Courier New', fontSize: '12px', color: '#aaaaaa' }).setOrigin(0.5));
+
+    const starY = statY + stats.length * 20 + 15;
+    this.add.text(cx, starY, 'KNOWLEDGE STARS', { fontFamily: 'Courier New', fontSize: '10px', color: '#f0c040', letterSpacing: 2 }).setOrigin(0.5);
+    const starDescs = [
+      { id: 1, text: 'Collected all fibre-rich carbs' },
+      { id: 2, text: 'Found the hidden alcove' },
+      { id: 3, text: 'Finished with 90%+ energy' },
+    ];
+    starDescs.forEach((s, i) => {
+      const earned = d.stars.includes(s.id);
+      this.add.text(cx - 140, starY + 18 + i * 18, `${earned ? '★' : '☆'} ${s.text}`, {
+        fontFamily: 'Courier New', fontSize: '11px', color: earned ? '#f0c040' : '#555555',
+      });
+    });
+    if (!d.dmgTaken) {
+      this.add.text(cx, starY + 80, 'No damage taken! +5 bonus cells', { fontFamily: 'Courier New', fontSize: '11px', color: '#80ffcc' }).setOrigin(0.5);
+    }
+  }
+
+  showNearMiss(cx, cy, d) {
+    this.add.text(cx, cy - 150, 'Almost There!', { fontFamily: 'Courier New', fontSize: '28px', color: '#e8b84c', fontStyle: 'bold' }).setOrigin(0.5);
+    this.add.text(cx, cy - 85, '"You were so close! Your energy ran out\n just before the finish. Try collecting a\n few more carb items along the way —\n every one tops up your fuel."', {
+      fontFamily: 'Courier New', fontSize: '11px', color: '#cccccc', align: 'center', lineSpacing: 4,
+    }).setOrigin(0.5);
+    this.add.text(cx, cy, 'HINT:', { fontFamily: 'Courier New', fontSize: '12px', color: '#f0c040' }).setOrigin(0.5);
+    this.add.text(cx, cy + 22, '"Fibre-rich carbs (like oats and fruits)\n give a little bonus energy. Look for the\n items with a green sparkle!"', {
+      fontFamily: 'Courier New', fontSize: '11px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
+    }).setOrigin(0.5);
+    this.showBasicStats(cx, cy + 80, d);
+  }
+
+  showFail(cx, cy, d) {
+    this.add.text(cx, cy - 150, 'Running on Empty', { fontFamily: 'Courier New', fontSize: '28px', color: '#cc6666', fontStyle: 'bold' }).setOrigin(0.5);
+    this.add.text(cx, cy - 85, '"Your energy dipped to zero — time to\n refuel and try again! Focus on grabbing\n the carb items and steering clear of\n Fatigue Phantoms."', {
+      fontFamily: 'Courier New', fontSize: '11px', color: '#cccccc', align: 'center', lineSpacing: 4,
+    }).setOrigin(0.5);
+    this.add.text(cx, cy, 'HINT:', { fontFamily: 'Courier New', fontSize: '12px', color: '#f0c040' }).setOrigin(0.5);
+    this.add.text(cx, cy + 22, '"Fatigue Phantoms glow before they appear.\n When you see the shimmer, get ready\n to jump!"', {
+      fontFamily: 'Courier New', fontSize: '11px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
+    }).setOrigin(0.5);
+    this.showBasicStats(cx, cy + 80, d);
+  }
+
+  showBasicStats(cx, y, d) {
+    [`Carbs collected: ${d.carbsCollected} / ${d.totalCarbs}`, `Fibre found: ${d.fibreCollected} / ${d.totalFibre}`, `Energy Cells: ${d.cells}`].forEach((s, i) => {
+      this.add.text(cx, y + i * 18, s, { fontFamily: 'Courier New', fontSize: '11px', color: '#888888' }).setOrigin(0.5);
+    });
+  }
+}
+
+// =================================================================
+// PHASER CONFIG & LAUNCH
+// =================================================================
+
+const config = {
+  type: Phaser.AUTO,
+  width: GAME_W,
+  height: GAME_H,
+  parent: 'game-container',
+  backgroundColor: '#1a1a2e',
+  pixelArt: true,
+  physics: {
+    default: 'arcade',
+    arcade: { gravity: { y: 900 }, debug: false },
+  },
+  scene: [BootScene, SplashScene, GameScene, ResultScene],
+};
+
+const game = new Phaser.Game(config);

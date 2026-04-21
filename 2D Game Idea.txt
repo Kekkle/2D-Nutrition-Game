@@ -1,0 +1,77 @@
+2D Game Idea: 
+
+I would like to create a 2D style game, similar to the simple Mario game where he jumps along and has to collect coins and avoid negative things. 
+
+This 2D game will be based on Nutrition pricinples. For example, the first level will focus on "collect all the Carbs" Next level "Collect Protein" then "Collect Fats". The Concepts and learning woul dbe like:
+
+-Learn about Carbs (L1), Proteins (L2) Fats (L3)
+-Learn about Glucose (L4), amino acids, and lipids that make up each macronutritient.
+-Identify foods based on glucose, amino acid, lipids. 
+-Learn about energy needs. Carb = quick energy. Fats = Slower energy source. Protein, not really for energy, mostly structure. 
+-Learn about low energy availability. Breakdown of tissue and fats for glucose substrate for energy. 
+-Learn about ineffeciency of ultra processed foods like chicken nuggets and fries. How eating those things provides quick, short-term energy and doesn't fuel (or satiate for long). 
+-Learn about bodies needs for energy. Brain has high energy demands. Same as immune system and digestive tract. How systems run less well when energy is low. 
+
+
+So the idea is that the start of the game level would have a simple piece of info on the opening window to "teach" the basic concept for that level like "Carbs are found in such and such items, and provide such and such" then the user collects all carbs. The idea is that the instruction window is the only real learning moment, so it's simple but memorable. 
+
+There would need to be consistent mods for the user to avoid or be wary of, but I'm not sure what those are yet. 
+
+User skill should include running, jumping and walking and ducking. User gains points and coins as they go along which can unlock momentary new powers, like gliding down from a jump. 
+
+With this information in mind, create for me a game plan md file. Give me accurate counsel and feedback on what such a game like this might need, what points need to be well researched (nutrition aspects), what things I may not have thought about. 
+
+
+--Ooh idea for Ultraprocessed food level. Aim for 80-20%. fill the bar up to 80% with whole foods, and then allowance of 20% for fun snacks (fries, cookie, candy, sugar drink, etc). 
+
+--Kai: have a book feature. when kids collect items, items go in book with name of item. learn as they go. 
+--have treasure chest with rare item (pizza, chocolate, mango, pomegranite, coconut, cashews). when thye find and collect item, the avatar changes to the item for the remainder of the game (new skin unlocked). 
+
+-Erik: Coins defeat eneimes. throw at the enemies, defeat eneimes gain abilities. 
+- Generate random platforms, terreria camera move style. 
+-Boss level before moving to next section, where boss is stationary, throws things, collect all foods without getting hit. area lights up red where the bad thing will be thrown. 
+- drop orbs, or food drop in the boss level. 
+-In splash content, remove emojis of food to collect? have users figure it out? watch out section just shows the enemies, but doesn't tell you what happens. info window pops up once hit by an eneime. 
+-Begin with spawnign to home page with shop for abilities, skins, tokens. 
+-RPG?
+
+-have agent do competitor reserach to see if this is unique or if something like this alreayd exists. 
+
+-With this project I took more of a publishing approach. 
+-write out what my project idea was.
+-create agents md file for the project.
+-agent developed the game plan with basic rules of play and what would transpire, points, challenges, etc.
+-create the text 
+-do the research on the text
+-review and edit all the text for the first 4 levels, the demo set. 
+-then develop the visuals. 
+-first create samples in two different styles. 16bit and 32 bit
+-after that we created an 8bit and a modern look
+-decided on the 16 bit. The first sample was of the first level, for carbs. So i had the agent create a sample style for the other four first levels (protein, firbre and fats)
+-general tone and color style looked good for each level (warm garden feel for carbs, yellow feel for fats, green for fibre, blueish hues for protein)
+-then create samples of some of the food items and game mods in two styles 16 bit and more modern
+-decided on 16 bit. 
+-created a full list of the food items
+-back and forth with agent (remove bold, looked better), adjusted some foods that didn't look right (chicken, banana, peanut)
+-made changes to how agent ordered the foods (ai had separated fibre foods from carb foods, because fibre will be its own level. however needs to be clear that fibre falls under carbs)
+- introduced the concept of 80% "healthy foods" 20% less healthy foods (fries, soda, icecream, cookie), as we want a variety to be included. no good vs bad foods. 
+-came up with rarity food items, these are complete meals (pizza, tacos, sushi, hamburger)
+-after completing foods, worked on enemies and hazards. 
+-ai had suggested food types to be enemies, but this wen't against 'no good vs bad food' so we changed it more to things like brain fog geist, etc. We may still need to adjust some things here, but the visuals were good enough. 
+-then I wanted to work on the carbs play screen as it just wasnt quite right. Too simplistic. Ugly hills and and clouds. No depth. I typed out some instructions to the agent and it produced something quite terribly worse. Revert back to origingal. this time I gave it two photos "something along these lines". Again, a horrendous output. Revert back to original. Thought msybe i needed to create the backgrounds so i played around with some ideas on canva. 
+-Deceided to give agent another try, this time going about changes piece by pieces (first work on clouds and hills--real background, then foreground floor, etc)
+-i asked it create the hills more slope like, and didn't mention anything about clouds. again, looked terrible. so asked the agent if i needed to create something visually. 
+
+the agent responded: Yes — a Canva image or any PNG mockup of what you want the background to look like would be extremely helpful. The core problem is that CSS border-radius and stacked divs are very limited for creating natural-looking shapes like hills and clouds. I'm essentially sculpting with rectangles and circles, which is why the results keep looking off. Alternatively, we could consider a different technical approach entirely — instead of building hills from CSS shapes, I could use SVG paths directly in the HTML, which allows actual curved, organic shapes (real slopes, natural cloud contours) rather than fighting with border-radius. That would get much closer to what you're envisioning.
+
+SVG approach was just as ugly. the agent then worked wit the png that i created. But something was just not looking right. 
+
+I showed my daughter and she said "make it more blocky, more pixels, like the old mario game.' I thot, aha, that's was the original idea which had actually started morphing into something else. So we went that way to see what would happen. 
+
+-It tried, but based it off of our recent mockups which I hadn't wanted. So I corrected, realised I hadn't been clear (if this process teaches you nothing, it at least shows you where your gaps in clarity and explaining lie). i asked to create this version based off of our original mockup. i also gave it an image for 'inspiration' (do ai agents need inspiration?(. 
+
+-LOOK INTO: https://www.mockplus.com/blog/post/game-ui-design
+
+-make clouds non transparent. start f game always have energy bar only start going down once player stars moving. whenever player is still, energy bar should slow down. In all games/Levels. Add this to the rules. 
+
+-new feature. I wnt the avtar to be able to throw energy balls at the enemies in order to defeat them. this is controled with mouse aim. the avatar should be able to jump on top evenies and not lose energy. this would be a rule for all future games. This curren level may need a few more landing spots. for example the sushi and pear are impossible to reach. and sweet potatoe was only possible to reach by jumping on enemy head. this is okay, so long as avatar doesn't lose energy when doing so. 

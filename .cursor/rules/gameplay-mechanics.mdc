@@ -1,0 +1,24 @@
+---
+description: Core gameplay mechanics rules that apply to all levels and game modes
+alwaysApply: true
+---
+
+# Gameplay Mechanics
+
+These rules apply to all levels and game modes.
+
+## Energy Bar Drain
+
+- Energy **does not drain** until the player starts moving (first directional input or jump).
+- While the player is **moving** (holding left/right), energy drains at the normal rate (`ENERGY_DRAIN`).
+- While the player is **standing still** (no directional input, on ground), energy drains at a significantly reduced rate (`ENERGY_DRAIN_IDLE`, roughly 25% of normal).
+- Jumping and ducking count as "active" — once the player has started moving, the timer is active.
+- This gives players time to read the HUD and orient themselves at the start of each level.
+
+## Enemy Visual Style
+
+Enemies use **solid fills with bold 3px outlines** matching `mockups/enemies-hazards-transparent.html`. They are distinct, visible threats — not translucent. Sprite backgrounds are transparent; the enemies themselves are opaque with clear outlines.
+
+## Clouds
+
+Clouds are always **fully opaque** (`alpha: 1`), not translucent.

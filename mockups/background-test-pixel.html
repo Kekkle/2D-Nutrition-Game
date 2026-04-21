@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Style A: 16-Bit Pixel Art (Pixelated)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 18px;
+    color: #f0c040;
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 20px;
+  }
+  .game-frame {
+    width: 960px;
+    height: 540px;
+    border: 4px solid #f0c040;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    image-rendering: pixelated;
+  }
+  .pixel-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 960px;
+    height: 540px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* ========== NIBBLE ========== */
+  .nibble {
+    position: absolute;
+    bottom: 122px;
+    left: 160px;
+    z-index: 5;
+  }
+  .nibble-body {
+    width: 44px;
+    height: 44px;
+    background: #48a8e0;
+    border: 3px solid #2868a0;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 3px 0 #1a4878;
+    image-rendering: pixelated;
+  }
+  .nibble-highlight {
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    width: 14px;
+    height: 8px;
+    background: #68c8f8;
+    border-radius: 4px;
+    opacity: 0.6;
+  }
+  .nibble-eye {
+    position: absolute;
+    width: 12px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    top: 10px;
+    border: 2px solid #aaa;
+  }
+  .nibble-eye.left { left: 5px; }
+  .nibble-eye.right { right: 5px; }
+  .nibble-pupil {
+    position: absolute;
+    width: 6px;
+    height: 8px;
+    background: #1a2a3a;
+    border-radius: 50%;
+    bottom: 0;
+    right: 0;
+  }
+  .nibble-pupil::after {
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+  }
+  .nibble-blush {
+    position: absolute;
+    width: 8px;
+    height: 5px;
+    background: rgba(240,140,160,0.45);
+    border-radius: 50%;
+    bottom: 8px;
+  }
+  .nibble-blush.left { left: 2px; }
+  .nibble-blush.right { right: 2px; }
+  .nibble-smile {
+    position: absolute;
+    width: 12px;
+    height: 5px;
+    border-bottom: 3px solid #1a4878;
+    border-radius: 0 0 8px 8px;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .nibble-foot {
+    position: absolute;
+    bottom: -8px;
+    width: 14px;
+    height: 10px;
+    background: #48a8e0;
+    border: 3px solid #2868a0;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+  }
+  .nibble-foot.left { left: 4px; }
+  .nibble-foot.right { right: 4px; }
+  .nibble-foot.step { transform: translateY(-2px); }
+  .nibble-glow {
+    position: absolute;
+    bottom: 114px;
+    left: 146px;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #48a8e028 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  /* ========== NIBBLE STATE VARIANTS ========== */
+  .nibble-body.energized {
+    background: #f0d040;
+    border-color: #c8a020;
+    box-shadow: 0 3px 0 #a08018, 0 0 12px #f0d04066, 0 0 24px #f0d04033;
+  }
+  .nibble-body.energized .nibble-highlight { background: #f8e878; opacity: 0.8; }
+  .nibble-body.energized .nibble-smile { border-color: #a08018; }
+  .nibble-body.energized .nibble-blush { background: rgba(255,160,120,0.5); }
+  .nibble-foot.energized { background: #f0d040; border-color: #c8a020; }
+  .nibble-body.tired {
+    background: #b0b8c0;
+    border-color: #8890a0;
+    box-shadow: 0 3px 0 #686878;
+  }
+  .nibble-body.tired .nibble-highlight { background: #c8d0d8; opacity: 0.3; }
+  .nibble-eye.tired { height: 7px; top: 16px; border-radius: 8px 8px 3px 3px; border-color: #999; }
+  .nibble-foot.tired { background: #b0b8c0; border-color: #8890a0; }
+
+  /* ========== FOOD COLLECTIBLES ========== */
+  .collectible {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    image-rendering: pixelated;
+    z-index: 5;
+  }
+  .collectible .label {
+    font-size: 8px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+  .bread {
+    width: 24px; height: 20px;
+    background: #e8b84c; border: 3px solid #c89030;
+    border-radius: 6px 6px 2px 2px; position: relative;
+  }
+  .bread::after {
+    content: ''; position: absolute; top: 3px; left: 3px; right: 3px;
+    height: 3px; background: #d4a040; border-radius: 2px;
+  }
+  .bread-brown {
+    width: 24px; height: 20px;
+    background: #a06820; border: 3px solid #7a5018;
+    border-radius: 6px 6px 2px 2px; position: relative;
+  }
+  .bread-brown::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 3px; height: 3px; background: #c89030; border-radius: 50%;
+    box-shadow: 6px 0 0 #c89030, 12px 2px 0 #c89030, 3px 6px 0 #c89030, 9px 5px 0 #c89030;
+  }
+  .banana {
+    width: 26px; height: 14px;
+    background: #f0d040; border: 3px solid #c8a820;
+    border-radius: 12px 12px 4px 4px; transform: rotate(-15deg);
+  }
+  .apple {
+    width: 20px; height: 22px;
+    background: #dd3333; border: 3px solid #aa2222;
+    border-radius: 50% 50% 45% 45%; position: relative;
+  }
+  .apple::before {
+    content: ''; position: absolute; top: -6px; left: 50%;
+    transform: translateX(-50%); width: 3px; height: 6px; background: #5a3a1a;
+  }
+  .apple::after {
+    content: ''; position: absolute; top: -8px; right: 2px;
+    width: 6px; height: 5px; background: #3a8a2a;
+    border-radius: 50% 50% 0 50%; transform: rotate(30deg);
+  }
+  .rice {
+    width: 28px; height: 18px;
+    background: #f5f0e0; border: 3px solid #d0c8a8;
+    border-radius: 4px 4px 12px 12px; position: relative;
+  }
+  .rice::before {
+    content: ''; position: absolute; top: -4px; left: 4px;
+    width: 4px; height: 4px; background: #f5f0e0; border-radius: 50%;
+    box-shadow: 6px -1px 0 #f5f0e0, 12px 0 0 #f5f0e0;
+  }
+  .potato {
+    width: 24px; height: 18px;
+    background: #c8a060; border: 3px solid #a08040; border-radius: 50%;
+  }
+  .oats {
+    width: 26px; height: 16px;
+    background: #d4b87a; border: 3px solid #b89858;
+    border-radius: 4px 4px 10px 10px; position: relative;
+  }
+  .oats::before {
+    content: ''; position: absolute; top: 2px; left: 3px;
+    width: 16px; height: 3px; background: #c8a868; border-radius: 2px;
+  }
+  .pasta {
+    width: 22px; height: 22px;
+    background: #f0d870; border: 3px solid #d0b850;
+    border-radius: 50%; position: relative;
+  }
+  .pasta::after {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); width: 8px; height: 8px;
+    background: transparent; border: 2px solid #d0b850; border-radius: 50%;
+  }
+
+  /* ========== ENERGY CELLS ========== */
+  .energy-cell {
+    position: absolute; width: 16px; height: 16px;
+    background: radial-gradient(circle at 40% 35%, #80ffcc, #20cc88);
+    border: 2px solid #10aa66; border-radius: 50%;
+    box-shadow: 0 0 6px #40ffaa66; z-index: 5;
+  }
+  .energy-cell::after {
+    content: ''; position: absolute; top: 2px; left: 4px;
+    width: 5px; height: 4px; background: rgba(255,255,255,0.5); border-radius: 50%;
+  }
+
+  /* ========== FATIGUE PHANTOM ========== */
+  .phantom { position: absolute; width: 40px; height: 48px; z-index: 5; }
+  .phantom-body {
+    width: 40px; height: 36px;
+    background: radial-gradient(ellipse, #8866aa88, #55448866);
+    border-radius: 50% 50% 0 0; position: relative;
+  }
+  .phantom-eye {
+    position: absolute; width: 8px; height: 10px;
+    background: #ccaaff; border-radius: 50%; top: 12px;
+    box-shadow: inset 0 0 3px #fff;
+  }
+  .phantom-eye.left { left: 8px; }
+  .phantom-eye.right { right: 8px; }
+  .phantom-tail { display: flex; justify-content: space-between; }
+  .phantom-wisp {
+    width: 10px; height: 12px;
+    background: #8866aa55; border-radius: 0 0 50% 50%;
+  }
+
+  /* ========== CRASH PIT ========== */
+  .crash-pit {
+    position: absolute; bottom: 120px; height: 12px;
+    background: repeating-linear-gradient(90deg, #8a6a30 0px, #8a6a30 6px, #6a5020 6px, #6a5020 12px);
+    border-top: 3px solid #aa8840; opacity: 0.85; z-index: 3;
+  }
+  .crash-pit::before {
+    content: '~ ~ ~ ~'; position: absolute; top: -12px; left: 0; right: 0;
+    text-align: center; font-size: 10px; color: #aa884088; letter-spacing: 4px;
+  }
+
+  /* ========== HUD ========== */
+  .hud {
+    position: absolute; top: 0; left: 0; right: 0; height: 60px;
+    background: linear-gradient(180deg, #000000cc 0%, #00000066 80%, transparent 100%);
+    display: flex; align-items: flex-start; padding: 8px 16px; gap: 20px; z-index: 10;
+  }
+  .hud-section { display: flex; flex-direction: column; gap: 3px; }
+  .hud-label { font-size: 9px; color: #f0c040; letter-spacing: 1.5px; text-transform: uppercase; }
+  .energy-bar-bg {
+    width: 200px; height: 14px; background: #333;
+    border: 2px solid #f0c040; border-radius: 2px; overflow: hidden; position: relative;
+  }
+  .energy-bar-fill {
+    height: 100%; width: 72%;
+    background: linear-gradient(90deg, #40cc60, #80ee40);
+    border-radius: 1px; position: relative;
+  }
+  .energy-bar-fill::after {
+    content: ''; position: absolute; top: 1px; left: 2px; right: 4px;
+    height: 4px; background: rgba(255,255,255,0.25); border-radius: 1px;
+  }
+  .collection-bar-bg {
+    width: 180px; height: 14px; background: #333;
+    border: 2px solid #e8b84c; border-radius: 2px; overflow: hidden;
+  }
+  .collection-bar-fill {
+    height: 100%; width: 45%;
+    background: linear-gradient(90deg, #e8b84c, #f0d040);
+    border-radius: 1px; position: relative;
+  }
+  .collection-bar-fill::after {
+    content: ''; position: absolute; top: 1px; left: 2px; right: 4px;
+    height: 4px; background: rgba(255,255,255,0.2); border-radius: 1px;
+  }
+  .fibre-indicator { display: flex; align-items: center; gap: 4px; }
+  .fibre-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #3a8a2a; }
+  .fibre-dot.found { background: #3a8a2a; }
+  .fibre-dot.empty { background: #333; }
+  .cell-counter { display: flex; align-items: center; gap: 4px; }
+  .cell-icon {
+    width: 12px; height: 12px;
+    background: radial-gradient(circle at 40% 35%, #80ffcc, #20cc88);
+    border: 1px solid #10aa66; border-radius: 50%;
+  }
+  .cell-count { font-size: 14px; color: #80ffcc; font-weight: bold; }
+  .stars-display { display: flex; gap: 4px; }
+  .star { font-size: 14px; color: #f0c040; text-shadow: 0 0 4px #f0c04066; }
+  .star.empty { color: #555; text-shadow: none; }
+  .level-name {
+    font-size: 10px; color: #f0c040; letter-spacing: 2px;
+    position: absolute; top: 10px; right: 16px;
+  }
+  .sparkle {
+    position: absolute; width: 8px; height: 8px;
+    color: #80ff80; font-size: 10px; pointer-events: none;
+  }
+
+  /* ========== STATES STRIP ========== */
+  .states-strip { display: flex; gap: 48px; margin-top: 24px; align-items: flex-end; }
+  .state-box { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .state-box .state-label { font-size: 10px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; }
+  .state-box .state-desc { font-size: 8px; color: #666; text-align: center; max-width: 120px; line-height: 1.4; }
+  .state-nibble { position: relative; margin-bottom: 10px; }
+  .state-glow {
+    position: absolute; top: -14px; left: -14px; width: 72px; height: 72px;
+    border-radius: 50%; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <h1>Style A: 16-Bit Pixel Art (Pixelated)</h1>
+  <p class="subtitle">NutriRun — Level 1: Carbohydrates — Full Pixelated Scene</p>
+
+  <div class="game-frame">
+    <!-- Pixel-art background drawn via canvas -->
+    <canvas id="bgCanvas" class="pixel-canvas" width="240" height="135"></canvas>
+
+    <!-- Nibble -->
+    <div class="nibble-glow"></div>
+    <div class="nibble">
+      <div class="nibble-body">
+        <div class="nibble-highlight"></div>
+        <div class="nibble-eye left"><div class="nibble-pupil"></div></div>
+        <div class="nibble-eye right"><div class="nibble-pupil"></div></div>
+        <div class="nibble-blush left"></div>
+        <div class="nibble-blush right"></div>
+        <div class="nibble-smile"></div>
+      </div>
+      <div class="nibble-foot left step"></div>
+      <div class="nibble-foot right"></div>
+    </div>
+
+    <!-- Food on ground -->
+    <div class="collectible" style="bottom: 130px; left: 280px;">
+      <div class="bread"></div><div class="label">Bread</div>
+    </div>
+    <div class="collectible" style="bottom: 130px; left: 470px;">
+      <div class="banana"></div><div class="label">Banana</div>
+    </div>
+    <div class="collectible" style="bottom: 130px; left: 600px;">
+      <div class="potato"></div><div class="label">Potato</div>
+    </div>
+    <div class="collectible" style="bottom: 130px; left: 820px;">
+      <div class="rice"></div><div class="label">Rice</div>
+    </div>
+
+    <!-- Food on platforms -->
+    <div class="collectible" style="bottom: 250px; left: 230px;">
+      <div class="apple"></div>
+      <span class="sparkle" style="top: -4px; right: -6px;">✦</span>
+      <div class="label" style="color: #aaffaa;">Apple ✦</div>
+    </div>
+    <div class="collectible" style="bottom: 330px; left: 450px;">
+      <div class="oats"></div>
+      <span class="sparkle" style="top: -4px; right: -6px;">✦</span>
+      <div class="label" style="color: #aaffaa;">Oats ✦</div>
+    </div>
+    <div class="collectible" style="bottom: 290px; left: 700px;">
+      <div class="bread-brown"></div>
+      <span class="sparkle" style="top: -4px; right: -6px;">✦</span>
+      <div class="label" style="color: #aaffaa;">Whole Grain ✦</div>
+    </div>
+    <div class="collectible" style="bottom: 210px; left: 100px;">
+      <div class="pasta"></div><div class="label">Pasta</div>
+    </div>
+
+    <!-- Energy Cells -->
+    <div class="energy-cell" style="bottom: 160px; left: 240px;"></div>
+    <div class="energy-cell" style="bottom: 160px; left: 262px;"></div>
+    <div class="energy-cell" style="bottom: 160px; left: 284px;"></div>
+    <div class="energy-cell" style="bottom: 260px; left: 310px;"></div>
+    <div class="energy-cell" style="bottom: 280px; left: 332px;"></div>
+    <div class="energy-cell" style="bottom: 160px; left: 530px;"></div>
+    <div class="energy-cell" style="bottom: 160px; left: 552px;"></div>
+    <div class="energy-cell" style="bottom: 350px; left: 490px;"></div>
+    <div class="energy-cell" style="bottom: 160px; left: 700px;"></div>
+    <div class="energy-cell" style="bottom: 160px; left: 722px;"></div>
+    <div class="energy-cell" style="bottom: 160px; left: 744px;"></div>
+    <div class="energy-cell" style="bottom: 310px; left: 680px;"></div>
+    <div class="energy-cell" style="bottom: 310px; left: 702px;"></div>
+    <div class="energy-cell" style="bottom: 310px; left: 760px;"></div>
+
+    <!-- Fatigue Phantom -->
+    <div class="phantom" style="bottom: 125px; left: 720px;">
+      <div class="phantom-body">
+        <div class="phantom-eye left"></div>
+        <div class="phantom-eye right"></div>
+      </div>
+      <div class="phantom-tail">
+        <div class="phantom-wisp"></div>
+        <div class="phantom-wisp"></div>
+        <div class="phantom-wisp"></div>
+        <div class="phantom-wisp"></div>
+      </div>
+    </div>
+
+    <!-- Crash Pit -->
+    <div class="crash-pit" style="left: 360px; width: 80px;"></div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-section">
+        <div class="hud-label">Energy</div>
+        <div class="energy-bar-bg"><div class="energy-bar-fill"></div></div>
+      </div>
+      <div class="hud-section">
+        <div class="hud-label">Carbs Collected</div>
+        <div class="collection-bar-bg"><div class="collection-bar-fill"></div></div>
+        <div class="fibre-indicator">
+          <span style="font-size: 8px; color: #80ff80;">Fibre:</span>
+          <div class="fibre-dot found"></div>
+          <div class="fibre-dot found"></div>
+          <div class="fibre-dot empty"></div>
+          <div class="fibre-dot empty"></div>
+          <div class="fibre-dot empty"></div>
+          <div class="fibre-dot empty"></div>
+        </div>
+      </div>
+      <div class="hud-section">
+        <div class="cell-counter">
+          <div class="cell-icon"></div>
+          <span class="cell-count">× 23</span>
+        </div>
+        <div class="stars-display">
+          <span class="star">★</span>
+          <span class="star empty">★</span>
+          <span class="star empty">★</span>
+        </div>
+      </div>
+      <div class="level-name">L1 — CARBOHYDRATES</div>
+    </div>
+  </div>
+
+  <!-- Nibble state reference strip -->
+  <div class="states-strip">
+    <div class="state-box">
+      <div class="state-nibble">
+        <div class="state-glow" style="background: radial-gradient(circle, #f0d04055 0%, #f0d04022 40%, transparent 70%);"></div>
+        <div class="nibble-body energized">
+          <div class="nibble-highlight"></div>
+          <div class="nibble-eye left"><div class="nibble-pupil"></div></div>
+          <div class="nibble-eye right"><div class="nibble-pupil"></div></div>
+          <div class="nibble-blush left"></div>
+          <div class="nibble-blush right"></div>
+          <div class="nibble-smile"></div>
+        </div>
+        <div class="nibble-foot energized left" style="position:absolute; bottom:-8px; left:4px;"></div>
+        <div class="nibble-foot energized right" style="position:absolute; bottom:-8px; right:4px;"></div>
+      </div>
+      <div class="state-label" style="color: #f0d040;">Energized</div>
+      <div class="state-desc">Yellow glow, bright eyes, rosy cheeks, big smile</div>
+    </div>
+    <div class="state-box">
+      <div class="state-nibble">
+        <div class="state-glow" style="background: radial-gradient(circle, #48a8e018 0%, transparent 65%);"></div>
+        <div class="nibble-body">
+          <div class="nibble-highlight"></div>
+          <div class="nibble-eye left"><div class="nibble-pupil"></div></div>
+          <div class="nibble-eye right"><div class="nibble-pupil"></div></div>
+          <div class="nibble-blush left"></div>
+          <div class="nibble-blush right"></div>
+          <div class="nibble-smile"></div>
+        </div>
+        <div class="nibble-foot left" style="position:absolute; bottom:-8px; left:4px;"></div>
+        <div class="nibble-foot right" style="position:absolute; bottom:-8px; right:4px;"></div>
+      </div>
+      <div class="state-label" style="color: #48a8e0;">Normal</div>
+      <div class="state-desc">Cool blue, standard state during gameplay</div>
+    </div>
+    <div class="state-box">
+      <div class="state-nibble">
+        <div class="nibble-body tired">
+          <div class="nibble-highlight"></div>
+          <div class="nibble-eye tired left"><div class="nibble-pupil"></div></div>
+          <div class="nibble-eye tired right"><div class="nibble-pupil"></div></div>
+        </div>
+        <div class="nibble-foot tired left" style="position:absolute; bottom:-8px; left:4px;"></div>
+        <div class="nibble-foot tired right" style="position:absolute; bottom:-8px; right:4px;"></div>
+      </div>
+      <div class="state-label" style="color: #8890a0;">Tired</div>
+      <div class="state-desc">Light grey, droopy half-shut eyes, no smile, no blush</div>
+    </div>
+  </div>
+
+<script>
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+const W = 240, H = 135;
+
+const GROUND_Y = 105;
+
+function fill(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); }
+function px(x, y, c) { ctx.fillStyle = c; ctx.fillRect(x, y, 1, 1); }
+
+// ========== SKY GRADIENT ==========
+const skyBands = [
+  { y: 0,  h: 20, color: '#3070c0' },
+  { y: 20, h: 20, color: '#3a7ecf' },
+  { y: 40, h: 20, color: '#4890d8' },
+  { y: 60, h: 15, color: '#5fa8d3' },
+  { y: 75, h: 15, color: '#6ab8d8' },
+  { y: 90, h: 15, color: '#78c4dd' },
+];
+skyBands.forEach(b => fill(0, b.y, W, b.h, b.color));
+
+// Zigzag transition between sky bands
+function zigzag(y, c1, c2) {
+  for (let x = 0; x < W; x++) {
+    const offset = (x % 4 < 2) ? 0 : 1;
+    px(x, y + offset, c2);
+    px(x, y - 1 + offset, c1);
+  }
+}
+zigzag(20, '#3070c0', '#3a7ecf');
+zigzag(40, '#3a7ecf', '#4890d8');
+zigzag(60, '#4890d8', '#5fa8d3');
+zigzag(75, '#5fa8d3', '#6ab8d8');
+zigzag(90, '#6ab8d8', '#78c4dd');
+
+// ========== HILLS ==========
+function fillHill(cx, rx, ry, baseY, c1, c2) {
+  for (let dy = 0; dy <= ry; dy++) {
+    const xSpan = Math.floor(rx * Math.sqrt(1 - (dy * dy) / (ry * ry)));
+    const y = baseY - dy;
+    if (y < 0) continue;
+    const color = dy < ry * 0.3 ? c1 : c2;
+    fill(cx - xSpan, y, xSpan * 2 + 1, 1, color);
+  }
+}
+
+fillHill(40, 55, 35, GROUND_Y, '#90df78', '#80cf68');
+fillHill(125, 42, 26, GROUND_Y, '#a0ec88', '#8edc76');
+fillHill(200, 70, 48, GROUND_Y, '#94e47c', '#84d46c');
+
+// ========== GROUND — jagged pixel grass + dirt layers ==========
+
+// Grass tuft heights (jagged top edge)
+const grassTufts = [];
+for (let x = 0; x < W; x++) {
+  const base = 3;
+  const tuft = Math.floor(Math.random() * 3);
+  const spike = (x % 3 === 0) ? Math.floor(Math.random() * 3) : 0;
+  grassTufts[x] = base + tuft + spike;
+}
+
+// Draw grass tufts
+for (let x = 0; x < W; x++) {
+  const h = grassTufts[x];
+  for (let dy = 0; dy < h; dy++) {
+    const y = GROUND_Y - dy;
+    const shade = dy < 2 ? '#48b830' : (dy < 4 ? '#3aa828' : '#2e9a20');
+    px(x, y, shade);
+  }
+}
+
+// Main grass body
+fill(0, GROUND_Y + 1, W, 4, '#3a9e28');
+fill(0, GROUND_Y + 1, W, 2, '#48b830');
+
+// Darker grass transition
+fill(0, GROUND_Y + 5, W, 2, '#2e8a20');
+
+// Dirt — checkerboard pattern with multiple brown tones
+const dirtTop = GROUND_Y + 7;
+const dirtH = H - dirtTop;
+const dirtColors = [
+  ['#a86830', '#8a5020'],
+  ['#985828', '#7a4418'],
+  ['#884c20', '#6a3c14'],
+];
+
+for (let y = dirtTop; y < H; y++) {
+  const band = Math.min(Math.floor((y - dirtTop) / (dirtH / 3)), 2);
+  const c1 = dirtColors[band][0];
+  const c2 = dirtColors[band][1];
+  for (let x = 0; x < W; x++) {
+    const checker = ((Math.floor(x / 2) + Math.floor((y - dirtTop) / 2)) % 2 === 0);
+    px(x, y, checker ? c1 : c2);
+  }
+}
+
+// Occasional darker speckles for extra texture
+for (let y = dirtTop + 1; y < H - 1; y++) {
+  for (let x = 0; x < W; x++) {
+    if ((x * 7 + y * 13) % 23 === 0) px(x, y, '#5a3010');
+    if ((x * 11 + y * 3) % 31 === 0) px(x, y, '#b07038');
+  }
+}
+
+// ========== PLATFORMS (pixel blocks with grass top) ==========
+function drawPlatform(px1, py1, pw, ph) {
+  // Dirt body
+  fill(px1, py1 + 2, pw, ph - 2, '#8b6914');
+  // Darker bottom edge
+  fill(px1, py1 + ph - 1, pw, 1, '#6d5410');
+  // Dirt texture
+  for (let y = py1 + 3; y < py1 + ph - 1; y++) {
+    for (let x = px1; x < px1 + pw; x++) {
+      if ((x + y) % 5 === 0) px(x, y, '#7a5c12');
+    }
+  }
+  // Grass top — alternating green
+  for (let x = px1; x < px1 + pw; x++) {
+    fill(x, py1, 1, 2, (x % 2 === 0) ? '#5a9e3e' : '#4a8e2e');
+  }
+  // Grass tufts on top
+  for (let x = px1 + 2; x < px1 + pw - 2; x += 3) {
+    const th = 1 + Math.floor(Math.random() * 2);
+    fill(x, py1 - th, 1, th, '#48b830');
+  }
+}
+
+// plat-4: 80px wide → 20px at 4x, bottom: 180px → y = 135-45=90, top = 90-6=84
+drawPlatform(20, 84, 20, 6);
+// plat-1: 120px → 30, bottom: 220px → y=80, top=74
+drawPlatform(50, 74, 30, 6);
+// plat-3: 140px → 35, bottom: 260px → y=70, top=64
+drawPlatform(163, 64, 35, 6);
+// plat-2: 100px → 25, bottom: 300px → y=60, top=54
+drawPlatform(105, 54, 25, 6);
+
+// (sun removed)
+
+// ========== CLOUDS ==========
+function drawCloud(cx, cy, size) {
+  const c = '#ffffff';
+  const s = size;
+  // Flat bottom
+  fill(cx - s * 4, cy + s, s * 8, s, c);
+  // Middle body
+  fill(cx - s * 5, cy - s, s * 10, s * 2, c);
+  // Left bump
+  fill(cx - s * 4, cy - s * 2, s * 4, s, c);
+  fill(cx - s * 3, cy - s * 3, s * 2, s, c);
+  // Right bump (taller)
+  fill(cx + s * 0, cy - s * 2, s * 4, s, c);
+  fill(cx + s * 1, cy - s * 3, s * 2, s, c);
+  fill(cx + s * 1, cy - s * 4, s * 1, s, c);
+  // Shadow hint on bottom
+  const sh = '#d8e4f0';
+  fill(cx - s * 4, cy + s, s * 8, 1, sh);
+}
+
+drawCloud(30, 14, 2);
+drawCloud(135, 22, 2);
+drawCloud(210, 18, 1);
+
+// ========== FENCE ==========
+const fc = '#8b6914', fd = '#6d5410';
+// Posts
+fill(10, GROUND_Y - 9, 2, 9, fc);
+fill(10, GROUND_Y - 9, 1, 9, fd);
+fill(17, GROUND_Y - 9, 2, 9, fc);
+fill(17, GROUND_Y - 9, 1, 9, fd);
+// Rails
+fill(10, GROUND_Y - 7, 9, 1, fc);
+fill(10, GROUND_Y - 4, 9, 1, fc);
+
+// ========== FLOWERS ==========
+function drawFlower(x, color) {
+  px(x, GROUND_Y - 3, '#3a8a2a');
+  px(x, GROUND_Y - 4, '#3a8a2a');
+  px(x, GROUND_Y - 5, color);
+  px(x - 1, GROUND_Y - 5, color);
+  px(x + 1, GROUND_Y - 5, color);
+  px(x, GROUND_Y - 6, color);
+  px(x, GROUND_Y - 5, '#f0d040');
+}
+drawFlower(14, '#ff6688');
+drawFlower(80, '#ffcc44');
+drawFlower(145, '#ff88aa');
+drawFlower(220, '#88aaff');
+</script>
+</body>
+</html>

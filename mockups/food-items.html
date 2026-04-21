@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Food Item Styles (16-Bit)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0e0e1c;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    image-rendering: pixelated;
+  }
+  h1 {
+    font-size: 18px;
+    color: #f0c040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 30px;
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.5;
+  }
+  .style-section {
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 50px;
+  }
+  .style-header {
+    font-size: 14px;
+    color: #f0c040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #2a2a4a;
+    padding-bottom: 8px;
+  }
+  .style-desc {
+    font-size: 10px;
+    color: #888;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* Level groups */
+  .level-group {
+    margin-bottom: 24px;
+  }
+  .level-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .l1-label { background: #c8901830; color: #e8b84c; }
+  .l2-label { background: #cc444430; color: #ee7766; }
+  .l3-label { background: #44884430; color: #66bb66; }
+  .l4-label { background: #44668830; color: #6699cc; }
+
+  .items-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .item-card {
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: #161628;
+    border: 1px solid #2a2a4a;
+    border-radius: 4px;
+  }
+  .item-card:hover { border-color: #f0c04044; }
+  .item-name {
+    font-size: 7px;
+    color: #ccc;
+    text-align: center;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+  .item-tag {
+    font-size: 6px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+  .tag-starchy { background: #c8901830; color: #e8b84c; }
+  .tag-fibre { background: #3a8a2a30; color: #80ff80; }
+  .tag-complete { background: #cc444430; color: #ee7766; }
+  .tag-incomplete { background: #88444430; color: #cc8866; }
+  .tag-mono { background: #44884430; color: #66bb66; }
+  .tag-omega3 { background: #44668830; color: #6699cc; }
+  .tag-omega6 { background: #66448830; color: #9988cc; }
+  .tag-sat { background: #88664430; color: #ccaa66; }
+  .tag-soluble { background: #44668830; color: #6699cc; }
+  .tag-insoluble { background: #66884430; color: #aacc66; }
+  .tag-both { background: #44884430; color: #88ccaa; }
+
+  /* ============================================================ */
+  /* STYLE A: Bold Outlined — thick dark outlines, flat fill,     */
+  /* strong silhouette, high contrast. Like classic SNES RPG      */
+  /* item icons. Very readable at small sizes.                    */
+  /* ============================================================ */
+
+  .sa { image-rendering: pixelated; }
+
+  /* -- L1 items -- */
+  .sa-bread {
+    width: 28px; height: 24px;
+    background: #e8b84c;
+    border: 3px solid #222;
+    border-radius: 8px 8px 3px 3px;
+    position: relative;
+  }
+  .sa-bread::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px; height: 3px;
+    background: #d4a040;
+    border-radius: 2px;
+  }
+
+  .sa-bread-brown {
+    width: 28px; height: 24px;
+    background: #906020;
+    border: 3px solid #222;
+    border-radius: 8px 8px 3px 3px;
+    position: relative;
+  }
+  .sa-bread-brown::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 5px;
+    width: 3px; height: 3px;
+    background: #c89050;
+    border-radius: 50%;
+    box-shadow: 6px 1px 0 #c89050, 12px 0 0 #b88040, 3px 6px 0 #c89050, 9px 5px 0 #b88040;
+  }
+
+  .sa-rice {
+    width: 30px; height: 22px;
+    background: #f5f0e0;
+    border: 3px solid #222;
+    border-radius: 4px 4px 12px 12px;
+    position: relative;
+  }
+  .sa-rice::before {
+    content: '';
+    position: absolute;
+    top: -4px; left: 5px;
+    width: 4px; height: 4px;
+    background: #f5f0e0; border: 2px solid #222;
+    border-radius: 50%;
+    box-shadow: 7px -1px 0 #f5f0e0;
+  }
+
+  .sa-pasta {
+    width: 26px; height: 26px;
+    background: #f0d870;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-pasta::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px; height: 8px;
+    border: 2px solid #222;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .sa-banana {
+    width: 28px; height: 16px;
+    background: #f0d040;
+    border: 3px solid #222;
+    border-radius: 14px 14px 6px 6px;
+    transform: rotate(-12deg);
+    position: relative;
+  }
+  .sa-banana::after {
+    content: '';
+    position: absolute;
+    top: -3px; right: 1px;
+    width: 4px; height: 5px;
+    background: #7a5818;
+    border: 2px solid #222;
+    border-radius: 50% 50% 0 0;
+  }
+
+  .sa-apple {
+    width: 24px; height: 26px;
+    background: #dd3333;
+    border: 3px solid #222;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+  }
+  .sa-apple::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 50%; transform: translateX(-50%);
+    width: 3px; height: 7px;
+    background: #5a3a1a;
+    border: 1px solid #222;
+    border-radius: 1px;
+  }
+  .sa-apple::after {
+    content: '';
+    position: absolute;
+    top: -8px; right: 3px;
+    width: 7px; height: 6px;
+    background: #3a8a2a;
+    border: 2px solid #222;
+    border-radius: 50% 50% 0 50%;
+    transform: rotate(25deg);
+  }
+
+  .sa-orange {
+    width: 24px; height: 24px;
+    background: #e89020;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-orange::before {
+    content: '';
+    position: absolute;
+    top: -5px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px;
+    background: #3a8a2a;
+    border: 2px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-oats {
+    width: 28px; height: 20px;
+    background: #d4b87a;
+    border: 3px solid #222;
+    border-radius: 4px 4px 12px 12px;
+    position: relative;
+  }
+  .sa-oats::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px; right: 4px; height: 3px;
+    background: #c8a868;
+    border-radius: 2px;
+  }
+
+  .sa-potato {
+    width: 26px; height: 20px;
+    background: #c8a060;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-potato::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 5px;
+    width: 3px; height: 3px;
+    background: #a08040;
+    border-radius: 50%;
+    box-shadow: 8px 3px 0 #a08040;
+  }
+
+  .sa-sweetcorn {
+    width: 14px; height: 28px;
+    background: #f0d040;
+    border: 3px solid #222;
+    border-radius: 6px;
+    position: relative;
+  }
+  .sa-sweetcorn::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 6px;
+    background: #3a8a2a;
+    border: 2px solid #222;
+    border-radius: 2px;
+  }
+  .sa-sweetcorn::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 2px;
+    width: 2px; height: 2px;
+    background: #c8a020;
+    border-radius: 50%;
+    box-shadow: 4px 0 0 #c8a020, 0 4px 0 #c8a020, 4px 4px 0 #c8a020, 0 8px 0 #c8a020, 4px 8px 0 #c8a020, 0 12px 0 #c8a020, 4px 12px 0 #c8a020;
+  }
+
+  /* -- L2 items -- */
+  .sa-chicken {
+    width: 28px; height: 26px;
+    background: #d8a050;
+    border: 3px solid #222;
+    border-radius: 50% 50% 40% 40%;
+    position: relative;
+  }
+  .sa-chicken::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 10px;
+    background: #c89040;
+    border: 2px solid #222;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .sa-egg {
+    width: 22px; height: 26px;
+    background: #f8f0e0;
+    border: 3px solid #222;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+  }
+  .sa-egg::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 10px; height: 10px;
+    background: #e8a828;
+    border: 2px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-fish {
+    width: 32px; height: 18px;
+    background: #e88888;
+    border: 3px solid #222;
+    border-radius: 50% 8px 8px 50%;
+    position: relative;
+  }
+  .sa-fish::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 4px; height: 4px;
+    background: #222;
+    border-radius: 50%;
+  }
+  .sa-fish::after {
+    content: '';
+    position: absolute;
+    right: -6px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid #d87070;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+
+  .sa-beans {
+    width: 28px; height: 20px;
+    background: #884430;
+    border: 3px solid #222;
+    border-radius: 10px;
+    position: relative;
+  }
+  .sa-beans::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 5px; height: 5px;
+    background: #6a3320;
+    border-radius: 50%;
+    box-shadow: 7px 0 0 #6a3320, 3px 5px 0 #6a3320, 10px 4px 0 #6a3320;
+  }
+
+  .sa-tofu {
+    width: 24px; height: 22px;
+    background: #f0e8d0;
+    border: 3px solid #222;
+    border-radius: 3px;
+    position: relative;
+  }
+  .sa-tofu::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    border: 1px dashed #c8b898;
+    border-radius: 2px;
+  }
+
+  .sa-lentils {
+    width: 28px; height: 18px;
+    background: #88a040;
+    border: 3px solid #222;
+    border-radius: 4px 4px 10px 10px;
+    position: relative;
+  }
+  .sa-lentils::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 3px; height: 3px;
+    background: #70882a;
+    border-radius: 50%;
+    box-shadow: 5px 0 0 #70882a, 10px 1px 0 #70882a, 3px 4px 0 #70882a, 8px 4px 0 #70882a;
+  }
+
+  /* -- L3 items -- */
+  .sa-avocado {
+    width: 22px; height: 28px;
+    background: #5a8a30;
+    border: 3px solid #222;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+  }
+  .sa-avocado::after {
+    content: '';
+    position: absolute;
+    bottom: 4px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px;
+    background: #c8b060;
+    border: 2px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-nuts {
+    width: 26px; height: 20px;
+    background: #a87838;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-nuts::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 6px;
+    background: #c89848;
+    border-radius: 50%;
+  }
+
+  .sa-oliveoil {
+    width: 16px; height: 28px;
+    background: #c8b840;
+    border: 3px solid #222;
+    border-radius: 3px 3px 4px 4px;
+    position: relative;
+  }
+  .sa-oliveoil::before {
+    content: '';
+    position: absolute;
+    top: -7px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 7px;
+    background: #888;
+    border: 2px solid #222;
+    border-radius: 2px 2px 0 0;
+  }
+  .sa-oliveoil::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 3px;
+    width: 4px; height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+
+  .sa-salmon {
+    width: 32px; height: 16px;
+    background: #e88060;
+    border: 3px solid #222;
+    border-radius: 4px;
+    position: relative;
+  }
+  .sa-salmon::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 0; height: 0;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-left: 4px solid #222;
+    box-shadow: 6px 0 0 #222, 12px 0 0 #222, 18px 0 0 #222;
+  }
+
+  .sa-cheese {
+    width: 26px; height: 22px;
+    background: #f0c840;
+    border: 3px solid #222;
+    border-radius: 3px;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 15% 50%);
+  }
+  .sa-cheese::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 10px;
+    width: 4px; height: 4px;
+    background: #d8a830;
+    border-radius: 50%;
+    box-shadow: 6px 4px 0 #d8a830;
+  }
+
+  .sa-butter {
+    width: 28px; height: 16px;
+    background: #f0d868;
+    border: 3px solid #222;
+    border-radius: 3px;
+    position: relative;
+  }
+  .sa-butter::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 6px; height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+  }
+
+  .sa-seeds {
+    width: 24px; height: 18px;
+    background: #887048;
+    border: 3px solid #222;
+    border-radius: 4px 4px 8px 8px;
+    position: relative;
+  }
+  .sa-seeds::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 3px; height: 2px;
+    background: #a89060;
+    border-radius: 50%;
+    box-shadow: 4px 0 0 #a89060, 8px 1px 0 #a89060, 2px 4px 0 #a89060, 6px 3px 0 #a89060, 10px 4px 0 #a89060;
+  }
+
+  /* -- L4 items -- */
+  .sa-broccoli {
+    width: 24px; height: 28px;
+    position: relative;
+  }
+  .sa-broccoli-top {
+    width: 24px; height: 18px;
+    background: #3a8a2a;
+    border: 3px solid #222;
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+  }
+  .sa-broccoli-top::before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 4px; height: 4px;
+    background: #4a9a3a;
+    border-radius: 50%;
+    box-shadow: 6px 0 0 #4a9a3a, 3px 4px 0 #4a9a3a;
+  }
+  .sa-broccoli-stem {
+    width: 8px; height: 12px;
+    background: #5a9a3a;
+    border: 2px solid #222;
+    border-top: none;
+    margin: 0 auto;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .sa-raspberries {
+    width: 22px; height: 20px;
+    background: #cc2244;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-raspberries::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 3px; height: 3px;
+    background: #dd4466;
+    border-radius: 50%;
+    box-shadow: 4px 0 0 #dd4466, 8px 1px 0 #dd4466, 2px 4px 0 #dd4466, 6px 3px 0 #dd4466, 0 7px 0 #dd4466, 4px 7px 0 #dd4466, 8px 6px 0 #dd4466;
+  }
+
+  .sa-chia {
+    width: 22px; height: 18px;
+    background: #4a4a5a;
+    border: 3px solid #222;
+    border-radius: 4px 4px 10px 10px;
+    position: relative;
+  }
+  .sa-chia::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 2px; height: 2px;
+    background: #6a6a7a;
+    border-radius: 50%;
+    box-shadow: 3px 0 0 #6a6a7a, 6px 1px 0 #6a6a7a, 9px 0 0 #6a6a7a, 1px 3px 0 #6a6a7a, 4px 4px 0 #6a6a7a, 7px 3px 0 #6a6a7a, 10px 4px 0 #6a6a7a;
+  }
+
+  .sa-sweetpotato {
+    width: 28px; height: 18px;
+    background: #c86030;
+    border: 3px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-sweetpotato::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 50%; transform: translateX(-50%);
+    width: 12px; height: 4px;
+    background: #e88848;
+    border-radius: 3px;
+  }
+
+  .sa-pear {
+    width: 20px; height: 28px;
+    background: #a8c840;
+    border: 3px solid #222;
+    border-radius: 40% 40% 50% 50%;
+    position: relative;
+  }
+  .sa-pear::before {
+    content: '';
+    position: absolute;
+    top: -5px; left: 50%; transform: translateX(-50%);
+    width: 3px; height: 6px;
+    background: #5a3a1a;
+    border: 1px solid #222;
+    border-radius: 1px;
+  }
+
+
+  /* ============================================================ */
+  /* STYLE B: Soft Shaded — NO hard outlines, uses color shading  */
+  /* and highlights only. Softer, more "modern pixel" feel.       */
+  /* Like Stardew Valley or Celeste item pickups.                 */
+  /* ============================================================ */
+
+  .sb { image-rendering: pixelated; }
+
+  /* -- L1 items -- */
+  .sb-bread {
+    width: 28px; height: 24px;
+    background: linear-gradient(180deg, #e8c050, #d8a838, #c89028);
+    border: 2px solid #b07820;
+    border-radius: 8px 8px 3px 3px;
+    position: relative;
+    box-shadow: 0 2px 0 #906018;
+  }
+  .sb-bread::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 8px; height: 4px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+  }
+  .sb-bread::after {
+    content: '';
+    position: absolute;
+    top: 11px; left: 4px; right: 4px; height: 2px;
+    background: #b88028;
+    border-radius: 1px;
+  }
+
+  .sb-bread-brown {
+    width: 28px; height: 24px;
+    background: linear-gradient(180deg, #8a5a20, #7a4818, #684010);
+    border: 2px solid #583010;
+    border-radius: 8px 8px 3px 3px;
+    position: relative;
+    box-shadow: 0 2px 0 #482808;
+  }
+  .sb-bread-brown::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 6px; height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+  }
+  .sb-bread-brown::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 5px;
+    width: 3px; height: 3px;
+    background: #b89050;
+    border-radius: 50%;
+    box-shadow: 6px 1px 0 #a88040, 12px 0px 0 #b89050, 3px 6px 0 #a88040, 9px 5px 0 #b89050;
+  }
+
+  .sb-rice {
+    width: 30px; height: 22px;
+    background: linear-gradient(180deg, #f8f2e4, #eadcc0, #d8c8a8);
+    border: 2px solid #c0b090;
+    border-radius: 5px 5px 12px 12px;
+    position: relative;
+    box-shadow: 0 2px 0 #a89878;
+  }
+  .sb-rice::before {
+    content: '';
+    position: absolute;
+    top: -4px; left: 6px;
+    width: 5px; height: 5px;
+    background: #f5f0e0;
+    border-radius: 50%;
+    box-shadow: 6px -1px 0 #f0eada, 12px 0 0 #f5f0e0;
+  }
+  .sb-rice::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 7px; height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+
+  .sb-pasta {
+    width: 26px; height: 26px;
+    background: radial-gradient(circle at 38% 35%, #f8e068, #e0c838, #d0b028);
+    border: 2px solid #b09820;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #988018;
+  }
+  .sb-pasta::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 6px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+  }
+  .sb-pasta::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 8px; height: 8px;
+    border: 2px solid rgba(176,152,32,0.5);
+    border-radius: 50%;
+  }
+
+  .sb-banana {
+    width: 28px; height: 16px;
+    background: linear-gradient(180deg, #f8e840, #e8c820, #d8b010);
+    border: 2px solid #c0a010;
+    border-radius: 14px 14px 6px 6px;
+    transform: rotate(-12deg);
+    position: relative;
+    box-shadow: 0 2px 0 #a88808;
+  }
+  .sb-banana::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 5px;
+    width: 10px; height: 3px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 2px;
+  }
+  .sb-banana::after {
+    content: '';
+    position: absolute;
+    top: -3px; right: 1px;
+    width: 4px; height: 5px;
+    background: #7a5818;
+    border-radius: 50% 50% 0 0;
+  }
+
+  .sb-apple {
+    width: 24px; height: 26px;
+    background: radial-gradient(circle at 35% 30%, #f04838, #d82020, #b01818);
+    border: 2px solid #901010;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+    box-shadow: 0 2px 0 #780808;
+  }
+  .sb-apple::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 50%; transform: translateX(-50%);
+    width: 3px; height: 7px;
+    background: linear-gradient(180deg, #5a3a18, #7a4a20);
+    border-radius: 1px;
+  }
+  .sb-apple::after {
+    content: '';
+    position: absolute;
+    top: -8px; right: 3px;
+    width: 8px; height: 6px;
+    background: radial-gradient(ellipse at 30% 60%, #5aaa38, #3a8a28);
+    border-radius: 50% 70% 10% 50%;
+    transform: rotate(25deg);
+  }
+  .sb-apple-shine {
+    position: absolute;
+    top: 4px; left: 4px;
+    width: 6px; height: 8px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 50%;
+    transform: rotate(-15deg);
+  }
+
+  .sb-orange {
+    width: 24px; height: 24px;
+    background: radial-gradient(circle at 35% 30%, #f8b838, #e89018, #d07810);
+    border: 2px solid #b06010;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #904808;
+  }
+  .sb-orange::before {
+    content: '';
+    position: absolute;
+    top: -5px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px;
+    background: #4a9a30;
+    border-radius: 50%;
+  }
+  .sb-orange::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px;
+    width: 5px; height: 7px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 50%;
+  }
+
+  .sb-oats {
+    width: 28px; height: 20px;
+    background: linear-gradient(180deg, #d8bc78, #c8a858, #b89848);
+    border: 2px solid #a08838;
+    border-radius: 5px 5px 12px 12px;
+    position: relative;
+    box-shadow: 0 2px 0 #887030;
+  }
+  .sb-oats::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px; right: 4px; height: 2px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    box-shadow: 0 4px 0 rgba(255,255,255,0.1);
+  }
+
+  .sb-potato {
+    width: 26px; height: 20px;
+    background: radial-gradient(circle at 40% 35%, #d8b068, #c89848, #b08038);
+    border: 2px solid #987030;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #886028;
+  }
+  .sb-potato::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 5px;
+    width: 3px; height: 3px;
+    background: #a07838;
+    border-radius: 50%;
+    box-shadow: 9px 3px 0 #a07838;
+  }
+
+  .sb-sweetcorn {
+    width: 14px; height: 28px;
+    background: linear-gradient(180deg, #f0d840, #e0c020, #d0b018);
+    border: 2px solid #b09818;
+    border-radius: 6px;
+    position: relative;
+    box-shadow: 0 2px 0 #988010;
+  }
+  .sb-sweetcorn::before {
+    content: '';
+    position: absolute;
+    top: -5px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 5px;
+    background: #4a9a30;
+    border-radius: 2px 2px 0 0;
+  }
+  .sb-sweetcorn::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 2px;
+    width: 2px; height: 2px;
+    background: #c8a020;
+    border-radius: 50%;
+    box-shadow: 4px 0 0 #c8a020, 0 4px 0 #c8a020, 4px 4px 0 #c8a020, 0 8px 0 #c8a020, 4px 8px 0 #c8a020, 0 12px 0 #c8a020, 4px 12px 0 #c8a020;
+  }
+
+  /* -- L2 items -- */
+  .sb-chicken {
+    width: 28px; height: 26px;
+    background: radial-gradient(circle at 40% 35%, #e0b058, #c89840, #b08030);
+    border: 2px solid #987028;
+    border-radius: 50% 50% 40% 40%;
+    position: relative;
+    box-shadow: 0 2px 0 #886020;
+  }
+  .sb-chicken::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 10px;
+    background: linear-gradient(180deg, #b08030, #987028);
+    border-radius: 0 0 3px 3px;
+  }
+
+  .sb-egg {
+    width: 22px; height: 26px;
+    background: linear-gradient(180deg, #f8f2e4, #f0e8d8, #e8dcc8);
+    border: 2px solid #c8b898;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+    box-shadow: 0 2px 0 #b0a080;
+  }
+  .sb-egg::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 10px; height: 10px;
+    background: radial-gradient(circle at 40% 35%, #f0b830, #e0a020);
+    border: 1px solid #c89018;
+    border-radius: 50%;
+  }
+
+  .sb-fish {
+    width: 32px; height: 18px;
+    background: linear-gradient(180deg, #e89090, #d87070, #c86060);
+    border: 2px solid #b05050;
+    border-radius: 50% 8px 8px 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #984040;
+  }
+  .sb-fish::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px;
+    width: 4px; height: 4px;
+    background: #333;
+    border-radius: 50%;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3);
+  }
+  .sb-fish::after {
+    content: '';
+    position: absolute;
+    right: -6px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid #c86060;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+
+  .sb-beans {
+    width: 28px; height: 20px;
+    background: radial-gradient(circle at 40% 35%, #985838, #804028, #683020);
+    border: 2px solid #582818;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 2px 0 #482010;
+  }
+  .sb-beans::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 4px; height: 4px;
+    background: #6a3320;
+    border-radius: 50%;
+    box-shadow: 6px 0 0 #6a3320, 3px 5px 0 #6a3320, 9px 4px 0 #6a3320;
+  }
+
+  .sb-tofu {
+    width: 24px; height: 22px;
+    background: linear-gradient(180deg, #f4ece0, #e8dcc8, #dcd0b8);
+    border: 2px solid #c0b090;
+    border-radius: 3px;
+    position: relative;
+    box-shadow: 0 2px 0 #a89878;
+  }
+  .sb-tofu::before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 6px; height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+
+  .sb-lentils {
+    width: 28px; height: 18px;
+    background: linear-gradient(180deg, #90a848, #78903a, #68802a);
+    border: 2px solid #587020;
+    border-radius: 4px 4px 10px 10px;
+    position: relative;
+    box-shadow: 0 2px 0 #486018;
+  }
+  .sb-lentils::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 3px; height: 3px;
+    background: #70882a;
+    border-radius: 50%;
+    box-shadow: 5px 0 0 #70882a, 10px 1px 0 #70882a, 3px 4px 0 #70882a, 8px 4px 0 #70882a;
+  }
+
+  /* -- L3 items -- */
+  .sb-avocado {
+    width: 22px; height: 28px;
+    background: radial-gradient(circle at 45% 40%, #6a9a38, #508828, #3a7020);
+    border: 2px solid #2a5818;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+    box-shadow: 0 2px 0 #1a4810;
+  }
+  .sb-avocado::after {
+    content: '';
+    position: absolute;
+    bottom: 4px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px;
+    background: radial-gradient(circle at 40% 35%, #d8c068, #c0a850);
+    border: 1px solid #a89040;
+    border-radius: 50%;
+  }
+
+  .sb-nuts {
+    width: 26px; height: 20px;
+    background: radial-gradient(circle at 38% 35%, #c08840, #a07030, #886028);
+    border: 2px solid #785020;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #684018;
+  }
+  .sb-nuts::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 5px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+  }
+
+  .sb-oliveoil {
+    width: 16px; height: 28px;
+    background: linear-gradient(180deg, #d0c048, #c0a838, #b09828);
+    border: 2px solid #988020;
+    border-radius: 3px 3px 4px 4px;
+    position: relative;
+    box-shadow: 0 2px 0 #887018;
+  }
+  .sb-oliveoil::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 6px;
+    background: linear-gradient(180deg, #999, #777);
+    border-radius: 2px 2px 0 0;
+  }
+  .sb-oliveoil::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 3px; height: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+  }
+
+  .sb-salmon {
+    width: 32px; height: 16px;
+    background: linear-gradient(180deg, #e89068, #d87858, #c86848);
+    border: 2px solid #b05838;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 2px 0 #984830;
+  }
+  .sb-salmon::before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 7px; height: 3px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+  }
+
+  .sb-cheese {
+    width: 26px; height: 22px;
+    background: linear-gradient(135deg, #f0d048, #e8c038, #d8b028);
+    border: 2px solid #c09820;
+    border-radius: 3px;
+    position: relative;
+    box-shadow: 0 2px 0 #a88018;
+  }
+  .sb-cheese::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 7px;
+    width: 4px; height: 4px;
+    background: #c8a828;
+    border-radius: 50%;
+    box-shadow: 7px 4px 0 #c8a828;
+  }
+
+  .sb-butter {
+    width: 28px; height: 16px;
+    background: linear-gradient(180deg, #f0dc70, #e8cc58, #d8bc48);
+    border: 2px solid #c0a438;
+    border-radius: 3px;
+    position: relative;
+    box-shadow: 0 2px 0 #a88c28;
+  }
+  .sb-butter::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 6px; height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+
+  .sb-seeds {
+    width: 24px; height: 18px;
+    background: linear-gradient(180deg, #907850, #807040, #706030);
+    border: 2px solid #605028;
+    border-radius: 4px 4px 8px 8px;
+    position: relative;
+    box-shadow: 0 2px 0 #504020;
+  }
+  .sb-seeds::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 3px; height: 2px;
+    background: #a89060;
+    border-radius: 50%;
+    box-shadow: 4px 0 0 #a89060, 8px 1px 0 #a89060, 2px 4px 0 #a89060, 6px 3px 0 #a89060, 10px 4px 0 #a89060;
+  }
+
+  /* -- L4 items -- */
+  .sb-broccoli {
+    width: 24px; height: 28px;
+    position: relative;
+  }
+  .sb-broccoli-top {
+    width: 24px; height: 18px;
+    background: radial-gradient(circle at 40% 35%, #4a9a3a, #3a8a28, #2a7820);
+    border: 2px solid #1a6818;
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+    box-shadow: 0 2px 0 #105810;
+  }
+  .sb-broccoli-top::before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 4px; height: 3px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+    box-shadow: 6px 1px 0 rgba(255,255,255,0.1);
+  }
+  .sb-broccoli-stem {
+    width: 8px; height: 12px;
+    background: linear-gradient(90deg, #4a8a30, #5a9a38, #4a8a30);
+    margin: 0 auto;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .sb-raspberries {
+    width: 22px; height: 20px;
+    background: radial-gradient(circle at 38% 35%, #dd3350, #c82240, #b01830);
+    border: 2px solid #901028;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #780820;
+  }
+  .sb-raspberries::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 3px; height: 3px;
+    background: #dd4466;
+    border-radius: 50%;
+    box-shadow: 4px 0 0 #dd4466, 8px 1px 0 #dd4466, 2px 4px 0 #dd4466, 6px 3px 0 #dd4466, 0 7px 0 #dd4466, 4px 7px 0 #dd4466, 8px 6px 0 #dd4466;
+  }
+
+  .sb-chia {
+    width: 22px; height: 18px;
+    background: linear-gradient(180deg, #585868, #484858, #383848);
+    border: 2px solid #303040;
+    border-radius: 4px 4px 10px 10px;
+    position: relative;
+    box-shadow: 0 2px 0 #282838;
+  }
+  .sb-chia::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 3px;
+    width: 2px; height: 2px;
+    background: #6a6a7a;
+    border-radius: 50%;
+    box-shadow: 3px 0 0 #6a6a7a, 6px 1px 0 #6a6a7a, 9px 0 0 #6a6a7a, 1px 3px 0 #6a6a7a, 4px 4px 0 #6a6a7a, 7px 3px 0 #6a6a7a, 10px 4px 0 #6a6a7a;
+  }
+
+  .sb-sweetpotato {
+    width: 28px; height: 18px;
+    background: radial-gradient(circle at 40% 38%, #d86838, #c05828, #a84820);
+    border: 2px solid #903818;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #783010;
+  }
+  .sb-sweetpotato::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 50%; transform: translateX(-50%);
+    width: 12px; height: 4px;
+    background: rgba(248,168,80,0.4);
+    border-radius: 3px;
+  }
+
+  .sb-pear {
+    width: 20px; height: 28px;
+    background: radial-gradient(circle at 38% 55%, #b8d048, #a0b838, #88a028);
+    border: 2px solid #708820;
+    border-radius: 40% 40% 50% 50%;
+    position: relative;
+    box-shadow: 0 2px 0 #607018;
+  }
+  .sb-pear::before {
+    content: '';
+    position: absolute;
+    top: -5px; left: 50%; transform: translateX(-50%);
+    width: 3px; height: 6px;
+    background: linear-gradient(180deg, #5a3a18, #7a4a20);
+    border-radius: 1px;
+  }
+  .sb-pear::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 3px;
+    width: 5px; height: 7px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+    transform: rotate(-10deg);
+  }
+</style>
+</head>
+<body>
+
+<h1>Food Item Styles — 16-Bit</h1>
+<p class="page-sub">Two art styles for the same food items. Style A uses bold dark outlines (classic SNES). Style B uses color shading with no hard outlines (modern pixel). A sample from each of the four levels is shown.</p>
+
+<!-- ==================== STYLE A ==================== -->
+<div class="style-section">
+  <div class="style-header">Style A — Bold Outlined</div>
+  <div class="style-desc">Thick #222 outlines on every item. Flat interior fills with minimal shading. Strong silhouette — items are instantly readable even at small sizes. Classic SNES / GBA RPG icon feel.</div>
+
+  <div class="level-group">
+    <div class="level-label l1-label">L1 — Carbs</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-bread"></div><div class="item-name">White Bread</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-bread-brown"></div><div class="item-name">Whole Grain</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-rice"></div><div class="item-name">White Rice</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-pasta"></div><div class="item-name">Pasta</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-banana"></div><div class="item-name">Banana</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-apple"></div><div class="item-name">Apple</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-orange"></div><div class="item-name">Orange</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-oats"></div><div class="item-name">Oats</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-potato"></div><div class="item-name">Potato</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-sweetcorn"></div><div class="item-name">Sweetcorn</div><div class="item-tag tag-fibre">Fibre+</div></div>
+    </div>
+  </div>
+
+  <div class="level-group">
+    <div class="level-label l2-label">L2 — Protein</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-chicken"></div><div class="item-name">Chicken</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-egg"></div><div class="item-name">Egg</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-fish"></div><div class="item-name">Fish</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-beans"></div><div class="item-name">Beans</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+      <div class="item-card"><div class="sa sa-tofu"></div><div class="item-name">Tofu</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-lentils"></div><div class="item-name">Lentils</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+    </div>
+  </div>
+
+  <div class="level-group">
+    <div class="level-label l3-label">L3 — Fats</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-avocado"></div><div class="item-name">Avocado</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sa sa-nuts"></div><div class="item-name">Almonds</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sa sa-oliveoil"></div><div class="item-name">Olive Oil</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sa sa-salmon"></div><div class="item-name">Salmon</div><div class="item-tag tag-omega3">Omega-3</div></div>
+      <div class="item-card"><div class="sa sa-cheese"></div><div class="item-name">Cheese</div><div class="item-tag tag-sat">Saturated</div></div>
+      <div class="item-card"><div class="sa sa-butter"></div><div class="item-name">Butter</div><div class="item-tag tag-sat">Saturated</div></div>
+      <div class="item-card"><div class="sa sa-seeds"></div><div class="item-name">Seeds</div><div class="item-tag tag-omega6">Omega-6</div></div>
+    </div>
+  </div>
+
+  <div class="level-group">
+    <div class="level-label l4-label">L4 — Fibre</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa"><div class="sa-broccoli"><div class="sa-broccoli-top"></div><div class="sa-broccoli-stem"></div></div></div><div class="item-name">Broccoli</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-raspberries"></div><div class="item-name">Raspberries</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-chia"></div><div class="item-name">Chia Seeds</div><div class="item-tag tag-soluble">Soluble</div></div>
+      <div class="item-card"><div class="sa sa-sweetpotato"></div><div class="item-name">Sweet Potato</div><div class="item-tag tag-both">Both</div></div>
+      <div class="item-card"><div class="sa sa-pear"></div><div class="item-name">Pear</div><div class="item-tag tag-both">Both</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STYLE B ==================== -->
+<div class="style-section">
+  <div class="style-header">Style B — Soft Shaded</div>
+  <div class="style-desc">No hard outlines. Items use gradient fills, subtle highlights, and drop shadows for depth. Softer, warmer feel. Modern pixel art like Stardew Valley or Celeste pickup items. Feels more organic and less "icon-like."</div>
+
+  <div class="level-group">
+    <div class="level-label l1-label">L1 — Carbs</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sb sb-bread"></div><div class="item-name">White Bread</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sb sb-bread-brown"></div><div class="item-name">Whole Grain</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sb sb-rice"></div><div class="item-name">White Rice</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sb sb-pasta"></div><div class="item-name">Pasta</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sb sb-banana"></div><div class="item-name">Banana</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sb sb-apple"><div class="sb-apple-shine"></div></div><div class="item-name">Apple</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sb sb-orange"></div><div class="item-name">Orange</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sb sb-oats"></div><div class="item-name">Oats</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sb sb-potato"></div><div class="item-name">Potato</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sb sb-sweetcorn"></div><div class="item-name">Sweetcorn</div><div class="item-tag tag-fibre">Fibre+</div></div>
+    </div>
+  </div>
+
+  <div class="level-group">
+    <div class="level-label l2-label">L2 — Protein</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sb sb-chicken"></div><div class="item-name">Chicken</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sb sb-egg"></div><div class="item-name">Egg</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sb sb-fish"></div><div class="item-name">Fish</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sb sb-beans"></div><div class="item-name">Beans</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+      <div class="item-card"><div class="sb sb-tofu"></div><div class="item-name">Tofu</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sb sb-lentils"></div><div class="item-name">Lentils</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+    </div>
+  </div>
+
+  <div class="level-group">
+    <div class="level-label l3-label">L3 — Fats</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sb sb-avocado"></div><div class="item-name">Avocado</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sb sb-nuts"></div><div class="item-name">Almonds</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sb sb-oliveoil"></div><div class="item-name">Olive Oil</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sb sb-salmon"></div><div class="item-name">Salmon</div><div class="item-tag tag-omega3">Omega-3</div></div>
+      <div class="item-card"><div class="sb sb-cheese"></div><div class="item-name">Cheese</div><div class="item-tag tag-sat">Saturated</div></div>
+      <div class="item-card"><div class="sb sb-butter"></div><div class="item-name">Butter</div><div class="item-tag tag-sat">Saturated</div></div>
+      <div class="item-card"><div class="sb sb-seeds"></div><div class="item-name">Seeds</div><div class="item-tag tag-omega6">Omega-6</div></div>
+    </div>
+  </div>
+
+  <div class="level-group">
+    <div class="level-label l4-label">L4 — Fibre</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sb"><div class="sb-broccoli"><div class="sb-broccoli-top"></div><div class="sb-broccoli-stem"></div></div></div><div class="item-name">Broccoli</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sb sb-raspberries"></div><div class="item-name">Raspberries</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sb sb-chia"></div><div class="item-name">Chia Seeds</div><div class="item-tag tag-soluble">Soluble</div></div>
+      <div class="item-card"><div class="sb sb-sweetpotato"></div><div class="item-name">Sweet Potato</div><div class="item-tag tag-both">Both</div></div>
+      <div class="item-card"><div class="sb sb-pear"></div><div class="item-name">Pear</div><div class="item-tag tag-both">Both</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

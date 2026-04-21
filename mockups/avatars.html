@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Avatar Concepts</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0e0e1c;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    font-size: 20px;
+    color: #f8d848;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 40px;
+  }
+  .avatar-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    max-width: 1200px;
+  }
+  .avatar-card {
+    width: 340px;
+    background: #161628;
+    border: 2px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .avatar-card:hover {
+    border-color: #f8d84866;
+  }
+  .card-num {
+    font-size: 10px;
+    color: #f8d848;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    align-self: flex-start;
+  }
+  .card-title {
+    font-size: 16px;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+  .card-desc {
+    font-size: 11px;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* Scene strip behind each avatar */
+  .scene {
+    width: 300px;
+    height: 160px;
+    background: linear-gradient(180deg, #4080b8 0%, #88c8e8 50%, #5aaa3a 70%, #5aaa3a 100%);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #2a2a4a;
+  }
+  .scene-ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(180deg, #5aaa3a, #4a9030, #8a6828);
+    border-top: 3px solid #3a7828;
+  }
+  .scene-plat {
+    position: absolute;
+    height: 14px;
+    background: linear-gradient(180deg, #5aaa3a, #4a9030);
+    border-radius: 4px;
+    box-shadow: 0 3px 0 #3a7828;
+  }
+  /* Tiny food item */
+  .scene-food {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  /* Tiny energy cell */
+  .scene-cell {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, #a0ffd0, #40e888);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(64,232,136,0.4);
+  }
+
+  /* States row */
+  .states {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+  }
+  .state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .state-label {
+    font-size: 8px;
+    color: #888;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ============================================ */
+  /* AVATAR 1: NIBBLE — cute rounded square       */
+  /* ============================================ */
+  .nibble {
+    position: relative;
+  }
+  .nibble-body {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: radial-gradient(circle at 38% 32%, #80d8f8, #48a8e0, #3888c0);
+    border: 3px solid #2868a0;
+    position: relative;
+    box-shadow: 0 3px 0 #1a4878;
+  }
+  .nibble-eye {
+    position: absolute;
+    width: 10px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    top: 10px;
+    border: 1px solid #aaa;
+  }
+  .nibble-eye.l { left: 6px; }
+  .nibble-eye.r { right: 6px; }
+  .nibble-pupil {
+    position: absolute;
+    width: 5px;
+    height: 6px;
+    background: #1a2a3a;
+    border-radius: 50%;
+    bottom: 1px;
+    right: 1px;
+  }
+  .nibble-pupil::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+  }
+  .nibble-foot {
+    position: absolute;
+    bottom: -7px;
+    width: 12px;
+    height: 8px;
+    background: radial-gradient(ellipse at 50% 30%, #48a8e0, #3888c0);
+    border-radius: 0 0 6px 6px;
+    border: 2px solid #2868a0;
+    border-top: none;
+  }
+  .nibble-foot.l { left: 5px; }
+  .nibble-foot.r { right: 5px; }
+  .nibble-blush {
+    position: absolute;
+    width: 6px;
+    height: 4px;
+    background: rgba(240,140,160,0.4);
+    border-radius: 50%;
+    bottom: 8px;
+  }
+  .nibble-blush.l { left: 3px; }
+  .nibble-blush.r { right: 3px; }
+
+  /* Nibble variants */
+  .nibble-body.energized {
+    background: radial-gradient(circle at 38% 32%, #90e8ff, #58b8f0, #4898d0);
+    box-shadow: 0 3px 0 #1a4878, 0 0 10px rgba(88,184,240,0.3);
+  }
+  .nibble-body.tired {
+    background: radial-gradient(circle at 38% 32%, #68a8c8, #4888a0, #386880);
+    box-shadow: 0 3px 0 #1a3858;
+  }
+  .nibble-eye.tired {
+    height: 6px;
+    top: 14px;
+    border-radius: 6px 6px 2px 2px;
+  }
+  .nibble-body.happy {
+    background: radial-gradient(circle at 38% 32%, #80d8f8, #48a8e0, #3888c0);
+  }
+  .nibble-smile {
+    position: absolute;
+    width: 12px;
+    height: 5px;
+    border-bottom: 2px solid #1a4878;
+    border-radius: 0 0 8px 8px;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* Nibble in scene */
+  .nibble-scene {
+    position: absolute;
+    bottom: 50px;
+    left: 40px;
+    filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.3));
+  }
+  .nibble-scene .nibble-body { width: 28px; height: 28px; border-radius: 7px; border-width: 2px; }
+  .nibble-scene .nibble-eye { width: 7px; height: 8px; top: 7px; }
+  .nibble-scene .nibble-eye.l { left: 4px; }
+  .nibble-scene .nibble-eye.r { right: 4px; }
+  .nibble-scene .nibble-pupil { width: 3px; height: 4px; }
+  .nibble-scene .nibble-foot { width: 8px; height: 5px; bottom: -4px; }
+  .nibble-scene .nibble-foot.l { left: 3px; }
+  .nibble-scene .nibble-foot.r { right: 3px; }
+
+  /* ============================================ */
+  /* AVATAR 2: ZAX — alien                        */
+  /* ============================================ */
+  .zax {
+    position: relative;
+  }
+  .zax-head {
+    width: 44px;
+    height: 36px;
+    background: radial-gradient(ellipse at 45% 35%, #c0ff90, #80d848, #58b030);
+    border: 3px solid #40882a;
+    border-radius: 50% 50% 40% 40%;
+    position: relative;
+    box-shadow: 0 3px 0 #2a6818;
+  }
+  .zax-antenna {
+    position: absolute;
+    top: -14px;
+    width: 3px;
+    height: 14px;
+    background: linear-gradient(180deg, #80d848, #58b030);
+    border-radius: 2px;
+  }
+  .zax-antenna.l { left: 10px; transform: rotate(-15deg); }
+  .zax-antenna.r { right: 10px; transform: rotate(15deg); }
+  .zax-antenna-tip {
+    position: absolute;
+    top: -4px;
+    left: -3px;
+    width: 9px;
+    height: 9px;
+    background: radial-gradient(circle, #f8f878, #e8d848);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(248,248,120,0.5);
+  }
+  .zax-eye {
+    position: absolute;
+    width: 14px;
+    height: 16px;
+    background: radial-gradient(circle at 45% 40%, #111, #222);
+    border-radius: 50%;
+    top: 8px;
+    border: 2px solid #40882a;
+  }
+  .zax-eye.l { left: 4px; }
+  .zax-eye.r { right: 4px; }
+  .zax-eye-shine {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #c0ff90;
+    border-radius: 50%;
+    top: 3px;
+    left: 2px;
+  }
+  .zax-eye-shine2 {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: rgba(192,255,144,0.5);
+    border-radius: 50%;
+    bottom: 3px;
+    right: 2px;
+  }
+  .zax-mouth {
+    position: absolute;
+    width: 8px;
+    height: 4px;
+    background: #40882a;
+    border-radius: 0 0 4px 4px;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .zax-body {
+    width: 28px;
+    height: 18px;
+    background: linear-gradient(180deg, #80d848, #58b030);
+    border: 2px solid #40882a;
+    border-radius: 4px;
+    margin: 2px auto 0;
+    position: relative;
+  }
+  .zax-arm {
+    position: absolute;
+    width: 6px;
+    height: 16px;
+    background: linear-gradient(180deg, #80d848, #58b030);
+    border: 2px solid #40882a;
+    border-radius: 4px;
+    top: 0;
+  }
+  .zax-arm.l { left: -7px; transform: rotate(10deg); }
+  .zax-arm.r { right: -7px; transform: rotate(-10deg); }
+  .zax-finger {
+    position: absolute;
+    bottom: -2px;
+    width: 4px;
+    height: 4px;
+    background: #c0ff90;
+    border-radius: 50%;
+  }
+  .zax-finger.f1 { left: -1px; }
+  .zax-finger.f2 { right: -1px; }
+  .zax-legs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 1px;
+  }
+  .zax-leg {
+    width: 8px;
+    height: 10px;
+    background: linear-gradient(180deg, #58b030, #408820);
+    border: 2px solid #2a6818;
+    border-radius: 0 0 4px 4px;
+  }
+  .zax-boot {
+    width: 12px;
+    height: 5px;
+    background: #40882a;
+    border-radius: 2px 4px 3px 2px;
+    margin-left: -2px;
+  }
+
+  /* Zax variants */
+  .zax-head.energized {
+    box-shadow: 0 3px 0 #2a6818, 0 0 10px rgba(128,216,72,0.3);
+  }
+  .zax-head.tired {
+    background: radial-gradient(ellipse at 45% 35%, #90b868, #68904a, #508838);
+  }
+  .zax-eye.tired .zax-eye-shine { width: 3px; height: 3px; opacity: 0.5; }
+
+  /* Zax in scene */
+  .zax-scene {
+    position: absolute;
+    bottom: 50px;
+    left: 38px;
+    transform: scale(0.7);
+    filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.3));
+  }
+
+  /* ============================================ */
+  /* AVATAR 3: BARKLEY — animal (dog)              */
+  /* ============================================ */
+  .bark {
+    position: relative;
+  }
+  .bark-head {
+    width: 42px;
+    height: 38px;
+    background: radial-gradient(circle at 40% 35%, #f0c878, #d8a850, #c89840);
+    border: 3px solid #a87828;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+    box-shadow: 0 3px 0 #886018;
+  }
+  .bark-ear {
+    position: absolute;
+    width: 16px;
+    height: 22px;
+    background: linear-gradient(180deg, #c89840, #a87828);
+    border: 2px solid #886018;
+    border-radius: 50% 50% 20% 20%;
+    top: -10px;
+  }
+  .bark-ear.l { left: -4px; transform: rotate(-15deg); }
+  .bark-ear.r { right: -4px; transform: rotate(15deg); }
+  .bark-ear-inner {
+    position: absolute;
+    width: 8px;
+    height: 12px;
+    background: rgba(200,120,80,0.5);
+    border-radius: 50%;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .bark-eye {
+    position: absolute;
+    width: 10px;
+    height: 11px;
+    background: #fff;
+    border-radius: 50%;
+    top: 12px;
+    border: 1px solid #888;
+  }
+  .bark-eye.l { left: 6px; }
+  .bark-eye.r { right: 6px; }
+  .bark-pupil {
+    position: absolute;
+    width: 6px;
+    height: 7px;
+    background: radial-gradient(circle, #2a1a10, #4a3020);
+    border-radius: 50%;
+    bottom: 0;
+    right: 0;
+  }
+  .bark-pupil::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    top: 1px;
+    right: 1px;
+  }
+  .bark-snout {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 12px;
+    background: radial-gradient(ellipse at 50% 30%, #f8e0b0, #e8c888);
+    border-radius: 50%;
+    border: 1px solid #c89840;
+  }
+  .bark-nose {
+    position: absolute;
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 5px;
+    background: radial-gradient(ellipse, #3a2a1a, #5a3a20);
+    border-radius: 50% 50% 40% 40%;
+  }
+  .bark-tongue {
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background: #e86868;
+    border-radius: 0 0 50% 50%;
+  }
+  .bark-body {
+    width: 30px;
+    height: 20px;
+    background: linear-gradient(180deg, #d8a850, #c89840);
+    border: 2px solid #a87828;
+    border-radius: 6px 6px 3px 3px;
+    margin: 2px auto 0;
+    position: relative;
+  }
+  .bark-belly {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 10px;
+    background: #f8e0b0;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid #c89840;
+    border-bottom: none;
+  }
+  .bark-arm {
+    position: absolute;
+    width: 8px;
+    height: 16px;
+    background: linear-gradient(180deg, #d8a850, #c89840);
+    border: 2px solid #a87828;
+    border-radius: 4px;
+    top: 2px;
+  }
+  .bark-arm.l { left: -7px; transform: rotate(12deg); }
+  .bark-arm.r { right: -7px; transform: rotate(-18deg); }
+  .bark-paw {
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 6px;
+    background: #f8e0b0;
+    border-radius: 50%;
+  }
+  .bark-legs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 1px;
+  }
+  .bark-leg {
+    width: 10px;
+    height: 12px;
+    background: linear-gradient(180deg, #c89840, #a87828);
+    border: 2px solid #886018;
+    border-radius: 0 0 4px 4px;
+  }
+  .bark-shoe {
+    width: 12px;
+    height: 6px;
+    background: #f8e0b0;
+    border-radius: 50%;
+    margin-left: -1px;
+  }
+  .bark-tail {
+    position: absolute;
+    right: -10px;
+    bottom: 8px;
+    width: 6px;
+    height: 16px;
+    background: linear-gradient(180deg, #d8a850, #c89840);
+    border: 2px solid #a87828;
+    border-radius: 4px;
+    transform: rotate(25deg);
+    transform-origin: bottom center;
+  }
+
+  /* Bark variants */
+  .bark-head.tired {
+    background: radial-gradient(circle at 40% 35%, #d8b870, #c09848, #a88838);
+  }
+
+  /* Bark in scene */
+  .bark-scene {
+    position: absolute;
+    bottom: 48px;
+    left: 35px;
+    transform: scale(0.65);
+    filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.3));
+  }
+
+  /* ============================================ */
+  /* AVATAR 4: CELL — the living cell              */
+  /* ============================================ */
+  .cell {
+    position: relative;
+  }
+  .cell-body {
+    width: 44px;
+    height: 44px;
+    background: radial-gradient(circle at 40% 35%, #ff9898, #e86060, #d04848);
+    border: 3px solid #a83838;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 3px 0 #882828;
+  }
+  .cell-membrane {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: 2px dashed rgba(168,56,56,0.35);
+    border-radius: 50%;
+  }
+  .cell-nucleus {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 40% 35%, #b84040, #983030);
+    border-radius: 50%;
+    bottom: 6px;
+    right: 6px;
+    border: 1px solid #802828;
+  }
+  .cell-eye {
+    position: absolute;
+    width: 11px;
+    height: 13px;
+    background: #fff;
+    border-radius: 50%;
+    top: 10px;
+    border: 1px solid #c89898;
+  }
+  .cell-eye.l { left: 7px; }
+  .cell-eye.r { right: 7px; }
+  .cell-pupil {
+    position: absolute;
+    width: 5px;
+    height: 6px;
+    background: #2a1018;
+    border-radius: 50%;
+    bottom: 1px;
+    right: 1px;
+  }
+  .cell-pupil::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+  }
+  .cell-smile {
+    position: absolute;
+    width: 12px;
+    height: 5px;
+    border-bottom: 2px solid #a83838;
+    border-radius: 0 0 8px 8px;
+    bottom: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .cell-foot {
+    position: absolute;
+    bottom: -8px;
+    width: 14px;
+    height: 10px;
+    border-radius: 0 0 8px 8px;
+  }
+  .cell-foot.l {
+    left: 6px;
+    background: radial-gradient(ellipse at 50% 20%, #e86060, #d04848);
+    border: 2px solid #a83838;
+    border-top: none;
+  }
+  .cell-foot.r {
+    right: 6px;
+    background: radial-gradient(ellipse at 50% 20%, #e86060, #d04848);
+    border: 2px solid #a83838;
+    border-top: none;
+  }
+  .cell-flagellum {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 4px;
+    border-bottom: 2px solid #a83838;
+    border-right: 2px solid #a83838;
+    border-radius: 0 0 8px 0;
+  }
+  .cell-flagellum::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    bottom: -2px;
+    width: 8px;
+    height: 4px;
+    border-top: 2px solid #a83838;
+    border-right: 2px solid #a83838;
+    border-radius: 0 8px 0 0;
+  }
+
+  /* Cell variants */
+  .cell-body.energized {
+    background: radial-gradient(circle at 40% 35%, #ffa8a8, #f07070, #e05858);
+    box-shadow: 0 3px 0 #882828, 0 0 10px rgba(240,112,112,0.3);
+  }
+  .cell-body.tired {
+    background: radial-gradient(circle at 40% 35%, #d88888, #b86060, #a05050);
+    box-shadow: 0 3px 0 #703030;
+  }
+
+  /* Cell in scene */
+  .cell-scene {
+    position: absolute;
+    bottom: 49px;
+    left: 36px;
+    transform: scale(0.65);
+    filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.3));
+  }
+
+  /* ============================================ */
+  /* AVATAR 5: SPROUT — a little plant seedling    */
+  /* ============================================ */
+  .sprout {
+    position: relative;
+  }
+  .sprout-pot {
+    width: 32px;
+    height: 20px;
+    background: linear-gradient(180deg, #c87040, #a85830);
+    border: 2px solid #884020;
+    border-radius: 2px 2px 8px 8px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .sprout-pot-rim {
+    position: absolute;
+    top: -5px;
+    left: -3px;
+    right: -3px;
+    height: 6px;
+    background: linear-gradient(180deg, #d88050, #c87040);
+    border: 2px solid #884020;
+    border-radius: 3px;
+  }
+  .sprout-pot-dirt {
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    right: 3px;
+    height: 6px;
+    background: #5a3a1a;
+    border-radius: 2px;
+  }
+  .sprout-stem {
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(90deg, #58a838, #78c848, #58a838);
+    margin: 0 auto;
+    border-radius: 2px;
+    position: relative;
+  }
+  .sprout-head {
+    width: 36px;
+    height: 32px;
+    background: radial-gradient(circle at 42% 38%, #a0e868, #78c848, #58a838);
+    border: 3px solid #48882a;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 3px 0 #386820;
+    margin: 0 auto;
+  }
+  .sprout-eye {
+    position: absolute;
+    width: 9px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    top: 8px;
+    border: 1px solid #88aa88;
+  }
+  .sprout-eye.l { left: 5px; }
+  .sprout-eye.r { right: 5px; }
+  .sprout-pupil {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #1a2a10;
+    border-radius: 50%;
+    bottom: 1px;
+    right: 0;
+  }
+  .sprout-pupil::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+  }
+  .sprout-cheek {
+    position: absolute;
+    width: 5px;
+    height: 3px;
+    background: rgba(240,160,120,0.4);
+    border-radius: 50%;
+    bottom: 7px;
+  }
+  .sprout-cheek.l { left: 2px; }
+  .sprout-cheek.r { right: 2px; }
+  .sprout-smile {
+    position: absolute;
+    width: 8px;
+    height: 4px;
+    border-bottom: 2px solid #386820;
+    border-radius: 0 0 6px 6px;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .sprout-leaf {
+    position: absolute;
+    width: 14px;
+    height: 10px;
+    background: radial-gradient(ellipse at 40% 40%, #a0e868, #78c848);
+    border: 2px solid #48882a;
+    border-radius: 50% 50% 20% 50%;
+  }
+  .sprout-leaf.l {
+    left: -10px;
+    top: 6px;
+    transform: rotate(-20deg);
+  }
+  .sprout-leaf.r {
+    right: -10px;
+    top: 4px;
+    transform: rotate(20deg) scaleX(-1);
+  }
+  .sprout-foot {
+    position: absolute;
+    bottom: -6px;
+    width: 10px;
+    height: 7px;
+    background: radial-gradient(ellipse, #c87040, #a85830);
+    border-radius: 0 0 5px 5px;
+    border: 2px solid #884020;
+    border-top: none;
+  }
+  .sprout-foot.l { left: 3px; }
+  .sprout-foot.r { right: 3px; }
+
+  /* Sprout variants */
+  .sprout-head.energized {
+    background: radial-gradient(circle at 42% 38%, #b8f880, #88d858, #68b840);
+    box-shadow: 0 3px 0 #386820, 0 0 10px rgba(136,216,88,0.3);
+  }
+  .sprout-head.tired {
+    background: radial-gradient(circle at 42% 38%, #88c060, #68a040, #509030);
+    box-shadow: 0 3px 0 #305018;
+  }
+  .sprout-leaf.tired {
+    background: radial-gradient(ellipse at 40% 40%, #88c060, #68a040);
+    transform: rotate(-40deg);
+  }
+  .sprout-leaf.r.tired {
+    transform: rotate(40deg) scaleX(-1);
+  }
+
+  /* Sprout in scene */
+  .sprout-scene {
+    position: absolute;
+    bottom: 46px;
+    left: 34px;
+    transform: scale(0.6);
+    filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.3));
+  }
+</style>
+</head>
+<body>
+
+<h1>Avatar Concepts</h1>
+<p class="page-sub">Five character styles — each shown in three energy states and in a level scene</p>
+
+<div class="avatar-grid">
+
+  <!-- ========== AVATAR 1: NIBBLE ========== -->
+  <div class="avatar-card">
+    <div class="card-num">Avatar 1</div>
+    <div class="card-title">Nibble</div>
+    <div class="card-desc">A cute rounded square with big expressive eyes and tiny feet. Simple, iconic, instantly readable at any size. Think Kirby meets a bouncing blob.</div>
+
+    <div class="states">
+      <div class="state">
+        <div class="nibble">
+          <div class="nibble-body energized">
+            <div class="nibble-eye l"><div class="nibble-pupil"></div></div>
+            <div class="nibble-eye r"><div class="nibble-pupil"></div></div>
+            <div class="nibble-blush l"></div>
+            <div class="nibble-blush r"></div>
+            <div class="nibble-smile"></div>
+            <div class="nibble-foot l"></div>
+            <div class="nibble-foot r"></div>
+          </div>
+        </div>
+        <div class="state-label">Energized</div>
+      </div>
+      <div class="state">
+        <div class="nibble">
+          <div class="nibble-body">
+            <div class="nibble-eye l"><div class="nibble-pupil"></div></div>
+            <div class="nibble-eye r"><div class="nibble-pupil"></div></div>
+            <div class="nibble-blush l"></div>
+            <div class="nibble-blush r"></div>
+            <div class="nibble-foot l"></div>
+            <div class="nibble-foot r"></div>
+          </div>
+        </div>
+        <div class="state-label">Normal</div>
+      </div>
+      <div class="state">
+        <div class="nibble">
+          <div class="nibble-body tired">
+            <div class="nibble-eye tired l"><div class="nibble-pupil"></div></div>
+            <div class="nibble-eye tired r"><div class="nibble-pupil"></div></div>
+            <div class="nibble-foot l"></div>
+            <div class="nibble-foot r"></div>
+          </div>
+        </div>
+        <div class="state-label">Tired</div>
+      </div>
+    </div>
+
+    <div class="scene">
+      <div class="scene-ground"></div>
+      <div class="scene-plat" style="width: 60px; bottom: 80px; left: 100px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #f84838, #c82020); bottom: 94px; left: 120px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 180px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 196px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 212px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #e8b840, #c89030); bottom: 56px; left: 240px;"></div>
+      <div class="nibble-scene">
+        <div class="nibble-body">
+          <div class="nibble-eye l"><div class="nibble-pupil"></div></div>
+          <div class="nibble-eye r"><div class="nibble-pupil"></div></div>
+          <div class="nibble-foot l"></div>
+          <div class="nibble-foot r"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AVATAR 2: ZAX ========== -->
+  <div class="avatar-card">
+    <div class="card-num">Avatar 2</div>
+    <div class="card-title">Zax</div>
+    <div class="card-desc">A small green alien with glowing antenna tips and huge dark eyes. Visiting Earth to learn about its food. Curious, bouncy, slightly mischievous.</div>
+
+    <div class="states">
+      <div class="state">
+        <div class="zax">
+          <div class="zax-head energized">
+            <div class="zax-antenna l"><div class="zax-antenna-tip"></div></div>
+            <div class="zax-antenna r"><div class="zax-antenna-tip"></div></div>
+            <div class="zax-eye l"><div class="zax-eye-shine"></div><div class="zax-eye-shine2"></div></div>
+            <div class="zax-eye r"><div class="zax-eye-shine"></div><div class="zax-eye-shine2"></div></div>
+            <div class="zax-mouth"></div>
+          </div>
+          <div style="position:relative;">
+            <div class="zax-arm l"><div class="zax-finger f1"></div><div class="zax-finger f2"></div></div>
+            <div class="zax-body"></div>
+            <div class="zax-arm r"><div class="zax-finger f1"></div><div class="zax-finger f2"></div></div>
+          </div>
+          <div class="zax-legs">
+            <div class="zax-leg"><div class="zax-boot"></div></div>
+            <div class="zax-leg"><div class="zax-boot"></div></div>
+          </div>
+        </div>
+        <div class="state-label">Energized</div>
+      </div>
+      <div class="state">
+        <div class="zax">
+          <div class="zax-head">
+            <div class="zax-antenna l"><div class="zax-antenna-tip"></div></div>
+            <div class="zax-antenna r"><div class="zax-antenna-tip"></div></div>
+            <div class="zax-eye l"><div class="zax-eye-shine"></div><div class="zax-eye-shine2"></div></div>
+            <div class="zax-eye r"><div class="zax-eye-shine"></div><div class="zax-eye-shine2"></div></div>
+            <div class="zax-mouth"></div>
+          </div>
+          <div style="position:relative;">
+            <div class="zax-arm l"><div class="zax-finger f1"></div><div class="zax-finger f2"></div></div>
+            <div class="zax-body"></div>
+            <div class="zax-arm r"><div class="zax-finger f1"></div><div class="zax-finger f2"></div></div>
+          </div>
+          <div class="zax-legs">
+            <div class="zax-leg"><div class="zax-boot"></div></div>
+            <div class="zax-leg"><div class="zax-boot"></div></div>
+          </div>
+        </div>
+        <div class="state-label">Normal</div>
+      </div>
+      <div class="state">
+        <div class="zax">
+          <div class="zax-head tired">
+            <div class="zax-antenna l"><div class="zax-antenna-tip" style="opacity:0.4;box-shadow:none;"></div></div>
+            <div class="zax-antenna r"><div class="zax-antenna-tip" style="opacity:0.4;box-shadow:none;"></div></div>
+            <div class="zax-eye l" style="opacity:0.7;"><div class="zax-eye-shine" style="width:3px;height:3px;opacity:0.5;"></div></div>
+            <div class="zax-eye r" style="opacity:0.7;"><div class="zax-eye-shine" style="width:3px;height:3px;opacity:0.5;"></div></div>
+            <div class="zax-mouth"></div>
+          </div>
+          <div style="position:relative;">
+            <div class="zax-arm l" style="transform:rotate(25deg);"><div class="zax-finger f1"></div><div class="zax-finger f2"></div></div>
+            <div class="zax-body"></div>
+            <div class="zax-arm r" style="transform:rotate(-25deg);"><div class="zax-finger f1"></div><div class="zax-finger f2"></div></div>
+          </div>
+          <div class="zax-legs">
+            <div class="zax-leg"><div class="zax-boot"></div></div>
+            <div class="zax-leg"><div class="zax-boot"></div></div>
+          </div>
+        </div>
+        <div class="state-label">Tired</div>
+      </div>
+    </div>
+
+    <div class="scene">
+      <div class="scene-ground"></div>
+      <div class="scene-plat" style="width: 55px; bottom: 85px; left: 110px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 150px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 166px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #f8e040, #d8b010); bottom: 56px; left: 200px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #a0e868, #58a838); bottom: 99px; left: 125px;"></div>
+      <div class="zax-scene">
+        <div class="zax-head">
+          <div class="zax-antenna l"><div class="zax-antenna-tip"></div></div>
+          <div class="zax-antenna r"><div class="zax-antenna-tip"></div></div>
+          <div class="zax-eye l"><div class="zax-eye-shine"></div></div>
+          <div class="zax-eye r"><div class="zax-eye-shine"></div></div>
+          <div class="zax-mouth"></div>
+        </div>
+        <div style="position:relative;">
+          <div class="zax-arm l"></div>
+          <div class="zax-body"></div>
+          <div class="zax-arm r"></div>
+        </div>
+        <div class="zax-legs">
+          <div class="zax-leg"><div class="zax-boot"></div></div>
+          <div class="zax-leg"><div class="zax-boot"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AVATAR 3: BARKLEY ========== -->
+  <div class="avatar-card">
+    <div class="card-num">Avatar 3</div>
+    <div class="card-title">Barkley</div>
+    <div class="card-desc">A golden puppy with floppy ears, a wagging tail, and a little tongue poking out. Friendly, loyal, always excited about snacks. Universal appeal.</div>
+
+    <div class="states">
+      <div class="state">
+        <div class="bark">
+          <div class="bark-head">
+            <div class="bark-ear l"><div class="bark-ear-inner"></div></div>
+            <div class="bark-ear r"><div class="bark-ear-inner"></div></div>
+            <div class="bark-eye l"><div class="bark-pupil"></div></div>
+            <div class="bark-eye r"><div class="bark-pupil"></div></div>
+            <div class="bark-snout"><div class="bark-nose"></div><div class="bark-tongue"></div></div>
+          </div>
+          <div style="position:relative;">
+            <div class="bark-arm l"><div class="bark-paw"></div></div>
+            <div class="bark-body"><div class="bark-belly"></div></div>
+            <div class="bark-arm r"><div class="bark-paw"></div></div>
+            <div class="bark-tail"></div>
+          </div>
+          <div class="bark-legs">
+            <div class="bark-leg"><div class="bark-shoe"></div></div>
+            <div class="bark-leg"><div class="bark-shoe"></div></div>
+          </div>
+        </div>
+        <div class="state-label">Energized</div>
+      </div>
+      <div class="state">
+        <div class="bark">
+          <div class="bark-head">
+            <div class="bark-ear l"><div class="bark-ear-inner"></div></div>
+            <div class="bark-ear r"><div class="bark-ear-inner"></div></div>
+            <div class="bark-eye l"><div class="bark-pupil"></div></div>
+            <div class="bark-eye r"><div class="bark-pupil"></div></div>
+            <div class="bark-snout"><div class="bark-nose"></div></div>
+          </div>
+          <div style="position:relative;">
+            <div class="bark-arm l"><div class="bark-paw"></div></div>
+            <div class="bark-body"><div class="bark-belly"></div></div>
+            <div class="bark-arm r"><div class="bark-paw"></div></div>
+            <div class="bark-tail" style="transform:rotate(10deg);"></div>
+          </div>
+          <div class="bark-legs">
+            <div class="bark-leg"><div class="bark-shoe"></div></div>
+            <div class="bark-leg"><div class="bark-shoe"></div></div>
+          </div>
+        </div>
+        <div class="state-label">Normal</div>
+      </div>
+      <div class="state">
+        <div class="bark">
+          <div class="bark-head tired">
+            <div class="bark-ear l" style="transform:rotate(-30deg);"><div class="bark-ear-inner"></div></div>
+            <div class="bark-ear r" style="transform:rotate(30deg);"><div class="bark-ear-inner"></div></div>
+            <div class="bark-eye l" style="height:5px; top:15px; border-radius:5px 5px 2px 2px;"><div class="bark-pupil" style="display:none;"></div></div>
+            <div class="bark-eye r" style="height:5px; top:15px; border-radius:5px 5px 2px 2px;"><div class="bark-pupil" style="display:none;"></div></div>
+            <div class="bark-snout"><div class="bark-nose"></div></div>
+          </div>
+          <div style="position:relative;">
+            <div class="bark-arm l" style="transform:rotate(25deg);"><div class="bark-paw"></div></div>
+            <div class="bark-body"><div class="bark-belly"></div></div>
+            <div class="bark-arm r" style="transform:rotate(-30deg);"><div class="bark-paw"></div></div>
+            <div class="bark-tail" style="transform:rotate(-10deg);"></div>
+          </div>
+          <div class="bark-legs">
+            <div class="bark-leg"><div class="bark-shoe"></div></div>
+            <div class="bark-leg"><div class="bark-shoe"></div></div>
+          </div>
+        </div>
+        <div class="state-label">Tired</div>
+      </div>
+    </div>
+
+    <div class="scene">
+      <div class="scene-ground"></div>
+      <div class="scene-plat" style="width: 50px; bottom: 78px; left: 130px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 170px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 186px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 202px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #f0c878, #c89840); bottom: 92px; left: 140px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #f84838, #c82020); bottom: 56px; left: 250px;"></div>
+      <div class="bark-scene">
+        <div class="bark-head">
+          <div class="bark-ear l"><div class="bark-ear-inner"></div></div>
+          <div class="bark-ear r"><div class="bark-ear-inner"></div></div>
+          <div class="bark-eye l"><div class="bark-pupil"></div></div>
+          <div class="bark-eye r"><div class="bark-pupil"></div></div>
+          <div class="bark-snout"><div class="bark-nose"></div><div class="bark-tongue"></div></div>
+        </div>
+        <div style="position:relative;">
+          <div class="bark-arm l"><div class="bark-paw"></div></div>
+          <div class="bark-body"><div class="bark-belly"></div></div>
+          <div class="bark-arm r"><div class="bark-paw"></div></div>
+          <div class="bark-tail"></div>
+        </div>
+        <div class="bark-legs">
+          <div class="bark-leg"><div class="bark-shoe"></div></div>
+          <div class="bark-leg"><div class="bark-shoe"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AVATAR 4: CELL ========== -->
+  <div class="avatar-card">
+    <div class="card-num">Avatar 4</div>
+    <div class="card-title">Celi</div>
+    <div class="card-desc">A living cell with a visible nucleus, a dashed membrane outline, and a little flagellum tail. On-theme — you ARE the thing that needs the nutrients. Science-cute.</div>
+
+    <div class="states">
+      <div class="state">
+        <div class="cell">
+          <div class="cell-body energized">
+            <div class="cell-membrane"></div>
+            <div class="cell-nucleus"></div>
+            <div class="cell-eye l"><div class="cell-pupil"></div></div>
+            <div class="cell-eye r"><div class="cell-pupil"></div></div>
+            <div class="cell-smile"></div>
+            <div class="cell-foot l"></div>
+            <div class="cell-foot r"></div>
+            <div class="cell-flagellum"></div>
+          </div>
+        </div>
+        <div class="state-label">Energized</div>
+      </div>
+      <div class="state">
+        <div class="cell">
+          <div class="cell-body">
+            <div class="cell-membrane"></div>
+            <div class="cell-nucleus"></div>
+            <div class="cell-eye l"><div class="cell-pupil"></div></div>
+            <div class="cell-eye r"><div class="cell-pupil"></div></div>
+            <div class="cell-smile"></div>
+            <div class="cell-foot l"></div>
+            <div class="cell-foot r"></div>
+            <div class="cell-flagellum"></div>
+          </div>
+        </div>
+        <div class="state-label">Normal</div>
+      </div>
+      <div class="state">
+        <div class="cell">
+          <div class="cell-body tired">
+            <div class="cell-membrane" style="border-color:rgba(168,56,56,0.2);"></div>
+            <div class="cell-nucleus" style="opacity:0.6;"></div>
+            <div class="cell-eye l" style="height:6px;top:14px;border-radius:6px 6px 2px 2px;"><div class="cell-pupil"></div></div>
+            <div class="cell-eye r" style="height:6px;top:14px;border-radius:6px 6px 2px 2px;"><div class="cell-pupil"></div></div>
+            <div class="cell-foot l"></div>
+            <div class="cell-foot r"></div>
+            <div class="cell-flagellum" style="opacity:0.4;"></div>
+          </div>
+        </div>
+        <div class="state-label">Tired</div>
+      </div>
+    </div>
+
+    <div class="scene">
+      <div class="scene-ground"></div>
+      <div class="scene-plat" style="width: 55px; bottom: 82px; left: 120px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 160px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 176px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #f8e040, #d8b010); bottom: 56px; left: 220px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #80d848, #48a020); bottom: 96px; left: 135px;"></div>
+      <div class="cell-scene">
+        <div class="cell-body">
+          <div class="cell-membrane"></div>
+          <div class="cell-nucleus"></div>
+          <div class="cell-eye l"><div class="cell-pupil"></div></div>
+          <div class="cell-eye r"><div class="cell-pupil"></div></div>
+          <div class="cell-smile"></div>
+          <div class="cell-foot l"></div>
+          <div class="cell-foot r"></div>
+          <div class="cell-flagellum"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AVATAR 5: SPROUT ========== -->
+  <div class="avatar-card">
+    <div class="card-num">Avatar 5</div>
+    <div class="card-title">Sprout</div>
+    <div class="card-desc">A tiny plant seedling growing from a terracotta pot, with leaf arms and a round green head. Grows more vibrant with energy; wilts when tired. The most on-theme avatar — nutrition literally makes it grow.</div>
+
+    <div class="states">
+      <div class="state">
+        <div class="sprout">
+          <div class="sprout-head energized">
+            <div class="sprout-leaf l"></div>
+            <div class="sprout-leaf r"></div>
+            <div class="sprout-eye l"><div class="sprout-pupil"></div></div>
+            <div class="sprout-eye r"><div class="sprout-pupil"></div></div>
+            <div class="sprout-cheek l"></div>
+            <div class="sprout-cheek r"></div>
+            <div class="sprout-smile"></div>
+          </div>
+          <div class="sprout-stem"></div>
+          <div class="sprout-pot">
+            <div class="sprout-pot-rim"></div>
+            <div class="sprout-pot-dirt"></div>
+            <div class="sprout-foot l"></div>
+            <div class="sprout-foot r"></div>
+          </div>
+        </div>
+        <div class="state-label">Energized</div>
+      </div>
+      <div class="state">
+        <div class="sprout">
+          <div class="sprout-head">
+            <div class="sprout-leaf l"></div>
+            <div class="sprout-leaf r"></div>
+            <div class="sprout-eye l"><div class="sprout-pupil"></div></div>
+            <div class="sprout-eye r"><div class="sprout-pupil"></div></div>
+            <div class="sprout-cheek l"></div>
+            <div class="sprout-cheek r"></div>
+            <div class="sprout-smile"></div>
+          </div>
+          <div class="sprout-stem"></div>
+          <div class="sprout-pot">
+            <div class="sprout-pot-rim"></div>
+            <div class="sprout-pot-dirt"></div>
+            <div class="sprout-foot l"></div>
+            <div class="sprout-foot r"></div>
+          </div>
+        </div>
+        <div class="state-label">Normal</div>
+      </div>
+      <div class="state">
+        <div class="sprout">
+          <div class="sprout-head tired">
+            <div class="sprout-leaf tired l" style="transform:rotate(-40deg);"></div>
+            <div class="sprout-leaf tired r" style="transform:rotate(40deg) scaleX(-1);"></div>
+            <div class="sprout-eye l" style="height:5px;top:11px;border-radius:5px 5px 2px 2px;"><div class="sprout-pupil" style="display:none;"></div></div>
+            <div class="sprout-eye r" style="height:5px;top:11px;border-radius:5px 5px 2px 2px;"><div class="sprout-pupil" style="display:none;"></div></div>
+          </div>
+          <div class="sprout-stem" style="height:16px;"></div>
+          <div class="sprout-pot">
+            <div class="sprout-pot-rim"></div>
+            <div class="sprout-pot-dirt"></div>
+            <div class="sprout-foot l"></div>
+            <div class="sprout-foot r"></div>
+          </div>
+        </div>
+        <div class="state-label">Tired</div>
+      </div>
+    </div>
+
+    <div class="scene">
+      <div class="scene-ground"></div>
+      <div class="scene-plat" style="width: 50px; bottom: 82px; left: 125px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 175px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 191px;"></div>
+      <div class="scene-cell" style="bottom: 68px; left: 207px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #f84838, #c82020); bottom: 56px; left: 240px;"></div>
+      <div class="scene-food" style="background: radial-gradient(circle, #e8b840, #c89030); bottom: 96px; left: 138px;"></div>
+      <div class="sprout-scene">
+        <div class="sprout-head">
+          <div class="sprout-leaf l"></div>
+          <div class="sprout-leaf r"></div>
+          <div class="sprout-eye l"><div class="sprout-pupil"></div></div>
+          <div class="sprout-eye r"><div class="sprout-pupil"></div></div>
+          <div class="sprout-cheek l"></div>
+          <div class="sprout-cheek r"></div>
+          <div class="sprout-smile"></div>
+        </div>
+        <div class="sprout-stem"></div>
+        <div class="sprout-pot">
+          <div class="sprout-pot-rim"></div>
+          <div class="sprout-pot-dirt"></div>
+          <div class="sprout-foot l"></div>
+          <div class="sprout-foot r"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Style D: 32-Bit Pixel Art</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0e0e1c;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 20px;
+    image-rendering: pixelated;
+  }
+  h1 {
+    font-size: 18px;
+    color: #f8d848;
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 20px;
+  }
+  .game-frame {
+    width: 1024px;
+    height: 576px;
+    border: 3px solid #f8d84866;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    image-rendering: pixelated;
+    background: linear-gradient(180deg,
+      #1a2844 0%,
+      #2a4870 15%,
+      #4080b8 35%,
+      #60a8d8 50%,
+      #88c8e8 65%,
+      #a8dce8 75%,
+      #c0e8f0 85%,
+      #d8f0f0 100%
+    );
+  }
+
+  /* === PARALLAX BACKGROUND LAYERS === */
+
+  /* Far mountains — soft, desaturated */
+  .far-mtn {
+    position: absolute;
+    bottom: 160px;
+    background: linear-gradient(180deg, #6a8aaa 0%, #7a9ab8 60%, #8aaa88 100%);
+    opacity: 0.45;
+  }
+  .fm1 {
+    width: 0; height: 0;
+    border-left: 240px solid transparent;
+    border-right: 240px solid transparent;
+    border-bottom: 180px solid #7a9ab8;
+    left: -120px;
+    bottom: 160px;
+    opacity: 0.3;
+    background: none;
+  }
+  .fm2 {
+    width: 0; height: 0;
+    border-left: 200px solid transparent;
+    border-right: 200px solid transparent;
+    border-bottom: 150px solid #6a8a9a;
+    left: 300px;
+    bottom: 160px;
+    opacity: 0.25;
+    background: none;
+  }
+  .fm3 {
+    width: 0; height: 0;
+    border-left: 260px solid transparent;
+    border-right: 260px solid transparent;
+    border-bottom: 170px solid #7090a8;
+    right: -140px;
+    bottom: 160px;
+    opacity: 0.3;
+    background: none;
+  }
+
+  /* Mid-ground hills — richer greens */
+  .mid-hill {
+    position: absolute;
+    border-radius: 60% 60% 0 0;
+    opacity: 0.6;
+  }
+  .mh1 { width: 350px; height: 110px; bottom: 160px; left: -60px; background: linear-gradient(180deg, #3a7a4a, #4a8a3a); }
+  .mh2 { width: 280px; height: 90px; bottom: 160px; left: 380px; background: linear-gradient(180deg, #3a8a50, #4a9a40); }
+  .mh3 { width: 320px; height: 100px; bottom: 160px; right: -80px; background: linear-gradient(180deg, #3a7848, #4a883a); }
+
+  /* Trees — layered canopy look */
+  .tree32 {
+    position: absolute;
+    bottom: 160px;
+  }
+  .tree32-trunk {
+    width: 12px;
+    height: 40px;
+    background: linear-gradient(90deg, #5a3a1a, #7a5028, #5a3a1a);
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+  .tree32-canopy {
+    position: relative;
+  }
+  .tree32-layer {
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .tl1 { width: 64px; height: 50px; background: radial-gradient(ellipse at 40% 30%, #5aaa4a, #3a8a30); bottom: 20px; box-shadow: 2px 3px 0 #2a6a22; }
+  .tl2 { width: 52px; height: 40px; background: radial-gradient(ellipse at 45% 25%, #6abb55, #4a9a3a); bottom: 35px; }
+  .tl3 { width: 36px; height: 28px; background: radial-gradient(ellipse at 45% 30%, #78cc60, #58aa48); bottom: 48px; }
+
+  /* Clouds — layered, soft but still pixel-ish */
+  .cloud32 {
+    position: absolute;
+    background: rgba(255,255,255,0.7);
+    border-radius: 20px;
+  }
+  .cloud32::before, .cloud32::after {
+    content: '';
+    position: absolute;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50%;
+  }
+  .cl1 { width: 100px; height: 28px; top: 50px; left: 120px; }
+  .cl1::before { width: 50px; height: 30px; top: -14px; left: 15px; }
+  .cl1::after { width: 60px; height: 24px; top: -8px; left: 40px; }
+  .cl2 { width: 70px; height: 20px; top: 80px; left: 480px; }
+  .cl2::before { width: 36px; height: 22px; top: -10px; left: 10px; }
+  .cl2::after { width: 44px; height: 18px; top: -6px; left: 24px; }
+  .cl3 { width: 90px; height: 24px; top: 40px; left: 760px; }
+  .cl3::before { width: 46px; height: 26px; top: -12px; left: 14px; }
+  .cl3::after { width: 54px; height: 22px; top: -8px; left: 34px; }
+
+  /* Sun — warm glow with rays */
+  .sun32 {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    background: radial-gradient(circle at 45% 45%, #fff8e0, #f8d848, #e8a818);
+    border-radius: 50%;
+    top: 25px;
+    right: 100px;
+    box-shadow:
+      0 0 20px #f8d84888,
+      0 0 50px #f8d84844,
+      0 0 80px #e8a81822;
+  }
+  .sun-ray {
+    position: absolute;
+    top: 25px;
+    right: 100px;
+    width: 52px;
+    height: 52px;
+  }
+  .sun-ray::before, .sun-ray::after {
+    content: '';
+    position: absolute;
+    background: rgba(248,216,72,0.08);
+  }
+  .sun-ray::before {
+    width: 120px;
+    height: 3px;
+    top: 24px;
+    left: -34px;
+    border-radius: 2px;
+  }
+  .sun-ray::after {
+    width: 3px;
+    height: 120px;
+    left: 24px;
+    top: -34px;
+    border-radius: 2px;
+  }
+
+  /* === GROUND === */
+  .ground32 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 160px;
+  }
+  .ground32-grass {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(90deg, #3a8828, #4a9830, #3a8828, #4a9830, #3a8828);
+  }
+  .ground32-top {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(180deg, #5aaa3a, #4a9030, #3a7828);
+  }
+  .ground32-dirt {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #8a6828, #7a5820, #6a4818);
+  }
+  .ground32-detail {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: repeating-linear-gradient(90deg,
+      #7a5820 0px, #7a5820 3px,
+      #8a6828 3px, #8a6828 18px,
+      #6a4818 18px, #6a4818 20px,
+      #8a6828 20px, #8a6828 36px
+    );
+  }
+  /* Grass tufts */
+  .tuft {
+    position: absolute;
+    bottom: 160px;
+  }
+  .tuft-blade {
+    width: 4px;
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(180deg, #6abb48, #4a9830);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* === PLATFORMS === */
+  .plat32 {
+    position: absolute;
+    height: 24px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #5aaa3a, #4a9030);
+    box-shadow: 0 4px 0 #3a7828, 0 8px 0 #8a6828, 0 6px 8px rgba(0,0,0,0.2);
+    position: absolute;
+  }
+  .plat32::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    right: 4px;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+  }
+  .plat32::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(180deg, #8a6828, #7a5820);
+    border-radius: 0 0 4px 4px;
+  }
+  .pt1 { width: 140px; bottom: 260px; left: 190px; }
+  .pt2 { width: 110px; bottom: 340px; left: 400px; }
+  .pt3 { width: 160px; bottom: 300px; left: 620px; }
+  .pt4 { width: 96px; bottom: 220px; left: 68px; }
+
+  /* === PLAYER CHARACTER — 32-bit has more detail, shading, anti-aliasing hints === */
+  .player32 {
+    position: absolute;
+    bottom: 162px;
+    left: 155px;
+    filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.25));
+  }
+  /* Head */
+  .p32-head {
+    width: 36px;
+    height: 36px;
+    background: radial-gradient(circle at 40% 35%, #ffe0a8, #f0c878, #daa858);
+    border-radius: 8px;
+    position: relative;
+    margin: 0 auto;
+    border: 2px solid #c89048;
+  }
+  .p32-hair {
+    position: absolute;
+    top: -5px;
+    left: -1px;
+    right: -1px;
+    height: 14px;
+    background: linear-gradient(180deg, #6a3010, #884818);
+    border-radius: 8px 8px 0 0;
+    border: 2px solid #5a2808;
+    border-bottom: none;
+  }
+  .p32-hair-side {
+    position: absolute;
+    top: 6px;
+    width: 5px;
+    height: 10px;
+    background: #884818;
+    border-radius: 2px;
+  }
+  .p32-hair-side.l { left: -3px; }
+  .p32-hair-side.r { right: -3px; }
+  .p32-eye {
+    position: absolute;
+    width: 7px;
+    height: 8px;
+    background: #fcfcfc;
+    border-radius: 4px;
+    top: 14px;
+    border: 1px solid #888;
+  }
+  .p32-eye.l { left: 6px; }
+  .p32-eye.r { right: 6px; }
+  .p32-pupil {
+    position: absolute;
+    width: 4px;
+    height: 5px;
+    background: #1a2a3a;
+    border-radius: 50%;
+    top: 1px;
+    right: 0;
+  }
+  .p32-pupil::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+  }
+  .p32-nose {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #daa858;
+    border-radius: 50%;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .p32-mouth {
+    position: absolute;
+    width: 10px;
+    height: 4px;
+    border-bottom: 2px solid #c87040;
+    border-radius: 0 0 6px 6px;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .p32-cheek {
+    position: absolute;
+    width: 6px;
+    height: 4px;
+    background: rgba(240,140,100,0.35);
+    border-radius: 50%;
+    bottom: 8px;
+  }
+  .p32-cheek.l { left: 2px; }
+  .p32-cheek.r { right: 2px; }
+
+  /* Body */
+  .p32-body {
+    width: 30px;
+    height: 24px;
+    background: linear-gradient(180deg, #4898e0, #3878c0);
+    border: 2px solid #2858a0;
+    border-radius: 4px 4px 2px 2px;
+    margin: 2px auto 0;
+    position: relative;
+  }
+  .p32-body::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 10px;
+    background: linear-gradient(180deg, #e8a828, #d09020);
+    border-radius: 2px;
+    border: 1px solid #b87818;
+  }
+  .p32-arm {
+    position: absolute;
+    width: 10px;
+    height: 22px;
+    background: linear-gradient(180deg, #4898e0, #3878c0);
+    border: 2px solid #2858a0;
+    border-radius: 4px;
+    top: 0;
+  }
+  .p32-arm.l { left: -9px; transform: rotate(15deg); }
+  .p32-arm.r { right: -9px; transform: rotate(-25deg); }
+  .p32-hand {
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle at 40% 40%, #ffe0a8, #daa858);
+    border-radius: 50%;
+    border: 1px solid #c89048;
+  }
+
+  /* Legs */
+  .p32-legs {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 1px;
+  }
+  .p32-leg {
+    width: 11px;
+    height: 14px;
+    background: linear-gradient(180deg, #4a5a78, #3a4a68);
+    border: 2px solid #2a3a58;
+    border-radius: 2px 2px 3px 3px;
+  }
+  .p32-leg.run { transform: skewX(-10deg); }
+  .p32-shoe {
+    width: 15px;
+    height: 7px;
+    background: linear-gradient(180deg, #d84828, #c03818);
+    border: 1px solid #a02810;
+    border-radius: 2px 5px 4px 2px;
+    margin-left: -2px;
+    margin-top: -1px;
+  }
+  .p32-shoe::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    width: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 1px;
+  }
+
+  /* Player energy glow */
+  .p32-glow {
+    position: absolute;
+    bottom: 150px;
+    left: 138px;
+    width: 80px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(72,152,224,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* === FOOD COLLECTIBLES — 32-bit: more shading, highlights, rounder shapes === */
+  .food32 {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.2));
+  }
+  .food32 .fn {
+    font-size: 8px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 3px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    letter-spacing: 0.5px;
+  }
+  .food32 .fn.fib {
+    color: #80f080;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5), 0 0 4px rgba(128,240,128,0.3);
+  }
+
+  /* Bread */
+  .bread32 {
+    width: 30px;
+    height: 26px;
+    background: linear-gradient(180deg, #e8b840, #d8a030, #c89028);
+    border: 2px solid #b07820;
+    border-radius: 10px 10px 4px 4px;
+    position: relative;
+  }
+  .bread32::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 10px;
+    height: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    transform: rotate(-5deg);
+  }
+  .bread32::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: #c08828;
+    border-radius: 1px;
+  }
+
+  /* Brown bread (fibre-rich) */
+  .bread32-brown {
+    width: 30px;
+    height: 26px;
+    background: linear-gradient(180deg, #906020, #7a5018, #684010);
+    border: 2px solid #5a3410;
+    border-radius: 10px 10px 4px 4px;
+    position: relative;
+  }
+  .bread32-brown::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 8px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+  }
+  .bread32-brown::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 4px;
+    height: 4px;
+    background: #b89050;
+    border-radius: 50%;
+    box-shadow:
+      7px 1px 0 #b89050,
+      13px 3px 0 #a88040,
+      3px 8px 0 #b89050,
+      10px 7px 0 #a88040,
+      6px 12px 0 #b89050;
+  }
+
+  /* Banana */
+  .banana32 {
+    width: 32px;
+    height: 18px;
+    background: linear-gradient(180deg, #f8e840, #e8c820, #d8b010);
+    border: 2px solid #c0a010;
+    border-radius: 20px 20px 8px 8px;
+    transform: rotate(-12deg);
+    position: relative;
+  }
+  .banana32::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 12px;
+    height: 3px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    transform: rotate(5deg);
+  }
+  .banana32::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: 2px;
+    width: 4px;
+    height: 5px;
+    background: #8a6818;
+    border-radius: 50% 50% 0 0;
+  }
+
+  /* Apple */
+  .apple32 {
+    width: 26px;
+    height: 28px;
+    background: radial-gradient(circle at 35% 30%, #f84838, #d82020, #b01818);
+    border: 2px solid #901010;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+  }
+  .apple32::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 8px;
+    background: linear-gradient(180deg, #5a3a18, #7a4a20);
+    border-radius: 1px;
+  }
+  .apple32::after {
+    content: '';
+    position: absolute;
+    top: -9px;
+    right: 4px;
+    width: 9px;
+    height: 7px;
+    background: radial-gradient(ellipse at 30% 60%, #5aaa38, #3a8a28);
+    border-radius: 50% 70% 10% 50%;
+    transform: rotate(25deg);
+  }
+  .apple32-shine {
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    width: 7px;
+    height: 10px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    transform: rotate(-15deg);
+  }
+
+  /* Rice bowl */
+  .rice32 {
+    width: 34px;
+    height: 22px;
+    background: linear-gradient(180deg, #f8f0e0, #e8dcc0, #d8c8a8);
+    border: 2px solid #c0b090;
+    border-radius: 6px 6px 16px 16px;
+    position: relative;
+  }
+  .rice32::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 6px;
+    width: 6px;
+    height: 6px;
+    background: #f8f0e0;
+    border-radius: 50%;
+    box-shadow: 7px -2px 0 #f0e8d8, 14px 0 0 #f8f0e0;
+  }
+  .rice32::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 8px;
+    height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+
+  /* Oats bowl */
+  .oats32 {
+    width: 32px;
+    height: 20px;
+    background: linear-gradient(180deg, #d8b870, #c8a858, #b89848);
+    border: 2px solid #a08840;
+    border-radius: 6px 6px 14px 14px;
+    position: relative;
+  }
+  .oats32::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    box-shadow: 0 4px 0 rgba(255,255,255,0.1);
+  }
+
+  /* Pasta */
+  .pasta32 {
+    width: 28px;
+    height: 28px;
+    background: radial-gradient(circle at 40% 35%, #f8e060, #e8c838, #d0b028);
+    border: 2px solid #b89820;
+    border-radius: 50%;
+    position: relative;
+  }
+  .pasta32::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    width: 7px;
+    height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 50%;
+    transform: rotate(-10deg);
+  }
+  .pasta32::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(184,152,32,0.5);
+    border-radius: 50%;
+  }
+
+  /* Orange */
+  .orange32 {
+    width: 26px;
+    height: 26px;
+    background: radial-gradient(circle at 35% 30%, #f8b838, #e89018, #d07810);
+    border: 2px solid #b06010;
+    border-radius: 50%;
+    position: relative;
+  }
+  .orange32::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background: #4a9a30;
+    border-radius: 50%;
+  }
+  .orange32::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 6px;
+    height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    transform: rotate(-10deg);
+  }
+
+  /* === ENERGY CELLS — 32-bit: glow, shine, depth === */
+  .ecell32 {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle at 38% 32%, #a0ffd0, #40e888, #20c868);
+    border: 2px solid #18a850;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(64,232,136,0.5), 0 1px 0 rgba(0,0,0,0.2);
+  }
+  .ecell32::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 6px;
+    height: 5px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+  }
+  .ecell32::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 3px;
+    width: 4px;
+    height: 3px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 50%;
+  }
+
+  /* === FATIGUE PHANTOM — 32-bit: translucent, ghostly, layered === */
+  .phantom32 {
+    position: absolute;
+    filter: drop-shadow(0 0 8px rgba(140,100,180,0.35));
+  }
+  .ph32-body {
+    width: 48px;
+    height: 42px;
+    background: radial-gradient(ellipse at 50% 35%, rgba(160,120,200,0.75), rgba(120,80,160,0.5), rgba(80,50,120,0.25));
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+  }
+  .ph32-eye {
+    position: absolute;
+    width: 12px;
+    height: 14px;
+    background: radial-gradient(circle at 50% 40%, #e8d0ff, #c8a8e8);
+    border-radius: 50%;
+    top: 12px;
+    box-shadow: 0 0 6px rgba(200,168,232,0.5);
+  }
+  .ph32-eye.l { left: 8px; }
+  .ph32-eye.r { right: 8px; }
+  .ph32-pupil {
+    width: 5px;
+    height: 6px;
+    background: radial-gradient(circle, #3a1858, #5a2878);
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+  }
+  .ph32-pupil::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+  }
+  .ph32-mouth {
+    position: absolute;
+    width: 12px;
+    height: 6px;
+    border-bottom: 2px solid rgba(100,60,140,0.5);
+    border-radius: 0 0 50% 50%;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .ph32-trail {
+    display: flex;
+    justify-content: center;
+    gap: 1px;
+    margin-top: -3px;
+  }
+  .ph32-wisp {
+    width: 11px;
+    height: 18px;
+    background: linear-gradient(180deg, rgba(140,100,180,0.4), rgba(100,60,140,0.1), transparent);
+    border-radius: 0 0 50% 50%;
+  }
+  .ph32-aura {
+    position: absolute;
+    top: -8px;
+    left: -10px;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(140,100,200,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* === CRASH PIT === */
+  .cpit32 {
+    position: absolute;
+    bottom: 160px;
+    height: 14px;
+    background: linear-gradient(180deg, #9a8a48, #7a6a30, #6a5a28);
+    border-top: 2px solid #b8a858;
+    border-radius: 2px;
+    opacity: 0.85;
+  }
+  .cpit32::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    right: 8px;
+    height: 6px;
+    background: linear-gradient(90deg, transparent, rgba(180,160,80,0.25), transparent);
+    border-radius: 4px;
+  }
+  .cpit32-ripple {
+    position: absolute;
+    bottom: 174px;
+    font-size: 9px;
+    color: rgba(180,160,80,0.4);
+    letter-spacing: 5px;
+  }
+
+  /* === FIBRE SPARKLE === */
+  .spark32 {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+  }
+  .spark32::before {
+    content: '✦';
+    font-size: 10px;
+    color: #80f080;
+    text-shadow: 0 0 4px rgba(128,240,128,0.5);
+  }
+
+  /* === DECORATIVE — flowers, mushrooms === */
+  .flower32 {
+    position: absolute;
+    bottom: 162px;
+  }
+  .fl-stem {
+    width: 3px;
+    height: 10px;
+    background: linear-gradient(180deg, #4a9830, #3a7820);
+    margin: 0 auto;
+    border-radius: 1px;
+  }
+  .fl-petals {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: relative;
+  }
+  .fl-center {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #f8d848;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Mushroom */
+  .mush32 {
+    position: absolute;
+    bottom: 162px;
+  }
+  .mush-cap {
+    width: 18px;
+    height: 10px;
+    background: radial-gradient(ellipse at 40% 30%, #e84838, #c82828);
+    border-radius: 10px 10px 2px 2px;
+    position: relative;
+    border: 1px solid #a02020;
+  }
+  .mush-cap::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 4px;
+    height: 3px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    box-shadow: 7px 2px 0 rgba(255,255,255,0.4);
+  }
+  .mush-stem {
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(90deg, #e8d8c0, #f0e8d8, #e8d8c0);
+    margin: 0 auto;
+    border-radius: 0 0 2px 2px;
+    border: 1px solid #c8b898;
+    border-top: none;
+  }
+
+  /* === HUD — polished, semi-transparent === */
+  .hud32 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.35) 75%, transparent 100%);
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 16px;
+    gap: 22px;
+    z-index: 10;
+  }
+  .h32-section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .h32-label {
+    font-size: 9px;
+    color: #f8d848;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  }
+  .h32-bar-bg {
+    height: 12px;
+    background: rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .h32-ebar { width: 210px; }
+  .h32-cbar { width: 180px; }
+  .h32-bar-fill {
+    height: 100%;
+    border-radius: 1px;
+    position: relative;
+  }
+  .h32-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    right: 20%;
+    height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+  .h32-energy-fill {
+    width: 72%;
+    background: linear-gradient(90deg, #30bb50, #58e848, #80f850);
+    box-shadow: 0 0 6px rgba(88,232,72,0.4);
+  }
+  .h32-carbs-fill {
+    width: 45%;
+    background: linear-gradient(90deg, #d8a028, #f0c840, #f8d858);
+    box-shadow: 0 0 6px rgba(240,200,64,0.3);
+  }
+  .h32-fibre {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 1px;
+  }
+  .h32-fibre-label {
+    font-size: 7px;
+    color: #80f080;
+    letter-spacing: 1px;
+    text-shadow: 0 0 4px rgba(128,240,128,0.3);
+  }
+  .h32-fdot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(128,240,128,0.3);
+  }
+  .h32-fdot.on {
+    background: radial-gradient(circle, #80f080, #40c040);
+    box-shadow: 0 0 4px rgba(128,240,128,0.4);
+  }
+  .h32-fdot.off { background: rgba(255,255,255,0.06); }
+
+  .h32-cells {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .h32-cell-icon {
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 38% 32%, #a0ffd0, #40e888);
+    border-radius: 50%;
+    border: 1px solid #18a850;
+    box-shadow: 0 0 6px rgba(64,232,136,0.4);
+  }
+  .h32-cell-num {
+    font-size: 14px;
+    color: #80ffc0;
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(128,255,192,0.3);
+  }
+  .h32-stars {
+    display: flex;
+    gap: 3px;
+  }
+  .h32-star {
+    font-size: 14px;
+  }
+  .h32-star.on { color: #f8d848; text-shadow: 0 0 6px rgba(248,216,72,0.5); }
+  .h32-star.off { color: rgba(255,255,255,0.12); }
+
+  .h32-level {
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    font-size: 10px;
+    color: #f8d848;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+  <h1>Style D: 32-Bit Pixel Art</h1>
+  <p class="subtitle">NutriRun — Level 1: Carbohydrates — Gameplay Mockup</p>
+
+  <div class="game-frame">
+    <!-- Sun -->
+    <div class="sun-ray"></div>
+    <div class="sun32"></div>
+
+    <!-- Clouds -->
+    <div class="cloud32 cl1"></div>
+    <div class="cloud32 cl2"></div>
+    <div class="cloud32 cl3"></div>
+
+    <!-- Far mountains -->
+    <div class="far-mtn fm1"></div>
+    <div class="far-mtn fm2"></div>
+    <div class="far-mtn fm3"></div>
+
+    <!-- Mid hills -->
+    <div class="mid-hill mh1"></div>
+    <div class="mid-hill mh2"></div>
+    <div class="mid-hill mh3"></div>
+
+    <!-- Trees -->
+    <div class="tree32" style="left: 40px;">
+      <div class="tree32-canopy" style="position:relative;width:64px;height:70px;">
+        <div class="tree32-layer tl1"></div>
+        <div class="tree32-layer tl2"></div>
+        <div class="tree32-layer tl3"></div>
+      </div>
+      <div class="tree32-trunk"></div>
+    </div>
+    <div class="tree32" style="left: 310px; transform: scale(0.85);">
+      <div class="tree32-canopy" style="position:relative;width:64px;height:70px;">
+        <div class="tree32-layer tl1"></div>
+        <div class="tree32-layer tl2"></div>
+        <div class="tree32-layer tl3"></div>
+      </div>
+      <div class="tree32-trunk"></div>
+    </div>
+    <div class="tree32" style="left: 550px; transform: scale(0.9);">
+      <div class="tree32-canopy" style="position:relative;width:64px;height:70px;">
+        <div class="tree32-layer tl1"></div>
+        <div class="tree32-layer tl2"></div>
+        <div class="tree32-layer tl3"></div>
+      </div>
+      <div class="tree32-trunk"></div>
+    </div>
+    <div class="tree32" style="left: 880px;">
+      <div class="tree32-canopy" style="position:relative;width:64px;height:70px;">
+        <div class="tree32-layer tl1"></div>
+        <div class="tree32-layer tl2"></div>
+        <div class="tree32-layer tl3"></div>
+      </div>
+      <div class="tree32-trunk"></div>
+    </div>
+
+    <!-- Decorative elements -->
+    <div class="flower32" style="left: 120px;">
+      <div class="fl-petals" style="background: radial-gradient(circle, #f888a0, #e05878);"><div class="fl-center"></div></div>
+      <div class="fl-stem"></div>
+    </div>
+    <div class="flower32" style="left: 480px;">
+      <div class="fl-petals" style="background: radial-gradient(circle, #88a8f8, #5878e0);"><div class="fl-center"></div></div>
+      <div class="fl-stem"></div>
+    </div>
+    <div class="flower32" style="left: 760px;">
+      <div class="fl-petals" style="background: radial-gradient(circle, #f8c868, #e0a838);"><div class="fl-center"></div></div>
+      <div class="fl-stem"></div>
+    </div>
+    <div class="mush32" style="left: 260px;">
+      <div class="mush-cap"></div>
+      <div class="mush-stem"></div>
+    </div>
+    <div class="mush32" style="left: 650px;">
+      <div class="mush-cap"></div>
+      <div class="mush-stem"></div>
+    </div>
+
+    <!-- Grass tufts -->
+    <div class="tuft" style="left: 30px;"><div class="tuft-blade" style="height: 10px; left: 0;"></div><div class="tuft-blade" style="height: 14px; left: 5px; transform: rotate(8deg);"></div><div class="tuft-blade" style="height: 8px; left: 10px;"></div></div>
+    <div class="tuft" style="left: 200px;"><div class="tuft-blade" style="height: 12px; left: 0;"></div><div class="tuft-blade" style="height: 16px; left: 6px;"></div></div>
+    <div class="tuft" style="left: 420px;"><div class="tuft-blade" style="height: 10px; left: 0; transform: rotate(-5deg);"></div><div class="tuft-blade" style="height: 13px; left: 5px;"></div><div class="tuft-blade" style="height: 9px; left: 10px; transform: rotate(6deg);"></div></div>
+    <div class="tuft" style="left: 700px;"><div class="tuft-blade" style="height: 11px; left: 0;"></div><div class="tuft-blade" style="height: 15px; left: 5px;"></div></div>
+    <div class="tuft" style="left: 920px;"><div class="tuft-blade" style="height: 9px; left: 0;"></div><div class="tuft-blade" style="height: 12px; left: 5px;"></div><div class="tuft-blade" style="height: 8px; left: 10px;"></div></div>
+
+    <!-- Ground -->
+    <div class="ground32">
+      <div class="ground32-grass"></div>
+      <div class="ground32-top"></div>
+      <div class="ground32-detail"></div>
+      <div class="ground32-dirt"></div>
+    </div>
+
+    <!-- Platforms -->
+    <div class="plat32 pt1"></div>
+    <div class="plat32 pt2"></div>
+    <div class="plat32 pt3"></div>
+    <div class="plat32 pt4"></div>
+
+    <!-- Crash Pit -->
+    <div class="cpit32" style="left: 340px; width: 80px;"></div>
+    <div class="cpit32-ripple" style="left: 350px;">~ ~ ~ ~</div>
+
+    <!-- Player -->
+    <div class="p32-glow"></div>
+    <div class="player32">
+      <div class="p32-head">
+        <div class="p32-hair"></div>
+        <div class="p32-hair-side l"></div>
+        <div class="p32-hair-side r"></div>
+        <div class="p32-eye l"><div class="p32-pupil"></div></div>
+        <div class="p32-eye r"><div class="p32-pupil"></div></div>
+        <div class="p32-nose"></div>
+        <div class="p32-cheek l"></div>
+        <div class="p32-cheek r"></div>
+        <div class="p32-mouth"></div>
+      </div>
+      <div style="position: relative;">
+        <div class="p32-arm l"><div class="p32-hand"></div></div>
+        <div class="p32-body"></div>
+        <div class="p32-arm r"><div class="p32-hand"></div></div>
+      </div>
+      <div class="p32-legs">
+        <div class="p32-leg run"><div class="p32-shoe"></div></div>
+        <div class="p32-leg"><div class="p32-shoe"></div></div>
+      </div>
+    </div>
+
+    <!-- Food collectibles — ground -->
+    <div class="food32" style="bottom: 172px; left: 275px;">
+      <div class="bread32"></div>
+      <div class="fn">Bread</div>
+    </div>
+    <div class="food32" style="bottom: 172px; left: 460px;">
+      <div class="banana32"></div>
+      <div class="fn fib">Banana ✦</div>
+    </div>
+    <div class="food32" style="bottom: 172px; left: 590px;">
+      <div class="rice32"></div>
+      <div class="fn">Rice</div>
+    </div>
+    <div class="food32" style="bottom: 172px; left: 810px;">
+      <div class="orange32"></div>
+      <div class="fn fib">Orange ✦</div>
+    </div>
+
+    <!-- Food on platforms -->
+    <div class="food32" style="bottom: 294px; left: 230px;">
+      <div class="apple32"><div class="apple32-shine"></div></div>
+      <div class="spark32" style="top: -6px; right: -8px;"></div>
+      <div class="fn fib">Apple ✦</div>
+    </div>
+    <div class="food32" style="bottom: 374px; left: 435px;">
+      <div class="oats32"></div>
+      <div class="spark32" style="top: -6px; right: -8px;"></div>
+      <div class="fn fib">Oats ✦</div>
+    </div>
+    <div class="food32" style="bottom: 334px; left: 680px;">
+      <div class="bread32-brown"></div>
+      <div class="spark32" style="top: -6px; right: -8px;"></div>
+      <div class="fn fib">Whole Grain ✦</div>
+    </div>
+    <div class="food32" style="bottom: 254px; left: 90px;">
+      <div class="pasta32"></div>
+      <div class="fn">Pasta</div>
+    </div>
+
+    <!-- Energy Cells -->
+    <div class="ecell32" style="bottom: 200px; left: 238px;"></div>
+    <div class="ecell32" style="bottom: 200px; left: 262px;"></div>
+    <div class="ecell32" style="bottom: 200px; left: 286px;"></div>
+    <div class="ecell32" style="bottom: 300px; left: 320px;"></div>
+    <div class="ecell32" style="bottom: 320px; left: 344px;"></div>
+    <div class="ecell32" style="bottom: 200px; left: 520px;"></div>
+    <div class="ecell32" style="bottom: 200px; left: 544px;"></div>
+    <div class="ecell32" style="bottom: 394px; left: 480px;"></div>
+    <div class="ecell32" style="bottom: 200px; left: 690px;"></div>
+    <div class="ecell32" style="bottom: 200px; left: 714px;"></div>
+    <div class="ecell32" style="bottom: 200px; left: 738px;"></div>
+    <div class="ecell32" style="bottom: 344px; left: 660px;"></div>
+    <div class="ecell32" style="bottom: 344px; left: 684px;"></div>
+    <div class="ecell32" style="bottom: 344px; left: 756px;"></div>
+
+    <!-- Fatigue Phantom -->
+    <div class="phantom32" style="bottom: 166px; left: 720px;">
+      <div class="ph32-aura"></div>
+      <div class="ph32-body">
+        <div class="ph32-eye l"><div class="ph32-pupil"></div></div>
+        <div class="ph32-eye r"><div class="ph32-pupil"></div></div>
+        <div class="ph32-mouth"></div>
+      </div>
+      <div class="ph32-trail">
+        <div class="ph32-wisp"></div>
+        <div class="ph32-wisp"></div>
+        <div class="ph32-wisp"></div>
+        <div class="ph32-wisp"></div>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud32">
+      <div class="h32-section">
+        <div class="h32-label">Energy</div>
+        <div class="h32-bar-bg h32-ebar">
+          <div class="h32-bar-fill h32-energy-fill"></div>
+        </div>
+      </div>
+      <div class="h32-section">
+        <div class="h32-label">Carbs Collected</div>
+        <div class="h32-bar-bg h32-cbar">
+          <div class="h32-bar-fill h32-carbs-fill"></div>
+        </div>
+        <div class="h32-fibre">
+          <span class="h32-fibre-label">Fibre</span>
+          <div class="h32-fdot on"></div>
+          <div class="h32-fdot on"></div>
+          <div class="h32-fdot off"></div>
+          <div class="h32-fdot off"></div>
+          <div class="h32-fdot off"></div>
+          <div class="h32-fdot off"></div>
+        </div>
+      </div>
+      <div class="h32-section">
+        <div class="h32-cells">
+          <div class="h32-cell-icon"></div>
+          <span class="h32-cell-num">× 23</span>
+        </div>
+        <div class="h32-stars">
+          <span class="h32-star on">★</span>
+          <span class="h32-star off">★</span>
+          <span class="h32-star off">★</span>
+        </div>
+      </div>
+      <div class="h32-level">L1 — CARBOHYDRATES</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Complete Food Item Inventory (32-Bit Bold Outlined)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0e0e1c;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    font-size: 18px;
+    color: #f0c040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 30px;
+    text-align: center;
+    max-width: 800px;
+    line-height: 1.5;
+  }
+  .style-section {
+    width: 100%;
+    max-width: 1400px;
+    margin-bottom: 50px;
+  }
+  .level-group { margin-bottom: 28px; }
+  .level-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .level-note {
+    font-size: 8px;
+    color: #666;
+    margin-bottom: 10px;
+    margin-top: -6px;
+    padding-left: 10px;
+    font-style: italic;
+  }
+  .l1-label { background: #c8901830; color: #e8b84c; }
+  .l2-label { background: #cc444430; color: #ee7766; }
+  .l3-label { background: #44884430; color: #66bb66; }
+  .l4-label { background: #44668830; color: #6699cc; }
+  .fun-label { background: #cc664430; color: #ff9966; }
+  .rare-label { background: #cc884430; color: #ffcc88; }
+
+  .items-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .item-card {
+    width: 110px;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 6px 8px;
+    background: #161628;
+    border: 1px solid #2a2a4a;
+    border-radius: 4px;
+  }
+  .item-card:hover { border-color: #f0c04044; }
+  .item-name {
+    font-size: 8px;
+    color: #ccc;
+    text-align: center;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+  .item-tag {
+    font-size: 7px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+  .tag-starchy { background: #c8901830; color: #e8b84c; }
+  .tag-fibre { background: #3a8a2a30; color: #80ff80; }
+  .tag-complete { background: #cc444430; color: #ee7766; }
+  .tag-incomplete { background: #88444430; color: #cc8866; }
+  .tag-mono { background: #44884430; color: #66bb66; }
+  .tag-omega3 { background: #44668830; color: #6699cc; }
+  .tag-omega36 { background: #55558830; color: #8899cc; }
+  .tag-sat { background: #88664430; color: #ccaa66; }
+  .tag-soluble { background: #44668830; color: #6699cc; }
+  .tag-insoluble { background: #66884430; color: #aacc66; }
+  .tag-both { background: #44884430; color: #88ccaa; }
+  .tag-quick { background: #cc664430; color: #ff9966; }
+  .tag-rare { background: #cc884430; color: #ffcc88; }
+
+  .summary {
+    margin-top: 20px;
+    padding: 16px 24px;
+    background: #161628;
+    border: 1px solid #2a2a4a;
+    border-radius: 4px;
+    font-size: 10px;
+    color: #888;
+    line-height: 1.8;
+    text-align: center;
+    max-width: 800px;
+  }
+  .summary strong { color: #f0c040; }
+
+  .sa { position: relative; }
+
+  /* =================================================================
+     L1 — CARBS (32-bit scale)
+     ================================================================= */
+
+  .sa-bread {
+    width: 42px; height: 36px;
+    background: #e8b84c;
+    border: 4px solid #222;
+    border-radius: 12px 12px 4px 4px;
+    position: relative;
+  }
+  .sa-bread::after {
+    content: '';
+    position: absolute;
+    top: 7px; left: 6px; right: 6px; height: 4px;
+    background: #d4a040;
+    border-radius: 2px;
+  }
+
+  .sa-bread-brown {
+    width: 42px; height: 36px;
+    background: #906020;
+    border: 4px solid #222;
+    border-radius: 12px 12px 4px 4px;
+    position: relative;
+  }
+  .sa-bread-brown::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 7px;
+    width: 4px; height: 4px;
+    background: #c89050;
+    border-radius: 50%;
+    box-shadow: 8px 2px 0 #c89050, 16px 0 0 #b88040, 4px 8px 0 #c89050, 12px 7px 0 #b88040, 20px 6px 0 #c89050;
+  }
+
+  .sa-rice {
+    width: 44px; height: 32px;
+    background: #f5f0e0;
+    border: 4px solid #222;
+    border-radius: 6px 6px 18px 18px;
+    position: relative;
+  }
+  .sa-rice::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 8px;
+    width: 6px; height: 6px;
+    background: #f5f0e0; border: 3px solid #222;
+    border-radius: 50%;
+    box-shadow: 10px -2px 0 #f5f0e0;
+  }
+
+  .sa-rice-brown {
+    width: 44px; height: 32px;
+    background: #a08050;
+    border: 4px solid #222;
+    border-radius: 6px 6px 18px 18px;
+    position: relative;
+  }
+  .sa-rice-brown::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 8px;
+    width: 6px; height: 6px;
+    background: #a08050; border: 3px solid #222;
+    border-radius: 50%;
+    box-shadow: 10px -2px 0 #a08050;
+  }
+
+  .sa-pasta {
+    width: 40px; height: 28px;
+    position: relative;
+  }
+  .sa-pasta::before {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 34px; height: 8px;
+    background: #f0d870;
+    border: 3px solid #222;
+    border-radius: 0 12px 0 12px;
+  }
+  .sa-pasta::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 2px;
+    width: 34px; height: 8px;
+    background: #f0d870;
+    border: 3px solid #222;
+    border-radius: 12px 0 12px 0;
+  }
+
+  .sa-banana {
+    width: 36px; height: 36px;
+    position: relative;
+    transform: rotate(-25deg);
+  }
+  .sa-banana::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #f0d040;
+    border: 4px solid #222;
+  }
+  .sa-banana::after {
+    content: '';
+    position: absolute;
+    top: -6px; left: 7px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #161628;
+    border: 3px solid #222;
+  }
+
+  .sa-apple {
+    width: 36px; height: 38px;
+    background: #dd3333;
+    border: 4px solid #222;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+  }
+  .sa-apple::before {
+    content: '';
+    position: absolute;
+    top: -8px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 10px;
+    background: #5a3a1a;
+    border: 2px solid #222;
+    border-radius: 2px;
+  }
+  .sa-apple::after {
+    content: '';
+    position: absolute;
+    top: -10px; right: 5px;
+    width: 10px; height: 8px;
+    background: #3a8a2a;
+    border: 3px solid #222;
+    border-radius: 50% 50% 0 50%;
+    transform: rotate(25deg);
+  }
+
+  .sa-orange {
+    width: 36px; height: 36px;
+    background: #e89020;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-orange::before {
+    content: '';
+    position: absolute;
+    top: -7px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 7px;
+    background: #3a8a2a;
+    border: 3px solid #222;
+    border-radius: 50%;
+  }
+  .sa-orange::after {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px;
+    width: 4px; height: 8px;
+    background: #d07818;
+    border-radius: 2px;
+    box-shadow: 6px 2px 0 #d07818, 12px 0 0 #d07818;
+  }
+
+  .sa-oats {
+    width: 42px; height: 30px;
+    background: #d4b87a;
+    border: 4px solid #222;
+    border-radius: 6px 6px 18px 18px;
+    position: relative;
+  }
+  .sa-oats::before {
+    content: '';
+    position: absolute;
+    top: 5px; left: 6px; right: 6px; height: 4px;
+    background: #c8a868;
+    border-radius: 2px;
+    box-shadow: 0 7px 0 #c8a868;
+  }
+
+  .sa-potato {
+    width: 40px; height: 30px;
+    background: #c8a060;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-potato::after {
+    content: '';
+    position: absolute;
+    top: 7px; left: 8px;
+    width: 4px; height: 4px;
+    background: #a08040;
+    border-radius: 50%;
+    box-shadow: 12px 4px 0 #a08040, 6px 10px 0 #a08040;
+  }
+
+  .sa-sweetcorn {
+    width: 20px; height: 42px;
+    background: #f0d040;
+    border: 4px solid #222;
+    border-radius: 8px;
+    position: relative;
+  }
+  .sa-sweetcorn::before {
+    content: '';
+    position: absolute;
+    top: -8px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 8px;
+    background: #3a8a2a;
+    border: 3px solid #222;
+    border-radius: 3px 3px 0 0;
+  }
+  .sa-sweetcorn::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 3px;
+    width: 3px; height: 3px;
+    background: #c8a020;
+    border-radius: 50%;
+    box-shadow: 5px 0 0 #c8a020, 0 5px 0 #c8a020, 5px 5px 0 #c8a020, 0 10px 0 #c8a020, 5px 10px 0 #c8a020, 0 15px 0 #c8a020, 5px 15px 0 #c8a020, 0 20px 0 #c8a020, 5px 20px 0 #c8a020;
+  }
+
+  .sa-cereal {
+    width: 42px; height: 30px;
+    background: #f5e8c8;
+    border: 4px solid #222;
+    border-radius: 6px 6px 18px 18px;
+    position: relative;
+  }
+  .sa-cereal::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 6px;
+    width: 5px; height: 5px;
+    background: #d89030;
+    border-radius: 2px;
+    box-shadow: 7px 2px 0 #c87820, 14px 0 0 #d89030, 21px 2px 0 #c87820, 4px 7px 0 #d89030, 11px 8px 0 #c87820, 18px 7px 0 #d89030;
+  }
+
+  .sa-tortilla {
+    width: 42px; height: 24px;
+    background: #e8d0a0;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-tortilla::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 8px;
+    width: 4px; height: 3px;
+    background: #c8a870;
+    border-radius: 50%;
+    box-shadow: 10px 3px 0 #c8a870, 5px 7px 0 #c8a870, 18px 2px 0 #c8a870;
+  }
+
+  .sa-pita {
+    width: 42px; height: 28px;
+    background: #e0c890;
+    border: 4px solid #222;
+    border-radius: 20px 20px 4px 4px;
+    position: relative;
+  }
+  .sa-pita::after {
+    content: '';
+    position: absolute;
+    bottom: 4px; left: 8px; right: 8px;
+    height: 3px;
+    background: #c0a870;
+    border-radius: 1px;
+  }
+
+  .sa-watermelon {
+    width: 38px; height: 28px;
+    position: relative;
+  }
+  .sa-watermelon::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 10px;
+    background: #3a8a2a;
+    border: 4px solid #222;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+  }
+  .sa-watermelon::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 20px;
+    background: #e85060;
+    border: 4px solid #222;
+    border-radius: 0 0 16px 16px;
+    border-top: 2px solid #4a9a3a;
+  }
+
+  .sa-watermelon-seeds {
+    position: absolute;
+    bottom: 6px; left: 9px;
+    width: 3px; height: 4px;
+    background: #222;
+    border-radius: 40%;
+    z-index: 1;
+    box-shadow: 7px -2px 0 #222, 14px 0 0 #222, 4px 4px 0 #222, 11px 3px 0 #222;
+  }
+
+  .sa-tomato {
+    width: 36px; height: 34px;
+    background: #dd3030;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-tomato::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 50%; transform: translateX(-50%);
+    width: 16px; height: 8px;
+    background: #3a8a2a;
+    border: 3px solid #222;
+    border-radius: 50%;
+  }
+  .sa-tomato::after {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px;
+    width: 6px; height: 4px;
+    background: #c82020;
+    border-radius: 2px;
+  }
+
+  .sa-cucumber {
+    width: 20px; height: 40px;
+    background: #3a8a3a;
+    border: 4px solid #222;
+    border-radius: 10px;
+    position: relative;
+  }
+  .sa-cucumber::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 20px;
+    background: #a0d8a0;
+    border-radius: 4px;
+  }
+
+  .sa-grapes {
+    width: 28px; height: 36px;
+    position: relative;
+  }
+  .sa-grapes::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 8px;
+    background: #5a3a1a;
+    border: 1px solid #222;
+  }
+  .sa-grapes::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 3px;
+    width: 8px; height: 8px;
+    background: #8040a0;
+    border: 2px solid #222;
+    border-radius: 50%;
+    box-shadow:
+      9px 0 0 #7030a0, 9px 0 0 0 2px #222,
+      4px -9px 0 #9050b0, 4px -9px 0 0 2px #222,
+      13px -9px 0 #7030a0, 13px -9px 0 0 2px #222,
+      9px -18px 0 #9050b0, 9px -18px 0 0 2px #222;
+  }
+
+  .sa-cherry {
+    width: 34px; height: 32px;
+    position: relative;
+  }
+  .sa-cherry::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 6px;
+    width: 18px; height: 14px;
+    border-bottom: 3px solid #3a8a2a;
+    border-left: 3px solid #3a8a2a;
+    border-right: 3px solid #3a8a2a;
+    border-radius: 0 0 10px 10px;
+    border-top: none;
+  }
+  .sa-cherry::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 16px; height: 16px;
+    background: #cc2020;
+    border: 4px solid #222;
+    border-radius: 50%;
+    box-shadow: 16px -2px 0 0 #cc2020, 16px -2px 0 4px #222;
+  }
+
+  .sa-broccoli {
+    width: 36px; height: 42px;
+    position: relative;
+  }
+  .sa-broccoli-top {
+    width: 36px; height: 26px;
+    background: #3a8a2a;
+    border: 4px solid #222;
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+  }
+  .sa-broccoli-top::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 6px; height: 6px;
+    background: #4a9a3a;
+    border-radius: 50%;
+    box-shadow: 9px 0 0 #4a9a3a, 5px 6px 0 #4a9a3a, 14px 5px 0 #4a9a3a;
+  }
+  .sa-broccoli-stem {
+    width: 12px; height: 18px;
+    background: #5a9a3a;
+    border: 3px solid #222;
+    border-top: none;
+    margin: 0 auto;
+    border-radius: 0 0 4px 4px;
+  }
+
+  .sa-raspberries {
+    width: 34px; height: 30px;
+    background: #cc2244;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-raspberries::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 4px; height: 4px;
+    background: #dd4466;
+    border-radius: 50%;
+    box-shadow: 6px 0 0 #dd4466, 12px 1px 0 #dd4466, 18px 0 0 #dd4466, 3px 5px 0 #dd4466, 9px 5px 0 #dd4466, 15px 5px 0 #dd4466, 0 10px 0 #dd4466, 6px 10px 0 #dd4466, 12px 10px 0 #dd4466, 18px 9px 0 #dd4466;
+  }
+
+  .sa-chia {
+    width: 42px; height: 26px;
+    background: #f0ece0;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-chia::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 5px;
+    width: 3px; height: 3px;
+    background: #333;
+    border-radius: 50%;
+    box-shadow: 5px 1px 0 #444, 10px 0 0 #333, 15px 1px 0 #444, 20px 0 0 #333, 25px 1px 0 #444, 3px 5px 0 #333, 8px 6px 0 #444, 13px 5px 0 #333, 18px 6px 0 #444, 23px 5px 0 #333;
+  }
+
+  .sa-sweetpotato {
+    width: 42px; height: 28px;
+    background: #c86030;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-sweetpotato::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 50%; transform: translateX(-50%);
+    width: 18px; height: 6px;
+    background: #e88848;
+    border-radius: 4px;
+  }
+
+  .sa-pear {
+    width: 30px; height: 42px;
+    background: #a8c840;
+    border: 4px solid #222;
+    border-radius: 40% 40% 50% 50%;
+    position: relative;
+  }
+  .sa-pear::before {
+    content: '';
+    position: absolute;
+    top: -7px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 9px;
+    background: #5a3a1a;
+    border: 2px solid #222;
+    border-radius: 2px;
+  }
+
+  .sa-carrots {
+    width: 20px; height: 42px;
+    background: #e87830;
+    border: 4px solid #222;
+    border-radius: 6px 6px 4px 4px;
+    position: relative;
+  }
+  .sa-carrots::before {
+    content: '';
+    position: absolute;
+    top: -8px; left: 50%; transform: translateX(-50%);
+    width: 18px; height: 10px;
+    background: #3a8a2a;
+    border: 3px solid #222;
+    border-radius: 6px 6px 0 0;
+  }
+  .sa-carrots::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 50%; transform: translateX(-50%);
+    width: 3px; height: 16px;
+    background: #c86820;
+    border-radius: 1px;
+    box-shadow: 4px 3px 0 #c86820, -4px 5px 0 #c86820;
+  }
+
+  /* =================================================================
+     L2 — PROTEIN
+     ================================================================= */
+
+  .sa-chicken {
+    width: 36px; height: 42px;
+    position: relative;
+  }
+  .sa-chicken::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 20px;
+    background: #f0e8d0;
+    border: 3px solid #222;
+    border-radius: 0 0 4px 4px;
+  }
+  .sa-chicken::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 30px; height: 26px;
+    background: #d8a050;
+    border: 4px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-egg {
+    width: 32px; height: 38px;
+    background: #f8f0e0;
+    border: 4px solid #222;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+  }
+  .sa-egg::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 14px; height: 14px;
+    background: #e8a828;
+    border: 3px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-fish {
+    width: 48px; height: 26px;
+    background: #e88888;
+    border: 4px solid #222;
+    border-radius: 50% 10px 10px 50%;
+    position: relative;
+  }
+  .sa-fish::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 6px;
+    width: 6px; height: 6px;
+    background: #222;
+    border-radius: 50%;
+  }
+  .sa-fish::after {
+    content: '';
+    position: absolute;
+    right: -9px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 12px solid #d87070;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+  }
+
+  .sa-steak {
+    width: 42px; height: 30px;
+    background: #a04030;
+    border: 4px solid #222;
+    border-radius: 6px;
+    position: relative;
+  }
+  .sa-steak::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 10px; height: 100%;
+    background: #e8c8b0;
+    border-left: 3px solid #222;
+    border-radius: 0 3px 3px 0;
+  }
+  .sa-steak::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 8px; height: 3px;
+    background: #c06050;
+    border-radius: 1px;
+    box-shadow: 6px 5px 0 #c06050, 2px 10px 0 #c06050;
+  }
+
+  .sa-tofu {
+    width: 36px; height: 32px;
+    background: #f0e8d0;
+    border: 4px solid #222;
+    border-radius: 4px;
+    position: relative;
+  }
+  .sa-tofu::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 5px; right: 5px; bottom: 5px;
+    border: 2px dashed #c8b898;
+    border-radius: 3px;
+  }
+
+  .sa-yogurt {
+    width: 32px; height: 36px;
+    background: #f0e8e0;
+    border: 4px solid #222;
+    border-radius: 4px 4px 10px 10px;
+    position: relative;
+  }
+  .sa-yogurt::before {
+    content: '';
+    position: absolute;
+    top: -7px; left: -4px;
+    width: 32px; height: 8px;
+    background: #7878bb;
+    border: 4px solid #222;
+    border-radius: 3px;
+  }
+
+  .sa-quinoa {
+    width: 42px; height: 30px;
+    background: #f0e0c0;
+    border: 4px solid #222;
+    border-radius: 6px 6px 18px 18px;
+    position: relative;
+  }
+  .sa-quinoa::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 6px;
+    width: 3px; height: 3px;
+    background: #c8a870;
+    border-radius: 50%;
+    box-shadow: 4px 0 0 #c8a870, 8px 1px 0 #c8a870, 12px 0 0 #c8a870, 16px 1px 0 #c8a870, 20px 0 0 #c8a870, 2px 4px 0 #c8a870, 6px 5px 0 #c8a870, 10px 4px 0 #c8a870, 14px 5px 0 #c8a870, 18px 4px 0 #c8a870, 4px 8px 0 #c8a870, 8px 9px 0 #c8a870, 12px 8px 0 #c8a870, 16px 9px 0 #c8a870;
+  }
+
+  .sa-beans {
+    width: 42px; height: 30px;
+    background: #884430;
+    border: 4px solid #222;
+    border-radius: 14px;
+    position: relative;
+  }
+  .sa-beans::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 6px;
+    width: 7px; height: 7px;
+    background: #6a3320;
+    border-radius: 50%;
+    box-shadow: 9px 0 0 #6a3320, 18px 1px 0 #6a3320, 5px 7px 0 #6a3320, 14px 6px 0 #6a3320;
+  }
+
+  .sa-lentils {
+    width: 42px; height: 26px;
+    background: #f0ece0;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-lentils::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 6px;
+    width: 4px; height: 4px;
+    background: #5a8a30;
+    border-radius: 50%;
+    box-shadow: 7px 1px 0 #6a9a40, 14px 0 0 #5a8a30, 21px 1px 0 #6a9a40, 4px 6px 0 #5a8a30, 11px 7px 0 #6a9a40, 18px 6px 0 #5a8a30;
+  }
+
+  .sa-chickpeas {
+    width: 40px; height: 30px;
+    background: #d8c090;
+    border: 4px solid #222;
+    border-radius: 14px;
+    position: relative;
+  }
+  .sa-chickpeas::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 6px;
+    width: 6px; height: 6px;
+    background: #c0a870;
+    border-radius: 50%;
+    box-shadow: 9px 0 0 #c0a870, 18px 1px 0 #c0a870, 5px 7px 0 #c0a870, 14px 6px 0 #c0a870;
+  }
+
+  .sa-peanuts {
+    width: 20px; height: 36px;
+    position: relative;
+  }
+  .sa-peanuts::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 20px; height: 20px;
+    background: #c8a060;
+    border: 4px solid #222;
+    border-radius: 50%;
+  }
+  .sa-peanuts::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 1px;
+    width: 18px; height: 18px;
+    background: #c8a060;
+    border: 4px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-kidneybeans {
+    width: 34px; height: 26px;
+    background: #882020;
+    border: 4px solid #222;
+    border-radius: 50% 14px 50% 14px;
+    position: relative;
+  }
+  .sa-kidneybeans::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 4px;
+    width: 8px; height: 3px;
+    background: #661818;
+    border-radius: 2px;
+    transform: translateY(-50%);
+  }
+
+  /* =================================================================
+     L3 — FATS
+     ================================================================= */
+
+  .sa-avocado {
+    width: 32px; height: 42px;
+    background: #5a8a30;
+    border: 4px solid #222;
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+  }
+  .sa-avocado::after {
+    content: '';
+    position: absolute;
+    bottom: 6px; left: 50%; transform: translateX(-50%);
+    width: 14px; height: 14px;
+    background: #c8b060;
+    border: 3px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-nuts {
+    width: 38px; height: 28px;
+    background: #a87838;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-nuts::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 50%; transform: translateX(-50%);
+    width: 12px; height: 8px;
+    background: #c89848;
+    border-radius: 50%;
+  }
+
+  .sa-oliveoil {
+    width: 22px; height: 42px;
+    background: #c8b840;
+    border: 4px solid #222;
+    border-radius: 4px 4px 6px 6px;
+    position: relative;
+  }
+  .sa-oliveoil::before {
+    content: '';
+    position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px;
+    background: #888;
+    border: 3px solid #222;
+    border-radius: 3px 3px 0 0;
+  }
+  .sa-oliveoil::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 4px;
+    width: 5px; height: 14px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+  }
+
+  .sa-walnuts {
+    width: 36px; height: 32px;
+    background: #a07838;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-walnuts::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 50%; transform: translateX(-50%);
+    width: 3px; height: 16px;
+    background: #7a5820;
+  }
+  .sa-walnuts::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 4px;
+    width: 6px; height: 5px;
+    background: #c09848;
+    border-radius: 50%;
+    box-shadow: 12px 0 0 #c09848, 0 8px 0 #c09848, 12px 8px 0 #c09848;
+  }
+
+  .sa-salmon {
+    width: 48px; height: 24px;
+    background: #e88060;
+    border: 4px solid #222;
+    border-radius: 6px;
+    position: relative;
+  }
+  .sa-salmon::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 5px;
+    width: 3px; height: 8px;
+    background: #c86848;
+    border-radius: 1px;
+    box-shadow: 6px 0 0 #c86848, 12px 0 0 #c86848, 18px 0 0 #c86848, 24px 0 0 #c86848, 30px 0 0 #c86848;
+  }
+
+  .sa-seeds {
+    width: 42px; height: 26px;
+    background: #f0ece0;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-seeds::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 6px;
+    width: 4px; height: 3px;
+    background: #8a6a40;
+    border-radius: 50%;
+    box-shadow: 7px 1px 0 #7a5a30, 14px 0 0 #8a6a40, 21px 1px 0 #7a5a30, 4px 6px 0 #7a5a30, 11px 7px 0 #8a6a40, 18px 6px 0 #7a5a30;
+  }
+
+  .sa-cheese {
+    width: 40px; height: 32px;
+    background: #f0c840;
+    border: 4px solid #222;
+    border-radius: 4px;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18% 50%);
+  }
+  .sa-cheese::after {
+    content: '';
+    position: absolute;
+    top: 7px; left: 14px;
+    width: 6px; height: 6px;
+    background: #d8a830;
+    border-radius: 50%;
+    box-shadow: 10px 6px 0 #d8a830, 4px 12px 0 #d8a830;
+  }
+
+  .sa-butter {
+    width: 42px; height: 24px;
+    background: #f0d868;
+    border: 4px solid #222;
+    border-radius: 4px;
+    position: relative;
+  }
+  .sa-butter::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 4px;
+    width: 10px; height: 6px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+  }
+
+  .sa-coconut {
+    width: 36px; height: 30px;
+    position: relative;
+  }
+  .sa-coconut::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 12px;
+    background: #6a4020;
+    border: 4px solid #222;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+  }
+  .sa-coconut::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 20px;
+    background: #f8f0e0;
+    border: 4px solid #222;
+    border-radius: 0 0 16px 16px;
+    border-top: none;
+  }
+
+  .sa-cream {
+    width: 32px; height: 26px;
+    background: #f8f4e8;
+    border: 4px solid #222;
+    border-radius: 50% 50% 35% 35%;
+    position: relative;
+  }
+  .sa-cream::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px;
+    width: 8px; height: 6px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+  }
+
+  /* =================================================================
+     FUN FOODS — QUICK ENERGY
+     ================================================================= */
+
+  .sa-fries {
+    width: 34px; height: 42px;
+    position: relative;
+  }
+  .sa-fries::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 2px;
+    width: 30px; height: 20px;
+    background: #cc2020;
+    border: 4px solid #222;
+    border-radius: 0 0 3px 3px;
+  }
+  .sa-fries::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 6px;
+    width: 5px; height: 24px;
+    background: #f0d040;
+    border: 1px solid #c8a020;
+    border-radius: 2px;
+    box-shadow: 7px 3px 0 #e8c020, 14px -2px 0 #f0d040;
+  }
+
+  .sa-icecream {
+    width: 32px; height: 42px;
+    position: relative;
+  }
+  .sa-icecream::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 2px;
+    width: 28px; height: 22px;
+    background: #f8a0c0;
+    border: 4px solid #222;
+    border-radius: 50%;
+  }
+  .sa-icecream::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 6px;
+    width: 20px; height: 22px;
+    background: #d8a040;
+    border: 4px solid #222;
+    border-radius: 3px 3px 8px 8px;
+  }
+
+  .sa-donut {
+    width: 38px; height: 38px;
+    background: #e89850;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-donut::before {
+    content: '';
+    position: absolute;
+    top: -4px; left: -4px; right: -4px;
+    height: 50%;
+    background: #f0a0c8;
+    border: 4px solid #222;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+  }
+  .sa-donut::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 12px; height: 12px;
+    background: #161628;
+    border: 3px solid #222;
+    border-radius: 50%;
+  }
+
+  .sa-cookie {
+    width: 38px; height: 38px;
+    background: #c89040;
+    border: 4px solid #222;
+    border-radius: 50%;
+    position: relative;
+  }
+  .sa-cookie::after {
+    content: '';
+    position: absolute;
+    top: 7px; left: 6px;
+    width: 6px; height: 6px;
+    background: #503020;
+    border-radius: 50%;
+    box-shadow: 12px 2px 0 #503020, 5px 10px 0 #503020, 16px 10px 0 #503020, 10px 16px 0 #503020;
+  }
+
+  .sa-soda {
+    width: 26px; height: 36px;
+    background: #f0e8d0;
+    border: 4px solid #222;
+    border-radius: 3px 3px 6px 6px;
+    position: relative;
+  }
+  .sa-soda::before {
+    content: '';
+    position: absolute;
+    top: -14px; right: 3px;
+    width: 4px; height: 20px;
+    background: #cc2020;
+    border: 2px solid #222;
+    border-radius: 2px;
+    transform: rotate(6deg);
+  }
+  .sa-soda::after {
+    content: '';
+    position: absolute;
+    top: -5px; left: -4px; right: -4px;
+    height: 8px;
+    background: #aaa;
+    border: 3px solid #222;
+    border-radius: 3px;
+  }
+
+  .sa-nugget {
+    width: 34px; height: 24px;
+    background: #d8a040;
+    border: 4px solid #222;
+    border-radius: 10px;
+    position: relative;
+  }
+  .sa-nugget::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 5px;
+    width: 8px; height: 5px;
+    background: #e8b860;
+    border-radius: 3px;
+    box-shadow: 10px 3px 0 #e8b860;
+  }
+
+  .sa-cupcake {
+    width: 32px; height: 42px;
+    position: relative;
+  }
+  .sa-cupcake::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 2px;
+    width: 28px; height: 20px;
+    background: #f0a0c0;
+    border: 4px solid #222;
+    border-radius: 50%;
+  }
+  .sa-cupcake::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 4px;
+    width: 24px; height: 22px;
+    background: #c89040;
+    border: 4px solid #222;
+    border-radius: 0 0 6px 6px;
+  }
+
+  /* =================================================================
+     RARE ITEMS — COMPLETE MEALS
+     ================================================================= */
+
+  .sa-pizza {
+    width: 32px; height: 36px;
+    background: #e8c840;
+    border: 4px solid #222;
+    border-radius: 4px 4px 18px 18px;
+    position: relative;
+  }
+  .sa-pizza::before {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: -4px; right: -4px;
+    height: 8px;
+    background: #c89830;
+    border: 4px solid #222;
+    border-top: none;
+    border-radius: 0 0 18px 18px;
+  }
+  .sa-pizza::after {
+    content: '';
+    position: absolute;
+    top: 8px; left: 6px;
+    width: 6px; height: 6px;
+    background: #cc3030;
+    border-radius: 50%;
+    box-shadow: 10px 4px 0 #cc3030, 3px 10px 0 #cc3030, 12px 12px 0 #cc3030;
+  }
+
+  .sa-hamburger {
+    width: 42px; height: 34px;
+    background: linear-gradient(180deg,
+      #d89830 0%, #d89830 24%,
+      #222 24%, #222 28%,
+      #3a8a2a 28%, #3a8a2a 38%,
+      #cc3030 38%, #cc3030 42%,
+      #703020 42%, #703020 60%,
+      #e8c840 60%, #e8c840 64%,
+      #222 64%, #222 68%,
+      #c88020 68%, #c88020 100%
+    );
+    border: 4px solid #222;
+    border-radius: 14px 14px 6px 6px;
+    position: relative;
+  }
+
+  .sa-sushi {
+    width: 36px; height: 32px;
+    background: #222;
+    border: 4px solid #222;
+    border-radius: 6px;
+    position: relative;
+  }
+  .sa-sushi::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    background: #f5f0e0;
+    border-radius: 3px;
+  }
+  .sa-sushi::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 12px; height: 12px;
+    background: #e87830;
+    border: 2px solid #c86020;
+    border-radius: 50%;
+  }
+
+  .sa-taco {
+    width: 40px; height: 28px;
+    background: #e8c060;
+    border: 4px solid #222;
+    border-radius: 0 0 20px 20px;
+    position: relative;
+  }
+  .sa-taco::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 5px;
+    width: 6px; height: 6px;
+    background: #3a8a2a;
+    border-radius: 50%;
+    box-shadow: 8px 0 0 #cc3030, 16px 1px 0 #e8c840, 22px 0 0 #3a8a2a, 4px 6px 0 #884430, 12px 5px 0 #cc3030, 20px 6px 0 #884430;
+  }
+</style>
+</head>
+<body>
+
+<h1>Complete Food Item Inventory — 32-Bit</h1>
+<p class="page-sub">
+  32-Bit Bold Outlined — Larger sprites with more detail, same flat fills and thick outlines (no blur or gloss).
+  58 unique items for comparison with the 16-bit version. Fibre items appear in both L1 and L4.
+</p>
+
+<div class="style-section">
+
+  <!-- L1 — CARBS -->
+  <div class="level-group">
+    <div class="level-label l1-label">L1 — Carbs (25 items)</div>
+    <div class="level-note">Fibre is a type of carbohydrate — all fibre-rich foods also appear here</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-bread"></div><div class="item-name">White Bread</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-bread-brown"></div><div class="item-name">Whole Grain</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-rice"></div><div class="item-name">White Rice</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-rice-brown"></div><div class="item-name">Brown Rice</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-pasta"></div><div class="item-name">Pasta</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-potato"></div><div class="item-name">Potato</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-cereal"></div><div class="item-name">Cereal</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-tortilla"></div><div class="item-name">Tortilla</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-pita"></div><div class="item-name">Pita Bread</div><div class="item-tag tag-starchy">Starchy</div></div>
+      <div class="item-card"><div class="sa sa-oats"></div><div class="item-name">Oats</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-banana"></div><div class="item-name">Banana</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-apple"></div><div class="item-name">Apple</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-orange"></div><div class="item-name">Orange</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-sweetcorn"></div><div class="item-name">Sweetcorn</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-pear"></div><div class="item-name">Pear</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-raspberries"></div><div class="item-name">Raspberries</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-watermelon"><div class="sa-watermelon-seeds"></div></div><div class="item-name">Watermelon</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-grapes"></div><div class="item-name">Grapes</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-cherry"></div><div class="item-name">Cherry</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa"><div class="sa-broccoli"><div class="sa-broccoli-top"></div><div class="sa-broccoli-stem"></div></div></div><div class="item-name">Broccoli</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-carrots"></div><div class="item-name">Carrots</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-tomato"></div><div class="item-name">Tomato</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-cucumber"></div><div class="item-name">Cucumber</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-sweetpotato"></div><div class="item-name">Sweet Potato</div><div class="item-tag tag-fibre">Fibre+</div></div>
+      <div class="item-card"><div class="sa sa-chia"></div><div class="item-name">Chia Seeds</div><div class="item-tag tag-fibre">Fibre+</div></div>
+    </div>
+  </div>
+
+  <!-- L2 — PROTEIN -->
+  <div class="level-group">
+    <div class="level-label l2-label">L2 — Protein (12 items)</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-chicken"></div><div class="item-name">Chicken</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-egg"></div><div class="item-name">Egg</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-fish"></div><div class="item-name">Fish</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-steak"></div><div class="item-name">Beef Steak</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-tofu"></div><div class="item-name">Tofu</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-yogurt"></div><div class="item-name">Yogurt</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-quinoa"></div><div class="item-name">Quinoa</div><div class="item-tag tag-complete">Complete</div></div>
+      <div class="item-card"><div class="sa sa-beans"></div><div class="item-name">Black Beans</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+      <div class="item-card"><div class="sa sa-lentils"></div><div class="item-name">Lentils</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+      <div class="item-card"><div class="sa sa-chickpeas"></div><div class="item-name">Chickpeas</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+      <div class="item-card"><div class="sa sa-peanuts"></div><div class="item-name">Peanuts</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+      <div class="item-card"><div class="sa sa-kidneybeans"></div><div class="item-name">Kidney Beans</div><div class="item-tag tag-incomplete">Incomplete</div></div>
+    </div>
+  </div>
+
+  <!-- L3 — FATS -->
+  <div class="level-group">
+    <div class="level-label l3-label">L3 — Fats (11 items)</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-avocado"></div><div class="item-name">Avocado</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sa sa-nuts"></div><div class="item-name">Almonds</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sa sa-oliveoil"></div><div class="item-name">Olive Oil</div><div class="item-tag tag-mono">Mono</div></div>
+      <div class="item-card"><div class="sa sa-walnuts"></div><div class="item-name">Walnuts</div><div class="item-tag tag-omega3">Omega-3</div></div>
+      <div class="item-card"><div class="sa sa-salmon"></div><div class="item-name">Salmon</div><div class="item-tag tag-omega3">Omega-3</div></div>
+      <div class="item-card"><div class="sa sa-chia"></div><div class="item-name">Chia Seeds</div><div class="item-tag tag-omega3">Omega-3</div></div>
+      <div class="item-card"><div class="sa sa-seeds"></div><div class="item-name">Mixed Seeds</div><div class="item-tag tag-omega36">Omega-3 & 6</div></div>
+      <div class="item-card"><div class="sa sa-cheese"></div><div class="item-name">Cheese</div><div class="item-tag tag-sat">Saturated</div></div>
+      <div class="item-card"><div class="sa sa-butter"></div><div class="item-name">Butter</div><div class="item-tag tag-sat">Saturated</div></div>
+      <div class="item-card"><div class="sa sa-coconut"></div><div class="item-name">Coconut</div><div class="item-tag tag-sat">Saturated</div></div>
+      <div class="item-card"><div class="sa sa-cream"></div><div class="item-name">Cream</div><div class="item-tag tag-sat">Saturated</div></div>
+    </div>
+  </div>
+
+  <!-- L4 — FIBRE -->
+  <div class="level-group">
+    <div class="level-label l4-label">L4 — Fibre (18 items)</div>
+    <div class="level-note">Fibre is a carbohydrate — these items also appear in L1. Tagged by soluble / insoluble fibre type.</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-oats"></div><div class="item-name">Oats</div><div class="item-tag tag-soluble">Soluble</div></div>
+      <div class="item-card"><div class="sa sa-bread-brown"></div><div class="item-name">Whole Grain</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-rice-brown"></div><div class="item-name">Brown Rice</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-banana"></div><div class="item-name">Banana</div><div class="item-tag tag-soluble">Soluble</div></div>
+      <div class="item-card"><div class="sa sa-apple"></div><div class="item-name">Apple</div><div class="item-tag tag-both">Both</div></div>
+      <div class="item-card"><div class="sa sa-orange"></div><div class="item-name">Orange</div><div class="item-tag tag-soluble">Soluble</div></div>
+      <div class="item-card"><div class="sa sa-sweetcorn"></div><div class="item-name">Sweetcorn</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-pear"></div><div class="item-name">Pear</div><div class="item-tag tag-both">Both</div></div>
+      <div class="item-card"><div class="sa sa-raspberries"></div><div class="item-name">Raspberries</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-watermelon"><div class="sa-watermelon-seeds"></div></div><div class="item-name">Watermelon</div><div class="item-tag tag-soluble">Soluble</div></div>
+      <div class="item-card"><div class="sa sa-grapes"></div><div class="item-name">Grapes</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-cherry"></div><div class="item-name">Cherry</div><div class="item-tag tag-both">Both</div></div>
+      <div class="item-card"><div class="sa"><div class="sa-broccoli"><div class="sa-broccoli-top"></div><div class="sa-broccoli-stem"></div></div></div><div class="item-name">Broccoli</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-carrots"></div><div class="item-name">Carrots</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-tomato"></div><div class="item-name">Tomato</div><div class="item-tag tag-both">Both</div></div>
+      <div class="item-card"><div class="sa sa-cucumber"></div><div class="item-name">Cucumber</div><div class="item-tag tag-insoluble">Insoluble</div></div>
+      <div class="item-card"><div class="sa sa-sweetpotato"></div><div class="item-name">Sweet Potato</div><div class="item-tag tag-both">Both</div></div>
+      <div class="item-card"><div class="sa sa-chia"></div><div class="item-name">Chia Seeds</div><div class="item-tag tag-soluble">Soluble</div></div>
+    </div>
+  </div>
+
+  <!-- FUN FOODS -->
+  <div class="level-group">
+    <div class="level-label fun-label">Fun Foods — Quick Energy (7 items)</div>
+    <div class="level-note">Quick energy spike that fades faster. All foods provide energy.</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-fries"></div><div class="item-name">Fries</div><div class="item-tag tag-quick">Quick Energy</div></div>
+      <div class="item-card"><div class="sa sa-icecream"></div><div class="item-name">Ice Cream</div><div class="item-tag tag-quick">Quick Energy</div></div>
+      <div class="item-card"><div class="sa sa-donut"></div><div class="item-name">Donut</div><div class="item-tag tag-quick">Quick Energy</div></div>
+      <div class="item-card"><div class="sa sa-cookie"></div><div class="item-name">Cookie</div><div class="item-tag tag-quick">Quick Energy</div></div>
+      <div class="item-card"><div class="sa sa-soda"></div><div class="item-name">Soda</div><div class="item-tag tag-quick">Quick Energy</div></div>
+      <div class="item-card"><div class="sa sa-nugget"></div><div class="item-name">Nugget</div><div class="item-tag tag-quick">Quick Energy</div></div>
+      <div class="item-card"><div class="sa sa-cupcake"></div><div class="item-name">Cupcake</div><div class="item-tag tag-quick">Quick Energy</div></div>
+    </div>
+  </div>
+
+  <!-- RARE ITEMS -->
+  <div class="level-group">
+    <div class="level-label rare-label">Rare Items — Complete Meals (4 items)</div>
+    <div class="level-note">Complete meals in a single item. Appear occasionally throughout all levels.</div>
+    <div class="items-row">
+      <div class="item-card"><div class="sa sa-pizza"></div><div class="item-name">Pizza</div><div class="item-tag tag-rare">Complete Meal</div></div>
+      <div class="item-card"><div class="sa sa-hamburger"></div><div class="item-name">Hamburger</div><div class="item-tag tag-rare">Complete Meal</div></div>
+      <div class="item-card"><div class="sa sa-sushi"></div><div class="item-name">Sushi</div><div class="item-tag tag-rare">Complete Meal</div></div>
+      <div class="item-card"><div class="sa sa-taco"></div><div class="item-name">Taco</div><div class="item-tag tag-rare">Complete Meal</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="summary">
+  <strong>32-Bit Bold Outlined — 58 Items</strong><br>
+  Larger sprites (~40-48px) with 4px outlines and more internal detail. Same flat fills, no blur or gloss.<br>
+  Compare with the 16-bit version (food-items-inventory.html) to decide which scale works best.<br><br>
+  <strong>Key differences at 32-bit:</strong> Clearer silhouettes, visible seeds in watermelon, bordered grape berries,
+  two-cherry cluster, defined steak fat cap, layered hamburger, thicker pasta squiggles, wider banana crescent.
+</div>
+
+</body>
+</html>

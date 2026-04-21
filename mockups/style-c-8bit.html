@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Style C: 8-Bit Pixel Art</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 20px;
+    image-rendering: pixelated;
+  }
+  h1 {
+    font-size: 18px;
+    color: #fcbc18;
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 20px;
+  }
+  .game-frame {
+    width: 768px;
+    height: 480px;
+    border: 4px solid #fcbc18;
+    position: relative;
+    overflow: hidden;
+    image-rendering: pixelated;
+    background: #5c94fc;
+  }
+
+  /* 8-bit uses flat color blocks, no gradients, hard edges, limited palette */
+  /* NES-inspired palette: ~25 colors max */
+
+  /* Sky — flat solid */
+  /* already set by .game-frame background */
+
+  /* Clouds — blocky rectangles */
+  .cloud8 {
+    position: absolute;
+    background: #fcfcfc;
+  }
+  .c1 { width: 48px; height: 16px; top: 40px; left: 80px; }
+  .c1a { width: 32px; height: 8px; top: 32px; left: 88px; }
+  .c2 { width: 40px; height: 16px; top: 60px; left: 420px; }
+  .c2a { width: 24px; height: 8px; top: 52px; left: 428px; }
+  .c3 { width: 48px; height: 16px; top: 36px; left: 620px; }
+  .c3a { width: 32px; height: 8px; top: 28px; left: 628px; }
+
+  /* Hills — simple blocky triangles via stacked blocks */
+  .hill8 {
+    position: absolute;
+    background: #00a800;
+  }
+  .h1 { width: 160px; height: 48px; bottom: 96px; left: -20px; border-radius: 0; }
+  .h1t { width: 96px; height: 24px; bottom: 144px; left: 12px; }
+  .h1tt { width: 32px; height: 16px; bottom: 168px; left: 44px; }
+  .h2 { width: 120px; height: 40px; bottom: 96px; left: 340px; }
+  .h2t { width: 64px; height: 20px; bottom: 136px; left: 368px; }
+  .h2tt { width: 24px; height: 12px; bottom: 156px; left: 388px; }
+  .h3 { width: 140px; height: 44px; bottom: 96px; left: 580px; }
+  .h3t { width: 80px; height: 22px; bottom: 140px; left: 610px; }
+  .h3tt { width: 28px; height: 14px; bottom: 162px; left: 636px; }
+
+  /* Ground — two flat color bands */
+  .ground8 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #00a800;
+  }
+  .ground8-dirt {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: #c84c0c;
+  }
+  /* Ground detail blocks — repeating brick pattern */
+  .brick-row {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: repeating-linear-gradient(
+      90deg,
+      #c84c0c 0px, #c84c0c 14px,
+      #a03800 14px, #a03800 16px
+    );
+  }
+  .brick-row2 {
+    position: absolute;
+    bottom: 16px;
+    left: 8px;
+    right: 0;
+    height: 16px;
+    background: repeating-linear-gradient(
+      90deg,
+      #c84c0c 0px, #c84c0c 14px,
+      #a03800 14px, #a03800 16px
+    );
+  }
+  .ground8-top {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #005800;
+  }
+
+  /* Platforms — solid brick blocks */
+  .plat8 {
+    position: absolute;
+    height: 16px;
+    background: #c84c0c;
+    border-top: 4px solid #fcbc18;
+    border-bottom: 2px solid #a03800;
+  }
+  .plat8::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px, transparent 14px,
+      #a03800 14px, #a03800 16px
+    );
+  }
+  .p1 { width: 96px; bottom: 192px; left: 160px; }
+  .p2 { width: 80px; bottom: 256px; left: 340px; }
+  .p3 { width: 112px; bottom: 224px; left: 530px; }
+  .p4 { width: 64px; bottom: 160px; left: 64px; }
+
+  /* Question block */
+  .qblock {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #fcbc18;
+    border: 2px solid #a03800;
+  }
+  .qblock::after {
+    content: '?';
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #a03800;
+    line-height: 16px;
+  }
+
+  /* Player character — strict 8-bit grid blocks */
+  .player8 {
+    position: absolute;
+    bottom: 64px;
+    left: 130px;
+  }
+  /* Build character from pixel rows */
+  .px-row {
+    display: flex;
+    height: 4px;
+  }
+  .px {
+    width: 4px;
+    height: 4px;
+  }
+  .skin { background: #fcbc18; }
+  .hair { background: #a03800; }
+  .shirt { background: #0058f8; }
+  .pants { background: #00008c; }
+  .shoe { background: #a03800; }
+  .eye { background: #000; }
+  .mouth { background: #c84c0c; }
+  .t { background: transparent; }
+
+  /* Fatigue Phantom — 8-bit ghost */
+  .ghost8 {
+    position: absolute;
+    bottom: 68px;
+    left: 580px;
+  }
+  .gp { background: #8058a8; }
+  .ge { background: #fcfcfc; }
+  .gd { background: #000; }
+  .gt { background: transparent; }
+
+  /* Food items — tiny 8-bit sprites built from pixel blocks */
+  .food8 {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .food8 .flabel {
+    font-size: 7px;
+    color: #fcfcfc;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+  .food8 .flabel.fibre {
+    color: #00e800;
+  }
+  .sprite {
+    display: flex;
+    flex-direction: column;
+  }
+  .sp-row {
+    display: flex;
+    height: 3px;
+  }
+  .sp {
+    width: 3px;
+    height: 3px;
+  }
+  /* Bread colors */
+  .bc { background: #fcbc18; }
+  .bd { background: #c84c0c; }
+  /* Brown bread */
+  .bb { background: #885418; }
+  .bs { background: #c89050; }
+  /* Banana */
+  .by { background: #fcfc00; }
+  .bk { background: #c8a800; }
+  /* Apple */
+  .ar { background: #e40000; }
+  .ag { background: #00a800; }
+  .ab { background: #a03800; }
+  /* Rice */
+  .rw { background: #fcfcfc; }
+  .rb { background: #d0c8a8; }
+  /* Potato */
+  .pb { background: #c8a060; }
+  .pd { background: #a08040; }
+  /* Oats */
+  .ot { background: #d4b87a; }
+  .od { background: #b89858; }
+  /* Pasta */
+  .py { background: #fcdc00; }
+  .pk { background: #c8b000; }
+
+  /* Energy Cells — 8-bit coins */
+  .ecoin {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #00e800;
+    border: 2px solid #008800;
+  }
+
+  /* Crash Pit */
+  .cpit {
+    position: absolute;
+    bottom: 64px;
+    height: 8px;
+    background: repeating-linear-gradient(
+      90deg,
+      #886830 0px, #886830 6px,
+      #685020 6px, #685020 8px
+    );
+    border-top: 2px solid #a8884c;
+  }
+  .cpit-warn {
+    position: absolute;
+    bottom: 72px;
+    font-size: 8px;
+    color: #a8884c;
+    letter-spacing: 2px;
+  }
+
+  /* Fibre sparkle — simple 8-bit cross */
+  .spark8 {
+    position: absolute;
+    font-size: 8px;
+    color: #00e800;
+  }
+
+  /* HUD — solid blocks, NES style */
+  .hud8 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    padding: 4px 12px;
+    gap: 16px;
+    z-index: 10;
+    border-bottom: 2px solid #fcbc18;
+  }
+  .hud8-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .hud8-label {
+    font-size: 8px;
+    color: #fcbc18;
+    letter-spacing: 1px;
+  }
+  .bar8-bg {
+    height: 8px;
+    background: #383838;
+    border: 1px solid #585858;
+  }
+  .ebar8 { width: 160px; }
+  .cbar8 { width: 140px; }
+  .bar8-fill {
+    height: 100%;
+  }
+  .bar8-energy {
+    width: 72%;
+    background: #00e800;
+  }
+  .bar8-carbs {
+    width: 45%;
+    background: #fcbc18;
+  }
+  .fibre8 {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+  .fibre8-label {
+    font-size: 7px;
+    color: #00e800;
+  }
+  .fibre8-dot {
+    width: 6px;
+    height: 6px;
+  }
+  .fibre8-dot.on { background: #00e800; }
+  .fibre8-dot.off { background: #383838; border: 1px solid #585858; }
+
+  .ecoin-counter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ecoin-icon {
+    width: 8px;
+    height: 8px;
+    background: #00e800;
+    border: 1px solid #008800;
+  }
+  .ecoin-num {
+    font-size: 12px;
+    color: #00e800;
+    font-weight: bold;
+  }
+  .stars8 {
+    display: flex;
+    gap: 2px;
+  }
+  .s8 {
+    font-size: 10px;
+  }
+  .s8.on { color: #fcbc18; }
+  .s8.off { color: #383838; }
+  .level8 {
+    position: absolute;
+    top: 6px;
+    right: 12px;
+    font-size: 8px;
+    color: #fcbc18;
+    letter-spacing: 1px;
+  }
+
+  /* Decorative pipe */
+  .pipe {
+    position: absolute;
+    bottom: 64px;
+  }
+  .pipe-top {
+    width: 32px;
+    height: 12px;
+    background: #00a800;
+    border: 2px solid #005800;
+  }
+  .pipe-body {
+    width: 24px;
+    height: 32px;
+    background: #00a800;
+    border-left: 2px solid #005800;
+    border-right: 2px solid #005800;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+  <h1>Style C: 8-Bit NES / Retro</h1>
+  <p class="subtitle">NutriRun — Level 1: Carbohydrates — Gameplay Mockup</p>
+
+  <div class="game-frame">
+
+    <!-- Clouds — blocky 8-bit -->
+    <div class="cloud8 c1"></div>
+    <div class="cloud8 c1a"></div>
+    <div class="cloud8 c2"></div>
+    <div class="cloud8 c2a"></div>
+    <div class="cloud8 c3"></div>
+    <div class="cloud8 c3a"></div>
+
+    <!-- Hills — stacked blocks -->
+    <div class="hill8 h1"></div>
+    <div class="hill8 h1t"></div>
+    <div class="hill8 h1tt"></div>
+    <div class="hill8 h2"></div>
+    <div class="hill8 h2t"></div>
+    <div class="hill8 h2tt"></div>
+    <div class="hill8 h3"></div>
+    <div class="hill8 h3t"></div>
+    <div class="hill8 h3tt"></div>
+
+    <!-- Ground -->
+    <div class="ground8"></div>
+    <div class="ground8-top"></div>
+    <div class="ground8-dirt"></div>
+    <div class="brick-row"></div>
+    <div class="brick-row2"></div>
+
+    <!-- Platforms -->
+    <div class="plat8 p1"></div>
+    <div class="plat8 p2"></div>
+    <div class="plat8 p3"></div>
+    <div class="plat8 p4"></div>
+
+    <!-- Question blocks -->
+    <div class="qblock" style="bottom: 256px; left: 380px;"></div>
+    <div class="qblock" style="bottom: 256px; left: 400px;"></div>
+    <div class="qblock" style="bottom: 192px; left: 224px;"></div>
+
+    <!-- Pipes -->
+    <div class="pipe" style="left: 460px;">
+      <div class="pipe-top"></div>
+      <div class="pipe-body"></div>
+    </div>
+    <div class="pipe" style="left: 700px;">
+      <div class="pipe-top"></div>
+      <div class="pipe-body" style="height: 48px;"></div>
+    </div>
+
+    <!-- Crash Pit -->
+    <div class="cpit" style="left: 290px; width: 60px;"></div>
+    <div class="cpit-warn" style="left: 296px;">~ ~ ~</div>
+
+    <!-- Player character — 8-bit pixel sprite (12x16 pixels at 4x scale) -->
+    <div class="player8">
+      <!-- Hair row 1 -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px t"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div><div class="px t"></div>
+      </div>
+      <!-- Hair row 2 -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div><div class="px hair"></div>
+      </div>
+      <!-- Face row 1 -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px t"></div>
+      </div>
+      <!-- Face row 2 (eyes) -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px skin"></div><div class="px eye"></div><div class="px skin"></div><div class="px skin"></div><div class="px eye"></div><div class="px skin"></div><div class="px t"></div>
+      </div>
+      <!-- Face row 3 -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px skin"></div><div class="px t"></div>
+      </div>
+      <!-- Face row 4 (mouth) -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px skin"></div><div class="px skin"></div><div class="px mouth"></div><div class="px mouth"></div><div class="px skin"></div><div class="px skin"></div><div class="px t"></div>
+      </div>
+      <!-- Body row 1 -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px t"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px t"></div><div class="px t"></div>
+      </div>
+      <!-- Body row 2 (arms) -->
+      <div class="px-row">
+        <div class="px skin"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px skin"></div>
+      </div>
+      <!-- Body row 3 -->
+      <div class="px-row">
+        <div class="px skin"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px skin"></div>
+      </div>
+      <!-- Body row 4 -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px t"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px shirt"></div><div class="px t"></div><div class="px t"></div>
+      </div>
+      <!-- Pants row 1 -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px t"></div><div class="px pants"></div><div class="px pants"></div><div class="px pants"></div><div class="px pants"></div><div class="px t"></div><div class="px t"></div>
+      </div>
+      <!-- Legs -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px pants"></div><div class="px pants"></div><div class="px t"></div><div class="px t"></div><div class="px pants"></div><div class="px pants"></div><div class="px t"></div>
+      </div>
+      <!-- Shoes -->
+      <div class="px-row">
+        <div class="px t"></div><div class="px shoe"></div><div class="px shoe"></div><div class="px t"></div><div class="px t"></div><div class="px shoe"></div><div class="px shoe"></div><div class="px t"></div>
+      </div>
+    </div>
+
+    <!-- Fatigue Phantom — 8-bit ghost sprite -->
+    <div class="ghost8">
+      <!-- Row 1 -->
+      <div class="px-row">
+        <div class="px gt"></div><div class="px gt"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gt"></div><div class="px gt"></div>
+      </div>
+      <!-- Row 2 -->
+      <div class="px-row">
+        <div class="px gt"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gt"></div>
+      </div>
+      <!-- Row 3 -->
+      <div class="px-row">
+        <div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div>
+      </div>
+      <!-- Row 4 (eyes) -->
+      <div class="px-row">
+        <div class="px gp"></div><div class="px gp"></div><div class="px ge"></div><div class="px ge"></div><div class="px gp"></div><div class="px gp"></div><div class="px ge"></div><div class="px ge"></div><div class="px gp"></div><div class="px gp"></div>
+      </div>
+      <!-- Row 5 (pupils) -->
+      <div class="px-row">
+        <div class="px gp"></div><div class="px gp"></div><div class="px ge"></div><div class="px gd"></div><div class="px gp"></div><div class="px gp"></div><div class="px ge"></div><div class="px gd"></div><div class="px gp"></div><div class="px gp"></div>
+      </div>
+      <!-- Row 6 -->
+      <div class="px-row">
+        <div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div>
+      </div>
+      <!-- Row 7 -->
+      <div class="px-row">
+        <div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div><div class="px gp"></div>
+      </div>
+      <!-- Row 8 (wavy bottom) -->
+      <div class="px-row">
+        <div class="px gp"></div><div class="px gt"></div><div class="px gp"></div><div class="px gp"></div><div class="px gt"></div><div class="px gt"></div><div class="px gp"></div><div class="px gp"></div><div class="px gt"></div><div class="px gp"></div>
+      </div>
+    </div>
+
+    <!-- Food sprites — built from pixel blocks -->
+
+    <!-- Bread (ground) -->
+    <div class="food8" style="bottom: 72px; left: 220px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div></div>
+        <div class="sp-row"><div class="sp bd"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bd"></div></div>
+        <div class="sp-row"><div class="sp bd"></div><div class="sp bd"></div><div class="sp bc"></div><div class="sp bc"></div><div class="sp bd"></div><div class="sp bd"></div></div>
+        <div class="sp-row"><div class="sp bd"></div><div class="sp bd"></div><div class="sp bd"></div><div class="sp bd"></div><div class="sp bd"></div><div class="sp bd"></div></div>
+      </div>
+      <div class="flabel">BREAD</div>
+    </div>
+
+    <!-- Banana (ground) -->
+    <div class="food8" style="bottom: 72px; left: 380px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp t"></div><div class="sp t"></div><div class="sp bk"></div><div class="sp t"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp t"></div><div class="sp t"></div><div class="sp by"></div><div class="sp by"></div><div class="sp t"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp t"></div><div class="sp by"></div><div class="sp by"></div><div class="sp by"></div><div class="sp t"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp by"></div><div class="sp by"></div><div class="sp by"></div><div class="sp t"></div><div class="sp t"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp bk"></div><div class="sp by"></div><div class="sp t"></div><div class="sp t"></div><div class="sp t"></div><div class="sp t"></div></div>
+      </div>
+      <div class="flabel fibre">BANANA+</div>
+    </div>
+
+    <!-- Rice (ground) -->
+    <div class="food8" style="bottom: 72px; left: 510px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp rw"></div><div class="sp rw"></div><div class="sp rw"></div><div class="sp t"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp t"></div><div class="sp rb"></div><div class="sp rw"></div><div class="sp rw"></div><div class="sp rb"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp rb"></div><div class="sp rb"></div><div class="sp rw"></div><div class="sp rw"></div><div class="sp rb"></div><div class="sp rb"></div></div>
+        <div class="sp-row"><div class="sp rb"></div><div class="sp rb"></div><div class="sp rb"></div><div class="sp rb"></div><div class="sp rb"></div><div class="sp rb"></div></div>
+      </div>
+      <div class="flabel">RICE</div>
+    </div>
+
+    <!-- Potato (ground) -->
+    <div class="food8" style="bottom: 72px; left: 640px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp pb"></div><div class="sp pb"></div><div class="sp pb"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp pb"></div><div class="sp pb"></div><div class="sp pb"></div><div class="sp pb"></div><div class="sp pb"></div></div>
+        <div class="sp-row"><div class="sp pb"></div><div class="sp pd"></div><div class="sp pb"></div><div class="sp pd"></div><div class="sp pb"></div></div>
+        <div class="sp-row"><div class="sp t"></div><div class="sp pd"></div><div class="sp pd"></div><div class="sp pd"></div><div class="sp t"></div></div>
+      </div>
+      <div class="flabel">POTATO</div>
+    </div>
+
+    <!-- Apple (on platform) -->
+    <div class="food8" style="bottom: 200px; left: 185px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp t"></div><div class="sp ab"></div><div class="sp ag"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp t"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div></div>
+        <div class="sp-row"><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div></div>
+        <div class="sp-row"><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div></div>
+        <div class="sp-row"><div class="sp t"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp ar"></div><div class="sp t"></div></div>
+      </div>
+      <span class="spark8" style="margin-left:2px;">+</span>
+      <div class="flabel fibre">APPLE+</div>
+    </div>
+
+    <!-- Oats (on platform) -->
+    <div class="food8" style="bottom: 264px; left: 365px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp ot"></div><div class="sp ot"></div><div class="sp ot"></div><div class="sp ot"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp od"></div><div class="sp ot"></div><div class="sp od"></div><div class="sp ot"></div><div class="sp od"></div><div class="sp od"></div></div>
+        <div class="sp-row"><div class="sp od"></div><div class="sp od"></div><div class="sp ot"></div><div class="sp od"></div><div class="sp ot"></div><div class="sp od"></div></div>
+        <div class="sp-row"><div class="sp od"></div><div class="sp od"></div><div class="sp od"></div><div class="sp od"></div><div class="sp od"></div><div class="sp od"></div></div>
+      </div>
+      <span class="spark8">+</span>
+      <div class="flabel fibre">OATS+</div>
+    </div>
+
+    <!-- Brown bread (on platform) -->
+    <div class="food8" style="bottom: 232px; left: 560px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp bb"></div><div class="sp bs"></div><div class="sp bb"></div><div class="sp bs"></div><div class="sp bb"></div><div class="sp bb"></div></div>
+        <div class="sp-row"><div class="sp bb"></div><div class="sp bb"></div><div class="sp bs"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div></div>
+        <div class="sp-row"><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bs"></div><div class="sp bb"></div></div>
+        <div class="sp-row"><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div><div class="sp bb"></div></div>
+      </div>
+      <span class="spark8">+</span>
+      <div class="flabel fibre">W.GRAIN+</div>
+    </div>
+
+    <!-- Pasta (on platform) -->
+    <div class="food8" style="bottom: 168px; left: 80px;">
+      <div class="sprite">
+        <div class="sp-row"><div class="sp t"></div><div class="sp py"></div><div class="sp py"></div><div class="sp py"></div><div class="sp t"></div></div>
+        <div class="sp-row"><div class="sp py"></div><div class="sp pk"></div><div class="sp py"></div><div class="sp pk"></div><div class="sp py"></div></div>
+        <div class="sp-row"><div class="sp py"></div><div class="sp py"></div><div class="sp pk"></div><div class="sp py"></div><div class="sp py"></div></div>
+        <div class="sp-row"><div class="sp t"></div><div class="sp py"></div><div class="sp py"></div><div class="sp py"></div><div class="sp t"></div></div>
+      </div>
+      <div class="flabel">PASTA</div>
+    </div>
+
+    <!-- Energy Cells (coins) -->
+    <div class="ecoin" style="bottom: 100px; left: 195px;"></div>
+    <div class="ecoin" style="bottom: 100px; left: 215px;"></div>
+    <div class="ecoin" style="bottom: 100px; left: 235px;"></div>
+    <div class="ecoin" style="bottom: 216px; left: 258px;"></div>
+    <div class="ecoin" style="bottom: 232px; left: 278px;"></div>
+    <div class="ecoin" style="bottom: 100px; left: 430px;"></div>
+    <div class="ecoin" style="bottom: 100px; left: 450px;"></div>
+    <div class="ecoin" style="bottom: 280px; left: 390px;"></div>
+    <div class="ecoin" style="bottom: 100px; left: 555px;"></div>
+    <div class="ecoin" style="bottom: 100px; left: 575px;"></div>
+    <div class="ecoin" style="bottom: 100px; left: 595px;"></div>
+    <div class="ecoin" style="bottom: 248px; left: 545px;"></div>
+    <div class="ecoin" style="bottom: 248px; left: 565px;"></div>
+    <div class="ecoin" style="bottom: 248px; left: 620px;"></div>
+
+    <!-- HUD -->
+    <div class="hud8">
+      <div class="hud8-section">
+        <div class="hud8-label">ENERGY</div>
+        <div class="bar8-bg ebar8">
+          <div class="bar8-fill bar8-energy"></div>
+        </div>
+      </div>
+      <div class="hud8-section">
+        <div class="hud8-label">CARBS</div>
+        <div class="bar8-bg cbar8">
+          <div class="bar8-fill bar8-carbs"></div>
+        </div>
+        <div class="fibre8">
+          <span class="fibre8-label">FIB</span>
+          <div class="fibre8-dot on"></div>
+          <div class="fibre8-dot on"></div>
+          <div class="fibre8-dot off"></div>
+          <div class="fibre8-dot off"></div>
+          <div class="fibre8-dot off"></div>
+          <div class="fibre8-dot off"></div>
+        </div>
+      </div>
+      <div class="hud8-section">
+        <div class="ecoin-counter">
+          <div class="ecoin-icon"></div>
+          <span class="ecoin-num">x23</span>
+        </div>
+        <div class="stars8">
+          <span class="s8 on">&#9733;</span>
+          <span class="s8 off">&#9733;</span>
+          <span class="s8 off">&#9733;</span>
+        </div>
+      </div>
+      <div class="level8">L1-CARBS</div>
+    </div>
+  </div>
+</body>
+</html>

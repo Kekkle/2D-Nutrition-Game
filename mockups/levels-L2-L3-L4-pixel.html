@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Levels 2–4 Pixelated (16-Bit)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0e0e1c;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    padding: 30px 20px;
+    gap: 40px;
+    image-rendering: pixelated;
+  }
+  h1 {
+    font-size: 18px;
+    color: #f0c040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .page-sub {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 10px;
+    text-align: center;
+    max-width: 800px;
+    line-height: 1.5;
+  }
+  .scene-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .scene-title {
+    font-size: 14px;
+    color: #f0c040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .scene-sub {
+    font-size: 10px;
+    color: #999;
+    margin-bottom: 4px;
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.4;
+  }
+
+  /* Game frame — rendered at 240x135 and scaled 4x */
+  .game-frame {
+    width: 240px;
+    height: 135px;
+    border: 1px solid #f0c040;
+    position: relative;
+    overflow: hidden;
+    image-rendering: pixelated;
+    transform: scale(4);
+    transform-origin: top center;
+    margin-bottom: calc(135px * 3);
+  }
+
+  /* ========== SHARED PIXEL HUD ========== */
+  .hud {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 16px;
+    background: #000000cc;
+    display: flex;
+    align-items: center;
+    padding: 1px 3px;
+    gap: 6px;
+    z-index: 20;
+  }
+  .hud-section { display: flex; align-items: center; gap: 2px; }
+  .hud-label {
+    font-size: 3px;
+    color: #f0c040;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .energy-bar {
+    width: 40px; height: 4px;
+    background: #222;
+    border: 1px solid #f0c040;
+    position: relative;
+  }
+  .energy-fill {
+    height: 100%;
+    background: #40cc60;
+  }
+  .cell-icon {
+    width: 4px; height: 4px;
+    background: #40ffaa;
+    border: 1px solid #20aa66;
+  }
+  .cell-count { font-size: 3px; color: #80ffcc; }
+  .star-s { font-size: 4px; color: #f0c040; }
+  .star-s.empty { color: #333; }
+  .level-tag {
+    font-size: 3px;
+    color: #f0c040;
+    letter-spacing: 0.5px;
+    position: absolute;
+    top: 2px; right: 3px;
+  }
+
+  /* ========== PIXEL GRID ELEMENTS ========== */
+  .px { image-rendering: pixelated; position: absolute; }
+
+  /* Pixel block — the fundamental unit */
+  .pxb {
+    position: absolute;
+    image-rendering: pixelated;
+  }
+
+  /* Ground (shared shape, different colors per level) */
+  .ground {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+  }
+
+  /* Platform */
+  .plat {
+    position: absolute;
+    height: 6px;
+    image-rendering: pixelated;
+  }
+
+  /* Energy cell */
+  .ec {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #40ffaa;
+    border: 1px solid #20aa66;
+    image-rendering: pixelated;
+  }
+
+  /* Collectible */
+  .col {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    image-rendering: pixelated;
+  }
+  .col .lbl {
+    font-size: 2.5px;
+    color: #fff;
+    text-shadow: 0 1px 0 #000;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+
+  /* ========== NIBBLE (pixel art via box-shadow) ========== */
+  .nibble-px {
+    position: absolute;
+    width: 1px; height: 1px;
+    background: transparent;
+    box-shadow:
+      /* body outline */
+      2px 0 0 #2868a0, 3px 0 0 #2868a0, 4px 0 0 #2868a0, 5px 0 0 #2868a0, 6px 0 0 #2868a0, 7px 0 0 #2868a0, 8px 0 0 #2868a0, 9px 0 0 #2868a0,
+      1px 1 0 #2868a0, 10px 1px 0 #2868a0,
+      1px 2px 0 #2868a0, 10px 2px 0 #2868a0,
+      1px 3px 0 #2868a0, 10px 3px 0 #2868a0,
+      1px 4px 0 #2868a0, 10px 4px 0 #2868a0,
+      1px 5px 0 #2868a0, 10px 5px 0 #2868a0,
+      1px 6px 0 #2868a0, 10px 6px 0 #2868a0,
+      1px 7px 0 #2868a0, 10px 7px 0 #2868a0,
+      1px 8px 0 #2868a0, 10px 8px 0 #2868a0,
+      2px 9px 0 #2868a0, 3px 9px 0 #2868a0, 4px 9px 0 #2868a0, 5px 9px 0 #2868a0, 6px 9px 0 #2868a0, 7px 9px 0 #2868a0, 8px 9px 0 #2868a0, 9px 9px 0 #2868a0,
+      /* body fill */
+      2px 1px 0 #48a8e0, 3px 1px 0 #48a8e0, 4px 1px 0 #68c8f8, 5px 1px 0 #48a8e0, 6px 1px 0 #48a8e0, 7px 1px 0 #48a8e0, 8px 1px 0 #48a8e0, 9px 1px 0 #48a8e0,
+      2px 2px 0 #48a8e0, 3px 2px 0 #68c8f8, 4px 2px 0 #48a8e0, 5px 2px 0 #48a8e0, 6px 2px 0 #48a8e0, 7px 2px 0 #48a8e0, 8px 2px 0 #48a8e0, 9px 2px 0 #48a8e0,
+      /* eyes row */
+      2px 3px 0 #48a8e0, 3px 3px 0 #fff, 4px 3px 0 #fff, 5px 3px 0 #48a8e0, 6px 3px 0 #48a8e0, 7px 3px 0 #fff, 8px 3px 0 #fff, 9px 3px 0 #48a8e0,
+      2px 4px 0 #48a8e0, 3px 4px 0 #fff, 4px 4px 0 #1a2a3a, 5px 4px 0 #48a8e0, 6px 4px 0 #48a8e0, 7px 4px 0 #fff, 8px 4px 0 #1a2a3a, 9px 4px 0 #48a8e0,
+      /* cheek + body */
+      2px 5px 0 #48a8e0, 3px 5px 0 #48a8e0, 4px 5px 0 #48a8e0, 5px 5px 0 #48a8e0, 6px 5px 0 #48a8e0, 7px 5px 0 #48a8e0, 8px 5px 0 #48a8e0, 9px 5px 0 #48a8e0,
+      /* blush + smile */
+      2px 6px 0 #e0889880, 3px 6px 0 #48a8e0, 4px 6px 0 #48a8e0, 5px 6px 0 #1a4878, 6px 6px 0 #1a4878, 7px 6px 0 #48a8e0, 8px 6px 0 #48a8e0, 9px 6px 0 #e0889880,
+      2px 7px 0 #48a8e0, 3px 7px 0 #48a8e0, 4px 7px 0 #1a4878, 5px 7px 0 #48a8e0, 6px 7px 0 #48a8e0, 7px 7px 0 #1a4878, 8px 7px 0 #48a8e0, 9px 7px 0 #48a8e0,
+      2px 8px 0 #48a8e0, 3px 8px 0 #48a8e0, 4px 8px 0 #48a8e0, 5px 8px 0 #48a8e0, 6px 8px 0 #48a8e0, 7px 8px 0 #48a8e0, 8px 8px 0 #48a8e0, 9px 8px 0 #48a8e0,
+      /* feet */
+      3px 10px 0 #2868a0, 4px 10px 0 #48a8e0, 5px 10px 0 #2868a0,
+      7px 10px 0 #2868a0, 8px 10px 0 #48a8e0, 9px 10px 0 #2868a0,
+      3px 11px 0 #2868a0, 4px 11px 0 #48a8e0, 5px 11px 0 #2868a0,
+      7px 11px 0 #2868a0, 8px 11px 0 #48a8e0, 9px 11px 0 #2868a0;
+    image-rendering: pixelated;
+  }
+
+  /* ========== PIXEL FOOD ITEMS ========== */
+
+  /* Chicken drumstick */
+  .px-chicken {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #d8a050, 3px 0 0 #d8a050, 4px 0 0 #d8a050, 5px 0 0 #d8a050,
+      1px 1px 0 #d8a050, 2px 1px 0 #e8c070, 3px 1px 0 #e8c070, 4px 1px 0 #d8a050, 5px 1px 0 #d8a050, 6px 1px 0 #d8a050,
+      1px 2px 0 #d8a050, 2px 2px 0 #d8a050, 3px 2px 0 #d8a050, 4px 2px 0 #d8a050, 5px 2px 0 #d8a050, 6px 2px 0 #d8a050,
+      1px 3px 0 #c89040, 2px 3px 0 #c89040, 3px 3px 0 #d8a050, 4px 3px 0 #d8a050, 5px 3px 0 #c89040, 6px 3px 0 #c89040,
+      2px 4px 0 #c89040, 3px 4px 0 #c89040, 4px 4px 0 #c89040, 5px 4px 0 #c89040,
+      3px 5px 0 #a07028, 4px 5px 0 #a07028,
+      3px 6px 0 #a07028, 4px 6px 0 #a07028;
+  }
+
+  /* Egg */
+  .px-egg {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #f0e8d8, 3px 0 0 #f0e8d8, 4px 0 0 #f0e8d8,
+      1px 1px 0 #f0e8d8, 2px 1px 0 #f8f0e0, 3px 1px 0 #f8f0e0, 4px 1px 0 #f8f0e0, 5px 1px 0 #f0e8d8,
+      1px 2px 0 #f0e8d8, 2px 2px 0 #f8f0e0, 3px 2px 0 #e8a828, 4px 2px 0 #e8a828, 5px 2px 0 #f0e8d8,
+      1px 3px 0 #f0e8d8, 2px 3px 0 #f8f0e0, 3px 3px 0 #e8a828, 4px 3px 0 #d89818, 5px 3px 0 #f0e8d8,
+      1px 4px 0 #e8dcc8, 2px 4px 0 #f0e8d8, 3px 4px 0 #f0e8d8, 4px 4px 0 #f0e8d8, 5px 4px 0 #e8dcc8,
+      2px 5px 0 #e8dcc8, 3px 5px 0 #e8dcc8, 4px 5px 0 #e8dcc8;
+  }
+
+  /* Fish / Salmon */
+  .px-fish {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      1px 1px 0 #e88888, 2px 1px 0 #e88888, 3px 1px 0 #e88888, 4px 1px 0 #e88888,
+      0 2px 0 #e88888, 1px 2px 0 #222, 2px 2px 0 #e89898, 3px 2px 0 #e88888, 4px 2px 0 #d87070, 5px 2px 0 #c06060, 7px 2px 0 #d87070,
+      0 3px 0 #e88888, 1px 3px 0 #e89898, 2px 3px 0 #e88888, 3px 3px 0 #d87070, 4px 3px 0 #d87070, 5px 3px 0 #c06060, 7px 3px 0 #d87070,
+      1px 4px 0 #d87070, 2px 4px 0 #d87070, 3px 4px 0 #d87070, 4px 4px 0 #c06060;
+  }
+
+  /* Beans */
+  .px-beans {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      1px 0 0 #884430, 2px 0 0 #884430, 3px 0 0 #884430, 4px 0 0 #884430, 5px 0 0 #884430,
+      0 1px 0 #884430, 1px 1px 0 #6a3320, 2px 1px 0 #884430, 3px 1px 0 #6a3320, 4px 1px 0 #884430, 5px 1px 0 #884430, 6px 1px 0 #884430,
+      0 2px 0 #884430, 1px 2px 0 #884430, 2px 2px 0 #6a3320, 3px 2px 0 #884430, 4px 2px 0 #6a3320, 5px 2px 0 #884430, 6px 2px 0 #884430,
+      1px 3px 0 #663320, 2px 3px 0 #663320, 3px 3px 0 #663320, 4px 3px 0 #663320, 5px 3px 0 #663320;
+  }
+
+  /* Tofu */
+  .px-tofu {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      0 0 0 #c8b898, 1px 0 0 #c8b898, 2px 0 0 #c8b898, 3px 0 0 #c8b898, 4px 0 0 #c8b898, 5px 0 0 #c8b898,
+      0 1px 0 #c8b898, 1px 1px 0 #f0e8d0, 2px 1px 0 #f0e8d0, 3px 1px 0 #f0e8d0, 4px 1px 0 #f0e8d0, 5px 1px 0 #c8b898,
+      0 2px 0 #c8b898, 1px 2px 0 #f0e8d0, 2px 2px 0 #e8dcc0, 3px 2px 0 #e8dcc0, 4px 2px 0 #f0e8d0, 5px 2px 0 #c8b898,
+      0 3px 0 #c8b898, 1px 3px 0 #f0e8d0, 2px 3px 0 #e8dcc0, 3px 3px 0 #e8dcc0, 4px 3px 0 #f0e8d0, 5px 3px 0 #c8b898,
+      0 4px 0 #c8b898, 1px 4px 0 #c8b898, 2px 4px 0 #c8b898, 3px 4px 0 #c8b898, 4px 4px 0 #c8b898, 5px 4px 0 #c8b898;
+  }
+
+  /* Lentils */
+  .px-lentils {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      1px 0 0 #688028, 2px 0 0 #688028, 3px 0 0 #688028, 4px 0 0 #688028, 5px 0 0 #688028,
+      0 1px 0 #688028, 1px 1px 0 #88a040, 2px 1px 0 #70882a, 3px 1px 0 #88a040, 4px 1px 0 #70882a, 5px 1px 0 #88a040, 6px 1px 0 #688028,
+      0 2px 0 #688028, 1px 2px 0 #70882a, 2px 2px 0 #88a040, 3px 2px 0 #70882a, 4px 2px 0 #88a040, 5px 2px 0 #70882a, 6px 2px 0 #688028,
+      1px 3px 0 #688028, 2px 3px 0 #688028, 3px 3px 0 #688028, 4px 3px 0 #688028, 5px 3px 0 #688028;
+  }
+
+  /* Rice */
+  .px-rice {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #f5f0e0, 4px 0 0 #f5f0e0,
+      1px 1px 0 #d0c8a8, 2px 1px 0 #f5f0e0, 3px 1px 0 #f5f0e0, 4px 1px 0 #f5f0e0, 5px 1px 0 #f5f0e0, 6px 1px 0 #d0c8a8,
+      0 2px 0 #d0c8a8, 1px 2px 0 #f5f0e0, 2px 2px 0 #f8f4e8, 3px 2px 0 #f5f0e0, 4px 2px 0 #f5f0e0, 5px 2px 0 #f5f0e0, 6px 2px 0 #f5f0e0, 7px 2px 0 #d0c8a8,
+      0 3px 0 #d0c8a8, 1px 3px 0 #f5f0e0, 2px 3px 0 #f5f0e0, 3px 3px 0 #f5f0e0, 4px 3px 0 #f5f0e0, 5px 3px 0 #f5f0e0, 6px 3px 0 #f5f0e0, 7px 3px 0 #d0c8a8,
+      1px 4px 0 #d0c8a8, 2px 4px 0 #d0c8a8, 3px 4px 0 #d0c8a8, 4px 4px 0 #d0c8a8, 5px 4px 0 #d0c8a8, 6px 4px 0 #d0c8a8;
+  }
+
+  /* Yogurt */
+  .px-yogurt {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      0 0 0 #c8b8a0, 1px 0 0 #c8b8a0, 2px 0 0 #cc4466, 3px 0 0 #cc4466, 4px 0 0 #c8b8a0, 5px 0 0 #c8b8a0,
+      0 1px 0 #c8b8a0, 1px 1px 0 #f0eae0, 2px 1px 0 #f0eae0, 3px 1px 0 #f0eae0, 4px 1px 0 #f0eae0, 5px 1px 0 #c8b8a0,
+      0 2px 0 #c8b8a0, 1px 2px 0 #f0eae0, 2px 2px 0 #f8f4f0, 3px 2px 0 #f0eae0, 4px 2px 0 #f0eae0, 5px 2px 0 #c8b8a0,
+      0 3px 0 #c8b8a0, 1px 3px 0 #f0eae0, 2px 3px 0 #f0eae0, 3px 3px 0 #f0eae0, 4px 3px 0 #f0eae0, 5px 3px 0 #c8b8a0,
+      0 4px 0 #c8b8a0, 1px 4px 0 #c8b8a0, 2px 4px 0 #c8b8a0, 3px 4px 0 #c8b8a0, 4px 4px 0 #c8b8a0, 5px 4px 0 #c8b8a0;
+  }
+
+  /* Avocado */
+  .px-avocado {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #3a6a18, 3px 0 0 #3a6a18, 4px 0 0 #3a6a18,
+      1px 1px 0 #3a6a18, 2px 1px 0 #5a8a30, 3px 1px 0 #6a9a40, 4px 1px 0 #5a8a30, 5px 1px 0 #3a6a18,
+      1px 2px 0 #3a6a18, 2px 2px 0 #5a8a30, 3px 2px 0 #5a8a30, 4px 2px 0 #5a8a30, 5px 2px 0 #3a6a18,
+      1px 3px 0 #3a6a18, 2px 3px 0 #5a8a30, 3px 3px 0 #c8b060, 4px 3px 0 #c8b060, 5px 3px 0 #3a6a18,
+      1px 4px 0 #3a6a18, 2px 4px 0 #5a8a30, 3px 4px 0 #c8b060, 4px 4px 0 #a89040, 5px 4px 0 #3a6a18,
+      2px 5px 0 #3a6a18, 3px 5px 0 #5a8a30, 4px 5px 0 #3a6a18;
+  }
+
+  /* Almonds / Nuts */
+  .px-nuts {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #886028, 3px 0 0 #886028, 4px 0 0 #886028,
+      1px 1px 0 #886028, 2px 1px 0 #a87838, 3px 1px 0 #c89848, 4px 1px 0 #a87838, 5px 1px 0 #886028,
+      1px 2px 0 #886028, 2px 2px 0 #a87838, 3px 2px 0 #a87838, 4px 2px 0 #a87838, 5px 2px 0 #886028,
+      2px 3px 0 #886028, 3px 3px 0 #886028, 4px 3px 0 #886028;
+  }
+
+  /* Olive Oil */
+  .px-oliveoil {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #888, 3px 0 0 #888,
+      2px 1px 0 #666, 3px 1px 0 #666,
+      1px 2px 0 #a89828, 2px 2px 0 #c8b840, 3px 2px 0 #c8b840, 4px 2px 0 #a89828,
+      1px 3px 0 #a89828, 2px 3px 0 #d8c850, 3px 3px 0 #c8b840, 4px 3px 0 #a89828,
+      1px 4px 0 #a89828, 2px 4px 0 #c8b840, 3px 4px 0 #c8b840, 4px 4px 0 #a89828,
+      1px 5px 0 #a89828, 2px 5px 0 #c8b840, 3px 5px 0 #c8b840, 4px 5px 0 #a89828,
+      1px 6px 0 #a89828, 2px 6px 0 #a89828, 3px 6px 0 #a89828, 4px 6px 0 #a89828;
+  }
+
+  /* Salmon fillet */
+  .px-salmon {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      1px 0 0 #c86848, 2px 0 0 #e88060, 3px 0 0 #e88060, 4px 0 0 #e88060, 5px 0 0 #e88060, 6px 0 0 #e88060, 7px 0 0 #c86848,
+      0 1px 0 #c86848, 1px 1px 0 #e89070, 2px 1px 0 #c86848, 3px 1px 0 #e89070, 4px 1px 0 #c86848, 5px 1px 0 #e89070, 6px 1px 0 #c86848, 7px 1px 0 #c86848,
+      1px 2px 0 #c86848, 2px 2px 0 #e88060, 3px 2px 0 #e88060, 4px 2px 0 #e88060, 5px 2px 0 #e88060, 6px 2px 0 #c86848;
+  }
+
+  /* Cheese */
+  .px-cheese {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      0 0 0 #d0a828, 1px 0 0 #d0a828, 2px 0 0 #d0a828, 3px 0 0 #d0a828, 4px 0 0 #d0a828, 5px 0 0 #d0a828,
+      0 1px 0 #d0a828, 1px 1px 0 #f0c840, 2px 1px 0 #f0c840, 3px 1px 0 #d8a830, 4px 1px 0 #f0c840, 5px 1px 0 #d0a828,
+      0 2px 0 #d0a828, 1px 2px 0 #f0c840, 2px 2px 0 #f0c840, 3px 2px 0 #f0c840, 4px 2px 0 #d8a830, 5px 2px 0 #d0a828,
+      0 3px 0 #d0a828, 1px 3px 0 #f0c840, 2px 3px 0 #f0c840, 3px 3px 0 #f0c840, 4px 3px 0 #f0c840, 5px 3px 0 #d0a828,
+      0 4px 0 #d0a828, 1px 4px 0 #d0a828, 2px 4px 0 #d0a828, 3px 4px 0 #d0a828, 4px 4px 0 #d0a828, 5px 4px 0 #d0a828;
+  }
+
+  /* Seeds */
+  .px-seeds {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      1px 0 0 #685030, 2px 0 0 #685030, 3px 0 0 #685030, 4px 0 0 #685030, 5px 0 0 #685030,
+      0 1px 0 #685030, 1px 1px 0 #887048, 2px 1px 0 #a89060, 3px 1px 0 #887048, 4px 1px 0 #a89060, 5px 1px 0 #887048, 6px 1px 0 #685030,
+      0 2px 0 #685030, 1px 2px 0 #a89060, 2px 2px 0 #887048, 3px 2px 0 #a89060, 4px 2px 0 #887048, 5px 2px 0 #a89060, 6px 2px 0 #685030,
+      1px 3px 0 #685030, 2px 3px 0 #685030, 3px 3px 0 #685030, 4px 3px 0 #685030, 5px 3px 0 #685030;
+  }
+
+  /* Butter */
+  .px-butter {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      0 0 0 #d0b848, 1px 0 0 #d0b848, 2px 0 0 #d0b848, 3px 0 0 #d0b848, 4px 0 0 #d0b848, 5px 0 0 #d0b848, 6px 0 0 #d0b848,
+      0 1px 0 #d0b848, 1px 1px 0 #f8e878, 2px 1px 0 #f0d868, 3px 1px 0 #f0d868, 4px 1px 0 #f0d868, 5px 1px 0 #f0d868, 6px 1px 0 #d0b848,
+      0 2px 0 #d0b848, 1px 2px 0 #f0d868, 2px 2px 0 #f0d868, 3px 2px 0 #f0d868, 4px 2px 0 #f0d868, 5px 2px 0 #f0d868, 6px 2px 0 #d0b848,
+      0 3px 0 #d0b848, 1px 3px 0 #d0b848, 2px 3px 0 #d0b848, 3px 3px 0 #d0b848, 4px 3px 0 #d0b848, 5px 3px 0 #d0b848, 6px 3px 0 #d0b848;
+  }
+
+  /* Broccoli */
+  .px-broccoli {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #2a6a1a, 3px 0 0 #2a6a1a, 4px 0 0 #2a6a1a,
+      1px 1px 0 #2a6a1a, 2px 1px 0 #3a8a2a, 3px 1px 0 #4a9a3a, 4px 1px 0 #3a8a2a, 5px 1px 0 #2a6a1a,
+      1px 2px 0 #2a6a1a, 2px 2px 0 #4a9a3a, 3px 2px 0 #3a8a2a, 4px 2px 0 #4a9a3a, 5px 2px 0 #2a6a1a,
+      2px 3px 0 #2a6a1a, 3px 3px 0 #3a8a2a, 4px 3px 0 #2a6a1a,
+      3px 4px 0 #5a9a3a, 3px 5px 0 #5a9a3a, 3px 6px 0 #3a7a20;
+  }
+
+  /* Raspberries */
+  .px-raspberries {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #aa1830, 3px 0 0 #aa1830, 4px 0 0 #aa1830,
+      1px 1px 0 #aa1830, 2px 1px 0 #cc2244, 3px 1px 0 #dd4466, 4px 1px 0 #cc2244, 5px 1px 0 #aa1830,
+      1px 2px 0 #aa1830, 2px 2px 0 #dd4466, 3px 2px 0 #cc2244, 4px 2px 0 #dd4466, 5px 2px 0 #aa1830,
+      1px 3px 0 #aa1830, 2px 3px 0 #cc2244, 3px 3px 0 #dd4466, 4px 3px 0 #cc2244, 5px 3px 0 #aa1830,
+      2px 4px 0 #aa1830, 3px 4px 0 #aa1830, 4px 4px 0 #aa1830;
+  }
+
+  /* Chia seeds */
+  .px-chia {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      1px 0 0 #3a3a48, 2px 0 0 #3a3a48, 3px 0 0 #3a3a48, 4px 0 0 #3a3a48, 5px 0 0 #3a3a48,
+      0 1px 0 #3a3a48, 1px 1px 0 #4a4a5a, 2px 1px 0 #6a6a7a, 3px 1px 0 #4a4a5a, 4px 1px 0 #6a6a7a, 5px 1px 0 #4a4a5a, 6px 1px 0 #3a3a48,
+      0 2px 0 #3a3a48, 1px 2px 0 #6a6a7a, 2px 2px 0 #4a4a5a, 3px 2px 0 #6a6a7a, 4px 2px 0 #4a4a5a, 5px 2px 0 #6a6a7a, 6px 2px 0 #3a3a48,
+      1px 3px 0 #3a3a48, 2px 3px 0 #3a3a48, 3px 3px 0 #3a3a48, 4px 3px 0 #3a3a48, 5px 3px 0 #3a3a48;
+  }
+
+  /* Sweet Potato */
+  .px-sweetpotato {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #a84820, 3px 0 0 #a84820, 4px 0 0 #a84820, 5px 0 0 #a84820,
+      1px 1px 0 #a84820, 2px 1px 0 #c86030, 3px 1px 0 #e88848, 4px 1px 0 #e88848, 5px 1px 0 #c86030, 6px 1px 0 #a84820,
+      1px 2px 0 #a84820, 2px 2px 0 #c86030, 3px 2px 0 #c86030, 4px 2px 0 #c86030, 5px 2px 0 #c86030, 6px 2px 0 #a84820,
+      2px 3px 0 #a84820, 3px 3px 0 #a84820, 4px 3px 0 #a84820, 5px 3px 0 #a84820;
+  }
+
+  /* Pear */
+  .px-pear {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #5a3a1a, 3px 0 0 #5a3a1a,
+      2px 1px 0 #88a828, 3px 1px 0 #88a828,
+      1px 2px 0 #88a828, 2px 2px 0 #a8c840, 3px 2px 0 #a8c840, 4px 2px 0 #88a828,
+      1px 3px 0 #88a828, 2px 3px 0 #a8c840, 3px 3px 0 #a8c840, 4px 3px 0 #88a828,
+      0 4px 0 #88a828, 1px 4px 0 #a8c840, 2px 4px 0 #b8d050, 3px 4px 0 #a8c840, 4px 4px 0 #88a828, 5px 4px 0 #88a828,
+      0 5px 0 #88a828, 1px 5px 0 #a8c840, 2px 5px 0 #a8c840, 3px 5px 0 #a8c840, 4px 5px 0 #a8c840, 5px 5px 0 #88a828,
+      1px 6px 0 #88a828, 2px 6px 0 #88a828, 3px 6px 0 #88a828, 4px 6px 0 #88a828;
+  }
+
+  /* Oats */
+  .px-oats {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      1px 0 0 #b89858, 2px 0 0 #b89858, 3px 0 0 #b89858, 4px 0 0 #b89858, 5px 0 0 #b89858,
+      0 1px 0 #b89858, 1px 1px 0 #d4b87a, 2px 1px 0 #c8a868, 3px 1px 0 #d4b87a, 4px 1px 0 #c8a868, 5px 1px 0 #d4b87a, 6px 1px 0 #b89858,
+      0 2px 0 #b89858, 1px 2px 0 #d4b87a, 2px 2px 0 #d4b87a, 3px 2px 0 #d4b87a, 4px 2px 0 #d4b87a, 5px 2px 0 #d4b87a, 6px 2px 0 #b89858,
+      1px 3px 0 #b89858, 2px 3px 0 #b89858, 3px 3px 0 #b89858, 4px 3px 0 #b89858, 5px 3px 0 #b89858;
+  }
+
+  /* Apple */
+  .px-apple {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      3px 0 0 #5a3a1a, 4px 0 0 #3a8a2a,
+      2px 1px 0 #aa2222, 3px 1px 0 #dd3333, 4px 1px 0 #aa2222,
+      1px 2px 0 #aa2222, 2px 2px 0 #dd3333, 3px 2px 0 #ee4444, 4px 2px 0 #dd3333, 5px 2px 0 #aa2222,
+      1px 3px 0 #aa2222, 2px 3px 0 #dd3333, 3px 3px 0 #dd3333, 4px 3px 0 #dd3333, 5px 3px 0 #aa2222,
+      1px 4px 0 #aa2222, 2px 4px 0 #dd3333, 3px 4px 0 #dd3333, 4px 4px 0 #dd3333, 5px 4px 0 #aa2222,
+      2px 5px 0 #aa2222, 3px 5px 0 #aa2222, 4px 5px 0 #aa2222;
+  }
+
+  /* ========== PIXEL ENEMIES ========== */
+
+  /* Fatigue Phantom */
+  .px-phantom {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #886aaa, 3px 0 0 #886aaa, 4px 0 0 #886aaa, 5px 0 0 #886aaa, 6px 0 0 #886aaa, 7px 0 0 #886aaa,
+      1px 1px 0 #886aaa, 2px 1px 0 #9980bb, 3px 1px 0 #9980bb, 4px 1px 0 #9980bb, 5px 1px 0 #9980bb, 6px 1px 0 #9980bb, 7px 1px 0 #9980bb, 8px 1px 0 #886aaa,
+      1px 2px 0 #886aaa, 2px 2px 0 #ccaaff, 3px 2px 0 #ccaaff, 4px 2px 0 #9980bb, 5px 2px 0 #9980bb, 6px 2px 0 #ccaaff, 7px 2px 0 #ccaaff, 8px 2px 0 #886aaa,
+      1px 3px 0 #886aaa, 2px 3px 0 #ccaaff, 3px 3px 0 #553388, 4px 3px 0 #9980bb, 5px 3px 0 #9980bb, 6px 3px 0 #ccaaff, 7px 3px 0 #553388, 8px 3px 0 #886aaa,
+      1px 4px 0 #886aaa, 2px 4px 0 #9980bb, 3px 4px 0 #9980bb, 4px 4px 0 #9980bb, 5px 4px 0 #9980bb, 6px 4px 0 #9980bb, 7px 4px 0 #9980bb, 8px 4px 0 #886aaa,
+      1px 5px 0 #886aaa, 2px 5px 0 #9980bb, 3px 5px 0 #5a3878, 4px 5px 0 #5a3878, 5px 5px 0 #5a3878, 6px 5px 0 #5a3878, 7px 5px 0 #9980bb, 8px 5px 0 #886aaa,
+      1px 6px 0 #7758aa88, 3px 6px 0 #7758aa88, 5px 6px 0 #7758aa88, 7px 6px 0 #7758aa88,
+      1px 7px 0 #7758aa55, 3px 7px 0 #7758aa55, 5px 7px 0 #7758aa55, 7px 7px 0 #7758aa55;
+  }
+
+  /* Stress Sprite */
+  .px-stress {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      3px 0 0 #b0e0ff,
+      1px 1px 0 #b0e0ff, 3px 1px 0 #44aaee, 4px 1px 0 #44aaee, 5px 1px 0 #44aaee, 7px 1px 0 #b0e0ff,
+      2px 2px 0 #44aaee, 3px 2px 0 #fff, 4px 2px 0 #78ccf8, 5px 2px 0 #fff, 6px 2px 0 #44aaee,
+      2px 3px 0 #44aaee, 3px 3px 0 #fff, 4px 3px 0 #1a3050, 5px 3px 0 #fff, 6px 3px 0 #1a3050,
+      2px 4px 0 #44aaee, 3px 4px 0 #78ccf8, 4px 4px 0 #44aaee, 5px 4px 0 #44aaee, 6px 4px 0 #44aaee,
+      3px 5px 0 #44aaee, 4px 5px 0 #44aaee, 5px 5px 0 #44aaee,
+      7px 5px 0 #b0e0ff;
+  }
+
+  /* Free Radical */
+  .px-radical {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      3px 0 0 #88c028,
+      1px 1px 0 #88c028, 3px 1px 0 #aaee44, 4px 1px 0 #aaee44, 7px 1px 0 #88c028,
+      2px 2px 0 #68a018, 3px 2px 0 #ccff68, 4px 2px 0 #aaee44, 5px 2px 0 #68a018,
+      0 3px 0 #88c028, 2px 3px 0 #aaee44, 3px 3px 0 #2a4010, 4px 3px 0 #2a4010, 5px 3px 0 #aaee44, 8px 3px 0 #88c028,
+      2px 4px 0 #68a018, 3px 4px 0 #aaee44, 4px 4px 0 #88c028, 5px 4px 0 #68a018,
+      1px 5px 0 #88c028, 3px 5px 0 #88c028, 4px 5px 0 #88c028, 7px 5px 0 #88c028,
+      4px 6px 0 #68a018;
+  }
+
+  /* Entropy Blob */
+  .px-blob {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      2px 0 0 #332848, 3px 0 0 #332848, 4px 0 0 #332848, 5px 0 0 #332848, 6px 0 0 #332848, 7px 0 0 #332848, 8px 0 0 #332848,
+      1px 1px 0 #332848, 2px 1px 0 #554466, 3px 1px 0 #554466, 4px 1px 0 #6a5880, 5px 1px 0 #554466, 6px 1px 0 #554466, 7px 1px 0 #554466, 8px 1px 0 #554466, 9px 1px 0 #332848,
+      1px 2px 0 #332848, 2px 2px 0 #554466, 3px 2px 0 #aa88cc, 4px 2px 0 #554466, 5px 2px 0 #554466, 6px 2px 0 #554466, 7px 2px 0 #aa88cc, 8px 2px 0 #554466, 9px 2px 0 #332848,
+      1px 3px 0 #332848, 2px 3px 0 #554466, 3px 3px 0 #aa88cc, 4px 3px 0 #5a3878, 5px 3px 0 #554466, 6px 3px 0 #554466, 7px 3px 0 #aa88cc, 8px 3px 0 #5a3878, 9px 3px 0 #332848,
+      1px 4px 0 #332848, 2px 4px 0 #554466, 3px 4px 0 #554466, 4px 4px 0 #554466, 5px 4px 0 #554466, 6px 4px 0 #554466, 7px 4px 0 #554466, 8px 4px 0 #554466, 9px 4px 0 #332848,
+      2px 5px 0 #332848, 3px 5px 0 #443855, 4px 5px 0 #332848, 5px 5px 0 #332848, 6px 5px 0 #443855, 7px 5px 0 #332848, 8px 5px 0 #443855,
+      3px 6px 0 #332848, 6px 6px 0 #332848, 8px 6px 0 #332848;
+  }
+
+  /* ========== PIXEL HAZARDS ========== */
+
+  /* Crash pit — stripe pattern */
+  .px-crashpit {
+    position: absolute;
+    height: 3px;
+    image-rendering: pixelated;
+  }
+
+  /* Fog bank — stacked blocks */
+  .px-fog {
+    position: absolute;
+  }
+  .px-fog-block {
+    position: absolute;
+    background: #8899aa;
+    opacity: 0.55;
+  }
+
+  /* Inflammation zone */
+  .px-inflam {
+    position: absolute;
+    background: #aa2020;
+    opacity: 0.4;
+  }
+  .px-inflam-core {
+    position: absolute;
+    background: #ff8844;
+  }
+
+  /* Microbiome station */
+  .px-station {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .px-station-dome {
+    width: 16px; height: 10px;
+    position: relative;
+  }
+  .px-station-slots {
+    display: flex; gap: 1px;
+    margin-top: 1px;
+  }
+  .px-station-slot {
+    width: 3px; height: 3px;
+    background: #333;
+    border: 1px solid #555;
+  }
+  .px-station-slot.filled { background: #3a7a28; border-color: #5a9a38; }
+  .px-station-lbl {
+    font-size: 2px;
+    color: #80ffaa;
+    margin-top: 1px;
+  }
+
+  /* Pixel station (box-shadow art) */
+  .px-station-unpowered {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      3px 0 0 #444, 4px 0 0 #444, 5px 0 0 #444, 6px 0 0 #444, 7px 0 0 #444, 8px 0 0 #444, 9px 0 0 #444, 10px 0 0 #444, 11px 0 0 #444, 12px 0 0 #444,
+      2px 1px 0 #444, 3px 1px 0 #555, 4px 1px 0 #555, 5px 1px 0 #555, 6px 1px 0 #555, 7px 1px 0 #555, 8px 1px 0 #555, 9px 1px 0 #555, 10px 1px 0 #555, 11px 1px 0 #555, 12px 1px 0 #555, 13px 1px 0 #444,
+      1px 2px 0 #444, 2px 2px 0 #555, 3px 2px 0 #555, 4px 2px 0 #555, 5px 2px 0 #555, 6px 2px 0 #555, 7px 2px 0 #555, 8px 2px 0 #555, 9px 2px 0 #555, 10px 2px 0 #555, 11px 2px 0 #555, 12px 2px 0 #555, 13px 2px 0 #555, 14px 2px 0 #444,
+      1px 3px 0 #444, 2px 3px 0 #555, 3px 3px 0 #555, 4px 3px 0 #555, 5px 3px 0 #555, 6px 3px 0 #555, 7px 3px 0 #555, 8px 3px 0 #555, 9px 3px 0 #555, 10px 3px 0 #555, 11px 3px 0 #555, 12px 3px 0 #555, 13px 3px 0 #555, 14px 3px 0 #444,
+      1px 4px 0 #444, 2px 4px 0 #555, 3px 4px 0 #555, 4px 4px 0 #555, 5px 4px 0 #555, 6px 4px 0 #555, 7px 4px 0 #555, 8px 4px 0 #555, 9px 4px 0 #555, 10px 4px 0 #555, 11px 4px 0 #555, 12px 4px 0 #555, 13px 4px 0 #555, 14px 4px 0 #444,
+      1px 5px 0 #444, 2px 5px 0 #555, 3px 5px 0 #555, 4px 5px 0 #555, 5px 5px 0 #555, 6px 5px 0 #555, 7px 5px 0 #555, 8px 5px 0 #555, 9px 5px 0 #555, 10px 5px 0 #555, 11px 5px 0 #555, 12px 5px 0 #555, 13px 5px 0 #555, 14px 5px 0 #444,
+      2px 6px 0 #444, 3px 6px 0 #444, 4px 6px 0 #444, 5px 6px 0 #444, 6px 6px 0 #444, 7px 6px 0 #444, 8px 6px 0 #444, 9px 6px 0 #444, 10px 6px 0 #444, 11px 6px 0 #444, 12px 6px 0 #444, 13px 6px 0 #444;
+  }
+  .px-station-powered {
+    width: 1px; height: 1px; background: transparent;
+    box-shadow:
+      3px 0 0 #2a6a28, 4px 0 0 #2a6a28, 5px 0 0 #2a6a28, 6px 0 0 #2a6a28, 7px 0 0 #2a6a28, 8px 0 0 #2a6a28, 9px 0 0 #2a6a28, 10px 0 0 #2a6a28, 11px 0 0 #2a6a28, 12px 0 0 #2a6a28,
+      2px 1px 0 #2a6a28, 3px 1px 0 #40aa60, 4px 1px 0 #60cc80, 5px 1px 0 #40aa60, 6px 1px 0 #40aa60, 7px 1px 0 #60cc80, 8px 1px 0 #40aa60, 9px 1px 0 #40aa60, 10px 1px 0 #60cc80, 11px 1px 0 #40aa60, 12px 1px 0 #40aa60, 13px 1px 0 #2a6a28,
+      1px 2px 0 #2a6a28, 2px 2px 0 #40aa60, 3px 2px 0 #40aa60, 4px 2px 0 #66ddaa, 5px 2px 0 #40aa60, 6px 2px 0 #60cc80, 7px 2px 0 #40aa60, 8px 2px 0 #40aa60, 9px 2px 0 #66ddaa, 10px 2px 0 #40aa60, 11px 2px 0 #40aa60, 12px 2px 0 #40aa60, 13px 2px 0 #40aa60, 14px 2px 0 #2a6a28,
+      1px 3px 0 #2a6a28, 2px 3px 0 #40aa60, 3px 3px 0 #60cc80, 4px 3px 0 #40aa60, 5px 3px 0 #88eebb, 6px 3px 0 #40aa60, 7px 3px 0 #40aa60, 8px 3px 0 #60cc80, 9px 3px 0 #40aa60, 10px 3px 0 #40aa60, 11px 3px 0 #88eebb, 12px 3px 0 #40aa60, 13px 3px 0 #40aa60, 14px 3px 0 #2a6a28,
+      1px 4px 0 #2a6a28, 2px 4px 0 #40aa60, 3px 4px 0 #40aa60, 4px 4px 0 #40aa60, 5px 4px 0 #40aa60, 6px 4px 0 #66ddaa, 7px 4px 0 #40aa60, 8px 4px 0 #40aa60, 9px 4px 0 #40aa60, 10px 4px 0 #66ddaa, 11px 4px 0 #40aa60, 12px 4px 0 #40aa60, 13px 4px 0 #60cc80, 14px 4px 0 #2a6a28,
+      1px 5px 0 #2a6a28, 2px 5px 0 #40aa60, 3px 5px 0 #40aa60, 4px 5px 0 #60cc80, 5px 5px 0 #40aa60, 6px 5px 0 #40aa60, 7px 5px 0 #60cc80, 8px 5px 0 #40aa60, 9px 5px 0 #40aa60, 10px 5px 0 #40aa60, 11px 5px 0 #40aa60, 12px 5px 0 #60cc80, 13px 5px 0 #40aa60, 14px 5px 0 #2a6a28,
+      2px 6px 0 #2a6a28, 3px 6px 0 #2a6a28, 4px 6px 0 #2a6a28, 5px 6px 0 #2a6a28, 6px 6px 0 #2a6a28, 7px 6px 0 #2a6a28, 8px 6px 0 #2a6a28, 9px 6px 0 #2a6a28, 10px 6px 0 #2a6a28, 11px 6px 0 #2a6a28, 12px 6px 0 #2a6a28, 13px 6px 0 #2a6a28;
+  }
+
+  /* HUD sub-elements for pixel version */
+  .px-combo {
+    display: flex; align-items: center; gap: 1px;
+    background: #ffffff10;
+    padding: 0 1px;
+  }
+  .px-combo-item {
+    width: 4px; height: 3px;
+  }
+  .px-combo-plus { font-size: 3px; color: #f0c040; }
+  .px-combo-timer {
+    width: 12px; height: 2px;
+    background: #222;
+    position: relative;
+  }
+  .px-combo-timer-fill {
+    height: 100%;
+    background: #f0c040;
+  }
+  .px-variety {
+    display: flex; gap: 1px;
+  }
+  .px-vseg {
+    width: 6px; height: 3px;
+    background: #222;
+    position: relative;
+  }
+  .px-vseg .vf { height: 100%; position: absolute; left: 0; top: 0; }
+  .px-inv {
+    display: flex; gap: 1px;
+  }
+  .px-inv-slot {
+    width: 4px; height: 4px;
+    background: #222;
+    border: 1px solid #444;
+  }
+  .px-inv-slot.has { border-color: #5a8a38; }
+  .px-div-tracker { display: flex; gap: 1px; }
+  .px-div-pip {
+    width: 3px; height: 3px;
+    background: #222;
+    border: 1px solid #444;
+  }
+  .px-div-pip.found { background: #3a6a28; border-color: #5a9a38; }
+</style>
+</head>
+<body>
+
+<h1>NutriRun — Levels 2–4 (Pixelated)</h1>
+<p class="page-sub">Same scenes rendered at 240×135 native resolution, scaled 4× for a crunchy pixel art feel. All sprites are box-shadow pixel art.</p>
+
+<!-- ============================================================ -->
+<!-- LEVEL 2 — PROTEIN                                            -->
+<!-- ============================================================ -->
+<div class="scene-wrapper">
+  <div class="scene-title">Level 2 — Protein</div>
+  <div class="scene-sub">Sunset marketplace. Combo mechanic for incomplete proteins.</div>
+
+  <div class="game-frame" style="background: #1a1040;">
+    <!-- Sky bands (no gradients — flat color bands) -->
+    <div style="position:absolute; top:0; left:0; right:0; height:20px; background:#1a1040;"></div>
+    <div style="position:absolute; top:20px; left:0; right:0; height:15px; background:#4a2060;"></div>
+    <div style="position:absolute; top:35px; left:0; right:0; height:15px; background:#cc5544;"></div>
+    <div style="position:absolute; top:50px; left:0; right:0; height:15px; background:#ee8844;"></div>
+    <div style="position:absolute; top:65px; left:0; right:0; height:40px; background:#f0c060;"></div>
+
+    <!-- Pixel clouds -->
+    <div class="pxb" style="top:12px; left:15px; width:16px; height:4px; background:#ffccaa88;"></div>
+    <div class="pxb" style="top:10px; left:18px; width:8px; height:4px; background:#ffccaa88;"></div>
+    <div class="pxb" style="top:8px; left:130px; width:12px; height:3px; background:#ffccaa66;"></div>
+
+    <!-- Market awnings (flat pixel blocks) -->
+    <div class="pxb" style="bottom:52px; left:8px; width:20px; height:12px; background:#cc444466;"></div>
+    <div class="pxb" style="bottom:54px; left:45px; width:18px; height:10px; background:#4488aa55;"></div>
+    <div class="pxb" style="bottom:50px; left:195px; width:22px; height:12px; background:#cc884455;"></div>
+
+    <!-- Background hills (flat) -->
+    <div class="pxb" style="bottom:30px; left:0; width:70px; height:20px; background:#7a605066;"></div>
+    <div class="pxb" style="bottom:30px; left:120px; width:50px; height:14px; background:#7a605055;"></div>
+    <div class="pxb" style="bottom:30px; left:195px; width:45px; height:12px; background:#7a605050;"></div>
+
+    <!-- Ground -->
+    <div class="ground" style="height:30px;">
+      <div style="position:absolute; top:0; left:0; right:0; height:2px; background:#8a7060;"></div>
+      <div style="position:absolute; top:2px; left:0; right:0; height:18px; background:#6a5040;"></div>
+      <div style="position:absolute; bottom:0; left:0; right:0; height:10px; background:#4a3828;"></div>
+    </div>
+
+    <!-- Grass tufts -->
+    <div class="pxb" style="bottom:30px; left:10px; width:2px; height:3px; background:#8a7060;"></div>
+    <div class="pxb" style="bottom:30px; left:50px; width:2px; height:3px; background:#8a7060;"></div>
+    <div class="pxb" style="bottom:30px; left:130px; width:2px; height:3px; background:#8a7060;"></div>
+    <div class="pxb" style="bottom:30px; left:180px; width:2px; height:3px; background:#8a7060;"></div>
+
+    <!-- Platforms -->
+    <div class="plat" style="width:30px; bottom:56px; left:70px; background:#7a6050; border-top:2px solid #8a7868;"></div>
+    <div class="plat" style="width:24px; bottom:76px; left:120px; background:#7a6050; border-top:2px solid #8a7868;"></div>
+    <div class="plat" style="width:32px; bottom:64px; left:170px; background:#7a6050; border-top:2px solid #8a7868;"></div>
+    <div class="plat" style="width:20px; bottom:48px; left:26px; background:#7a6050; border-top:2px solid #8a7868;"></div>
+
+    <!-- Crash Pit -->
+    <div class="px-crashpit" style="bottom:30px; left:100px; width:18px; background:repeating-linear-gradient(90deg, #8a6a30 0px, #8a6a30 2px, #6a5020 2px, #6a5020 4px); border-top:1px solid #aa8840;"></div>
+
+    <!-- Fog Bank -->
+    <div class="px-fog" style="bottom:24px; right:20px; width:30px; height:50px;">
+      <div class="px-fog-block" style="bottom:10px; left:0; width:14px; height:10px;"></div>
+      <div class="px-fog-block" style="bottom:16px; right:0; width:16px; height:12px;"></div>
+      <div class="px-fog-block" style="bottom:28px; left:4px; width:12px; height:8px;"></div>
+      <div class="px-fog-block" style="bottom:4px; left:2px; width:18px; height:8px;"></div>
+    </div>
+
+    <!-- Nibble -->
+    <div class="nibble-px" style="position:absolute; bottom:31px; left:35px;"></div>
+
+    <!-- Food items -->
+    <div class="col" style="bottom:33px; left:65px;"><div class="px-chicken" style="position:relative; width:7px; height:7px;"></div><div class="lbl">Chicken</div></div>
+    <div class="col" style="bottom:33px; left:118px;"><div class="px-egg" style="position:relative; width:6px; height:6px;"></div><div class="lbl">Egg</div></div>
+    <div class="col" style="bottom:33px; left:150px;"><div class="px-beans" style="position:relative; width:7px; height:4px;"></div><div class="lbl" style="color:#ffcc88;">Beans ◇</div></div>
+    <div class="col" style="bottom:60px; left:76px;"><div class="px-fish" style="position:relative; width:8px; height:5px;"></div><div class="lbl">Salmon</div></div>
+    <div class="col" style="bottom:80px; left:128px;"><div class="px-tofu" style="position:relative; width:6px; height:5px;"></div><div class="lbl">Tofu</div></div>
+    <div class="col" style="bottom:52px; left:30px;"><div class="px-yogurt" style="position:relative; width:6px; height:5px;"></div><div class="lbl">Yogurt</div></div>
+    <div class="col" style="bottom:33px; left:176px;"><div class="px-lentils" style="position:relative; width:7px; height:4px;"></div><div class="lbl" style="color:#ffcc88;">Lentils ◇</div></div>
+    <div class="col" style="bottom:68px; left:180px;"><div class="px-rice" style="position:relative; width:8px; height:5px;"></div><div class="lbl" style="color:#ffcc88;">Rice ◇</div></div>
+
+    <!-- Stress Sprites -->
+    <div class="px-stress" style="position:absolute; bottom:40px; left:138px; width:9px; height:7px;"></div>
+    <div class="px-stress" style="position:absolute; bottom:46px; left:148px; width:9px; height:7px;"></div>
+
+    <!-- Fatigue Phantom -->
+    <div class="px-phantom" style="position:absolute; bottom:32px; left:86px; width:10px; height:8px;"></div>
+
+    <!-- Energy Cells -->
+    <div class="ec" style="bottom:40px; left:66px;"></div>
+    <div class="ec" style="bottom:40px; left:72px;"></div>
+    <div class="ec" style="bottom:40px; left:78px;"></div>
+    <div class="ec" style="bottom:68px; left:86px;"></div>
+    <div class="ec" style="bottom:40px; left:130px;"></div>
+    <div class="ec" style="bottom:40px; left:136px;"></div>
+    <div class="ec" style="bottom:88px; left:125px;"></div>
+    <div class="ec" style="bottom:88px; left:131px;"></div>
+    <div class="ec" style="bottom:75px; left:188px;"></div>
+    <div class="ec" style="bottom:75px; left:194px;"></div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Nrg</div>
+        <div class="energy-bar" style="width:30px;"><div class="energy-fill" style="width:65%;"></div></div>
+      </div>
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Protein</div>
+        <div class="energy-bar" style="width:24px; border-color:#ee7766;"><div class="energy-fill" style="width:38%; background:#cc4444;"></div></div>
+      </div>
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Combo</div>
+        <div class="px-combo">
+          <div class="px-combo-item" style="background:#884430;"></div>
+          <div class="px-combo-plus">+</div>
+          <div class="px-combo-item" style="background:#f5f0e0; opacity:0.5;"></div>
+        </div>
+        <div class="px-combo-timer"><div class="px-combo-timer-fill" style="width:65%;"></div></div>
+      </div>
+      <div class="hud-section" style="gap:1px;">
+        <div class="cell-icon"></div>
+        <div class="cell-count">31</div>
+      </div>
+      <div class="hud-section" style="gap:1px;">
+        <span class="star-s">★</span>
+        <span class="star-s empty">★</span>
+        <span class="star-s empty">★</span>
+      </div>
+      <div class="level-tag">L2-PROTEIN</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LEVEL 3 — FATS                                               -->
+<!-- ============================================================ -->
+<div class="scene-wrapper">
+  <div class="scene-title">Level 3 — Fats</div>
+  <div class="scene-sub">Golden Mediterranean. Variety meter tracks four fat types.</div>
+
+  <div class="game-frame" style="background: #48a8d0;">
+    <!-- Sky bands -->
+    <div style="position:absolute; top:0; left:0; right:0; height:25px; background:#2868a0;"></div>
+    <div style="position:absolute; top:25px; left:0; right:0; height:20px; background:#48a8d0;"></div>
+    <div style="position:absolute; top:45px; left:0; right:0; height:15px; background:#78c8e0;"></div>
+    <div style="position:absolute; top:60px; left:0; right:0; height:45px; background:#f0d898;"></div>
+
+    <!-- Sun -->
+    <div class="pxb" style="top:5px; right:18px; width:12px; height:12px; background:#f0d040;"></div>
+
+    <!-- Pixel clouds -->
+    <div class="pxb" style="top:10px; left:20px; width:14px; height:3px; background:#ffffff77;"></div>
+    <div class="pxb" style="top:8px; left:23px; width:6px; height:3px; background:#ffffff77;"></div>
+    <div class="pxb" style="top:16px; left:110px; width:10px; height:3px; background:#ffffff55;"></div>
+
+    <!-- Olive trees (pixel blocks) -->
+    <div class="pxb" style="bottom:32px; left:12px; width:2px; height:8px; background:#7a5a30;"></div>
+    <div class="pxb" style="bottom:38px; left:7px; width:12px; height:6px; background:#5a8a38;"></div>
+    <div class="pxb" style="bottom:42px; left:9px; width:8px; height:4px; background:#4a7a28;"></div>
+    <div class="pxb" style="bottom:32px; right:12px; width:2px; height:7px; background:#7a5a30;"></div>
+    <div class="pxb" style="bottom:37px; right:7px; width:12px; height:6px; background:#5a8a38;"></div>
+    <div class="pxb" style="bottom:41px; right:9px; width:8px; height:4px; background:#4a7a28;"></div>
+
+    <!-- Background hills (flat) -->
+    <div class="pxb" style="bottom:30px; left:0; width:60px; height:16px; background:#c8b06066;"></div>
+    <div class="pxb" style="bottom:30px; left:110px; width:45px; height:12px; background:#c8b06055;"></div>
+    <div class="pxb" style="bottom:30px; left:185px; width:55px; height:14px; background:#c8b06050;"></div>
+
+    <!-- Ground -->
+    <div class="ground" style="height:30px;">
+      <div style="position:absolute; top:0; left:0; right:0; height:2px; background:#c8b060;"></div>
+      <div style="position:absolute; top:2px; left:0; right:0; height:18px; background:#b09848;"></div>
+      <div style="position:absolute; bottom:0; left:0; right:0; height:10px; background:#907838;"></div>
+    </div>
+
+    <!-- Platforms -->
+    <div class="plat" style="width:28px; bottom:58px; left:45px; background:#a09040; border-top:2px solid #c8b060;"></div>
+    <div class="plat" style="width:22px; bottom:76px; left:100px; background:#a09040; border-top:2px solid #c8b060;"></div>
+    <div class="plat" style="width:30px; bottom:66px; left:150px; background:#a09040; border-top:2px solid #c8b060;"></div>
+    <div class="plat" style="width:20px; bottom:50px; left:20px; background:#a09040; border-top:2px solid #c8b060;"></div>
+
+    <!-- Inflammation Zone -->
+    <div class="px-inflam" style="bottom:30px; left:126px; width:20px; height:16px;">
+      <div class="px-inflam-core" style="top:50%; left:50%; transform:translate(-50%,-50%); width:4px; height:4px;"></div>
+    </div>
+
+    <!-- Nibble -->
+    <div class="nibble-px" style="position:absolute; bottom:31px; left:42px;"></div>
+
+    <!-- Food items -->
+    <div class="col" style="bottom:33px; left:68px;"><div class="px-avocado" style="position:relative; width:6px; height:6px;"></div><div class="lbl">Avocado</div></div>
+    <div class="col" style="bottom:33px; left:108px;"><div class="px-cheese" style="position:relative; width:6px; height:5px;"></div><div class="lbl">Cheese</div></div>
+    <div class="col" style="bottom:33px; left:160px;"><div class="px-butter" style="position:relative; width:7px; height:4px;"></div><div class="lbl">Butter</div></div>
+    <div class="col" style="bottom:33px; left:196px;"><div class="px-seeds" style="position:relative; width:7px; height:4px;"></div><div class="lbl">Seeds</div></div>
+    <div class="col" style="bottom:62px; left:50px;"><div class="px-oliveoil" style="position:relative; width:5px; height:7px;"></div><div class="lbl">Olive Oil</div></div>
+    <div class="col" style="bottom:80px; left:104px;"><div class="px-salmon" style="position:relative; width:8px; height:3px;"></div><div class="lbl" style="color:#6699cc;">Salmon ✦</div></div>
+    <div class="col" style="bottom:70px; left:158px;"><div class="px-nuts" style="position:relative; width:6px; height:4px;"></div><div class="lbl">Almonds</div></div>
+
+    <!-- Free Radicals -->
+    <div class="px-radical" style="position:absolute; bottom:38px; left:90px; width:9px; height:7px;"></div>
+    <div class="px-radical" style="position:absolute; bottom:68px; left:140px; width:9px; height:7px;"></div>
+
+    <!-- Energy Cells -->
+    <div class="ec" style="bottom:40px; left:75px;"></div>
+    <div class="ec" style="bottom:40px; left:81px;"></div>
+    <div class="ec" style="bottom:70px; left:58px;"></div>
+    <div class="ec" style="bottom:70px; left:64px;"></div>
+    <div class="ec" style="bottom:88px; left:118px;"></div>
+    <div class="ec" style="bottom:40px; left:175px;"></div>
+    <div class="ec" style="bottom:40px; left:181px;"></div>
+    <div class="ec" style="bottom:78px; left:164px;"></div>
+    <div class="ec" style="bottom:78px; left:170px;"></div>
+    <div class="ec" style="bottom:78px; left:176px;"></div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Nrg</div>
+        <div class="energy-bar" style="width:30px;"><div class="energy-fill" style="width:58%;"></div></div>
+      </div>
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Fats</div>
+        <div class="energy-bar" style="width:20px; border-color:#66bb66;"><div class="energy-fill" style="width:32%; background:#448844;"></div></div>
+        <div class="hud-label">Variety</div>
+        <div class="px-variety">
+          <div class="px-vseg" style="border:1px solid #66bb66;"><div class="vf" style="width:80%; background:#66bb66;"></div></div>
+          <div class="px-vseg" style="border:1px solid #6699cc;"><div class="vf" style="width:40%; background:#6699cc;"></div></div>
+          <div class="px-vseg" style="border:1px solid #9988cc;"></div>
+          <div class="px-vseg" style="border:1px solid #ccaa66;"><div class="vf" style="width:50%; background:#ccaa66;"></div></div>
+        </div>
+      </div>
+      <div class="hud-section" style="gap:1px;">
+        <div class="cell-icon"></div>
+        <div class="cell-count">18</div>
+      </div>
+      <div class="hud-section" style="gap:1px;">
+        <span class="star-s empty">★</span>
+        <span class="star-s empty">★</span>
+        <span class="star-s empty">★</span>
+      </div>
+      <div class="level-tag">L3-FATS</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LEVEL 4 — FIBRE                                              -->
+<!-- ============================================================ -->
+<div class="scene-wrapper">
+  <div class="scene-title">Level 4 — Fibre</div>
+  <div class="scene-sub">Lush forest. Microbiome stations, inventory, fibre diversity tracker.</div>
+
+  <div class="game-frame" style="background: #2a5838;">
+    <!-- Sky / canopy bands -->
+    <div style="position:absolute; top:0; left:0; right:0; height:15px; background:#1a3828;"></div>
+    <div style="position:absolute; top:15px; left:0; right:0; height:15px; background:#2a5838;"></div>
+    <div style="position:absolute; top:30px; left:0; right:0; height:15px; background:#3a7848;"></div>
+    <div style="position:absolute; top:45px; left:0; right:0; height:60px; background:#4a9858;"></div>
+
+    <!-- Vines -->
+    <div class="pxb" style="top:0; left:40px; width:1px; height:28px; background:#4a8a30;"></div>
+    <div class="pxb" style="top:10px; left:38px; width:3px; height:2px; background:#5aaa38;"></div>
+    <div class="pxb" style="top:18px; left:41px; width:3px; height:2px; background:#5aaa38;"></div>
+    <div class="pxb" style="top:0; left:155px; width:1px; height:24px; background:#4a8a30;"></div>
+    <div class="pxb" style="top:9px; left:153px; width:3px; height:2px; background:#5aaa38;"></div>
+    <div class="pxb" style="top:0; left:222px; width:1px; height:20px; background:#4a8a30;"></div>
+    <div class="pxb" style="top:8px; left:220px; width:3px; height:2px; background:#5aaa38;"></div>
+
+    <!-- Dappled light -->
+    <div class="pxb" style="top:25px; left:55px; width:8px; height:6px; background:#c8dc6410;"></div>
+    <div class="pxb" style="top:35px; left:125px; width:6px; height:5px; background:#c8dc6408;"></div>
+    <div class="pxb" style="top:20px; left:190px; width:7px; height:6px; background:#c8dc640c;"></div>
+
+    <!-- Background hills -->
+    <div class="pxb" style="bottom:30px; left:0; width:65px; height:20px; background:#3a682866;"></div>
+    <div class="pxb" style="bottom:30px; left:95px; width:55px; height:16px; background:#3a682855;"></div>
+    <div class="pxb" style="bottom:30px; left:180px; width:60px; height:14px; background:#3a682850;"></div>
+
+    <!-- Mushrooms -->
+    <div class="pxb" style="bottom:32px; left:80px; width:6px; height:3px; background:#cc6644;"></div>
+    <div class="pxb" style="bottom:34px; left:81px; width:4px; height:2px; background:#dd7755;"></div>
+    <div class="pxb" style="bottom:30px; left:82px; width:2px; height:2px; background:#f0e8d0;"></div>
+    <div class="pxb" style="bottom:32px; left:165px; width:6px; height:3px; background:#aa88cc;"></div>
+    <div class="pxb" style="bottom:30px; left:167px; width:2px; height:2px; background:#f0e8d0;"></div>
+
+    <!-- Flowers -->
+    <div class="pxb" style="bottom:31px; left:25px; width:2px; height:2px; background:#ff88aa;"></div>
+    <div class="pxb" style="bottom:29px; left:25px; width:2px; height:2px; background:#3a8a2a;"></div>
+    <div class="pxb" style="bottom:31px; left:110px; width:2px; height:2px; background:#ffcc44;"></div>
+    <div class="pxb" style="bottom:29px; left:110px; width:2px; height:2px; background:#3a8a2a;"></div>
+    <div class="pxb" style="bottom:31px; left:200px; width:2px; height:2px; background:#88aaff;"></div>
+    <div class="pxb" style="bottom:29px; left:200px; width:2px; height:2px; background:#3a8a2a;"></div>
+
+    <!-- Ground -->
+    <div class="ground" style="height:30px;">
+      <div style="position:absolute; top:0; left:0; right:0; height:2px; background:#6a8a38;"></div>
+      <div style="position:absolute; top:2px; left:0; right:0; height:18px; background:#5a4028;"></div>
+      <div style="position:absolute; bottom:0; left:0; right:0; height:10px; background:#3a2818;"></div>
+    </div>
+
+    <!-- Platforms -->
+    <div class="plat" style="width:28px; bottom:58px; left:50px; background:#5a4028; border-top:2px solid #6a8a38;"></div>
+    <div class="plat" style="width:24px; bottom:76px; left:110px; background:#5a4028; border-top:2px solid #6a8a38;"></div>
+    <div class="plat" style="width:30px; bottom:66px; left:170px; background:#5a4028; border-top:2px solid #6a8a38;"></div>
+    <div class="plat" style="width:22px; bottom:48px; left:15px; background:#5a4028; border-top:2px solid #6a8a38;"></div>
+
+    <!-- Crash Pit -->
+    <div class="px-crashpit" style="bottom:30px; left:88px; width:16px; background:repeating-linear-gradient(90deg, #8a6a30 0px, #8a6a30 2px, #6a5020 2px, #6a5020 4px); border-top:1px solid #6a8a38;"></div>
+
+    <!-- Microbiome Stations -->
+    <!-- Station 1: Powered -->
+    <div class="px-station" style="bottom:32px; left:56px;">
+      <div class="px-station-dome"><div class="px-station-powered" style="position:absolute;"></div></div>
+      <div class="px-station-slots" style="margin-top:8px;">
+        <div class="px-station-slot filled"></div>
+        <div class="px-station-slot filled"></div>
+        <div class="px-station-slot filled"></div>
+      </div>
+      <div class="px-station-lbl">Digest ✓</div>
+    </div>
+
+    <!-- Station 2: Unpowered -->
+    <div class="px-station" style="bottom:32px; left:134px;">
+      <div class="px-station-dome"><div class="px-station-unpowered" style="position:absolute;"></div></div>
+      <div class="px-station-slots" style="margin-top:8px;">
+        <div class="px-station-slot filled"></div>
+        <div class="px-station-slot"></div>
+        <div class="px-station-slot"></div>
+      </div>
+      <div class="px-station-lbl" style="color:#888;">Immune</div>
+    </div>
+
+    <!-- Station 3: Unpowered -->
+    <div class="px-station" style="bottom:32px; left:206px;">
+      <div class="px-station-dome"><div class="px-station-unpowered" style="position:absolute;"></div></div>
+      <div class="px-station-slots" style="margin-top:8px;">
+        <div class="px-station-slot"></div>
+        <div class="px-station-slot"></div>
+        <div class="px-station-slot"></div>
+      </div>
+      <div class="px-station-lbl" style="color:#888;">Brain</div>
+    </div>
+
+    <!-- Nibble -->
+    <div class="nibble-px" style="position:absolute; bottom:31px; left:30px;"></div>
+
+    <!-- Food items -->
+    <div class="col" style="bottom:33px; left:100px;"><div class="px-sweetpotato" style="position:relative; width:7px; height:4px;"></div><div class="lbl">Sw Potato</div></div>
+    <div class="col" style="bottom:33px; left:160px;"><div class="px-oats" style="position:relative; width:7px; height:4px;"></div><div class="lbl">Oats</div></div>
+    <div class="col" style="bottom:33px; left:190px;"><div class="px-apple" style="position:relative; width:6px; height:6px;"></div><div class="lbl">Apple</div></div>
+    <div class="col" style="bottom:62px; left:56px;"><div class="px-broccoli" style="position:relative; width:6px; height:7px;"></div><div class="lbl">Broccoli</div></div>
+    <div class="col" style="bottom:80px; left:114px;"><div class="px-raspberries" style="position:relative; width:6px; height:5px;"></div><div class="lbl" style="color:#aaffaa;">Raspberry ✦</div></div>
+    <div class="col" style="bottom:70px; left:180px;"><div class="px-chia" style="position:relative; width:7px; height:4px;"></div><div class="lbl">Chia</div></div>
+    <div class="col" style="bottom:52px; left:20px;"><div class="px-pear" style="position:relative; width:6px; height:7px;"></div><div class="lbl">Pear</div></div>
+
+    <!-- Entropy Blobs -->
+    <div class="px-blob" style="position:absolute; bottom:32px; left:118px; width:10px; height:7px;"></div>
+    <div class="px-blob" style="position:absolute; bottom:68px; left:144px; width:10px; height:7px; transform:scale(0.7);"></div>
+
+    <!-- Fatigue Phantom -->
+    <div class="px-phantom" style="position:absolute; bottom:32px; left:176px; width:10px; height:8px;"></div>
+
+    <!-- Energy Cells -->
+    <div class="ec" style="bottom:40px; left:96px;"></div>
+    <div class="ec" style="bottom:40px; left:102px;"></div>
+    <div class="ec" style="bottom:70px; left:62px;"></div>
+    <div class="ec" style="bottom:70px; left:68px;"></div>
+    <div class="ec" style="bottom:88px; left:120px;"></div>
+    <div class="ec" style="bottom:88px; left:126px;"></div>
+    <div class="ec" style="bottom:78px; left:178px;"></div>
+    <div class="ec" style="bottom:78px; left:184px;"></div>
+    <div class="ec" style="bottom:78px; left:190px;"></div>
+    <div class="ec" style="bottom:40px; left:218px;"></div>
+    <div class="ec" style="bottom:40px; left:224px;"></div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Nrg</div>
+        <div class="energy-bar" style="width:30px;"><div class="energy-fill" style="width:80%;"></div></div>
+      </div>
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Fibre</div>
+        <div class="energy-bar" style="width:20px; border-color:#6699cc;"><div class="energy-fill" style="width:55%; background:#448866;"></div></div>
+        <div class="hud-label">Div</div>
+        <div class="px-div-tracker">
+          <div class="px-div-pip found"></div>
+          <div class="px-div-pip found"></div>
+          <div class="px-div-pip found"></div>
+          <div class="px-div-pip"></div>
+          <div class="px-div-pip"></div>
+        </div>
+      </div>
+      <div class="hud-section" style="flex-direction:column; gap:1px;">
+        <div class="hud-label">Inv</div>
+        <div class="px-inv">
+          <div class="px-inv-slot has" style="background:#d4b87a;"></div>
+          <div class="px-inv-slot has" style="background:#884430;"></div>
+          <div class="px-inv-slot has" style="background:#cc2244;"></div>
+          <div class="px-inv-slot has" style="background:#a8c840;"></div>
+          <div class="px-inv-slot"></div>
+          <div class="px-inv-slot"></div>
+        </div>
+      </div>
+      <div class="hud-section" style="gap:1px;">
+        <div class="cell-icon"></div>
+        <div class="cell-count">42</div>
+      </div>
+      <div class="hud-section" style="gap:1px;">
+        <span class="star-s">★</span>
+        <span class="star-s">★</span>
+        <span class="star-s empty">★</span>
+      </div>
+      <div class="level-tag">L4-FIBRE</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

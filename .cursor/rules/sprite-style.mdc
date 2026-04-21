@@ -1,0 +1,46 @@
+# Sprite Style Rules
+
+These rules apply to all sprite/texture generation in the game.
+
+## Reference Files
+
+- **Food items**: `mockups/food-items-sprites.html` — exact CSS class colors and shapes
+- **Enemies & hazards**: `mockups/enemies-hazards-transparent.html` — bold outlined style
+
+## Texture Padding (Critical)
+
+All programmatically generated textures MUST include **2px padding** on every side. Phaser's `strokeRect`/`strokeCircle` centers strokes on the path edge, so without padding the outer half of the stroke gets clipped at the texture boundary.
+
+Pattern:
+```
+const P = 2;
+g.fillRoundedRect(P, P, shapeW, shapeH, ...);
+g.lineStyle(2, outlineColor);
+g.strokeRoundedRect(P, P, shapeW, shapeH, ...);
+g.generateTexture(key, shapeW + 2*P, shapeH + 2*P);
+```
+
+The FOOD_DEFS `w`/`h` values must match the full texture size (including padding).
+
+## Food Item Outlines
+
+- **2px** stroke width
+- Outline colors come **exactly from the CSS border values** in `food-items-sprites.html` — not approximations
+- Example: Bread `#e8b84c` / border `#b8882a`; Apple `#dd3333` / border `#991818`
+- Never use black (#222 or #000) for food outlines
+
+## Enemy Style — Bold Outlined
+
+Enemies use **solid fills with 3px bold outlines** matching `enemies-hazards-transparent.html`.
+
+- Phantom: solid `#8866aa` body, `3px solid #4a3460` border, dome top (50% 50% 0 0)
+- Phantom eyes: flat slit bars (`10×3px`) in `#4a3460` — NOT glowing circles
+- Phantom tail: 4 wisps with left/right/bottom borders in `#4a3460`
+- All enemies get bold colored outlines matching their reference CSS class
+
+## Hazard Outlines
+
+Hazards use **full 3px borders** in dark thematic colors matching `enemies-hazards-transparent.html`.
+
+- Crash Pit: `3px solid #3a2a10` full border, `border-radius: 3px`, striped fill 5px alternating `#8a6a30`/`#6a5020`
+- Wave text: `#aa8840` centered above the pit

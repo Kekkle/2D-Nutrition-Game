@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriRun — Style B: Modern Flat / Vector</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f0f1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #fff;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 18px;
+    color: #ffb347;
+    margin-bottom: 6px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+  .game-frame {
+    width: 960px;
+    height: 540px;
+    border: 2px solid #ffb34744;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1a2a4a 0%, #2a4a6a 35%, #3a6a5a 60%, #4a8a5a 75%, #4a8a5a 100%);
+  }
+
+  /* Gradient sky overlay */
+  .sky-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(180deg, #0d1b2a 0%, #1b3a5a 50%, #2a5a7a 100%);
+    opacity: 0.6;
+  }
+
+  /* Stars in sky */
+  .star-bg {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+
+  /* Moon */
+  .moon {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle at 60% 40%, #ffeedd, #ddccaa);
+    border-radius: 50%;
+    top: 30px;
+    right: 80px;
+    box-shadow: 0 0 30px #ffeedd33, 0 0 60px #ffeedd11;
+    opacity: 0.9;
+  }
+  .moon-crater {
+    position: absolute;
+    border-radius: 50%;
+    background: #ddcc9933;
+  }
+
+  /* Clouds — soft, translucent */
+  .cloud-m {
+    position: absolute;
+    background: rgba(255,255,255,0.06);
+    border-radius: 30px;
+    backdrop-filter: blur(2px);
+  }
+
+  /* Background mountains */
+  .mountain {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+  .mtn-1 {
+    border-width: 0 200px 160px 200px;
+    border-color: transparent transparent #2a4a3a transparent;
+    bottom: 140px;
+    left: -100px;
+    opacity: 0.5;
+  }
+  .mtn-2 {
+    border-width: 0 160px 130px 160px;
+    border-color: transparent transparent #2a5a3a transparent;
+    bottom: 140px;
+    left: 250px;
+    opacity: 0.4;
+  }
+  .mtn-3 {
+    border-width: 0 180px 140px 180px;
+    border-color: transparent transparent #2a4a3a transparent;
+    bottom: 140px;
+    right: -60px;
+    opacity: 0.45;
+  }
+
+  /* Trees — simple geometric */
+  .tree {
+    position: absolute;
+  }
+  .tree-trunk {
+    width: 8px;
+    height: 28px;
+    background: #5a4030;
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+  .tree-crown {
+    width: 0;
+    height: 0;
+    border-left: 22px solid transparent;
+    border-right: 22px solid transparent;
+    border-bottom: 36px solid #2a6a3a;
+    position: relative;
+  }
+  .tree-crown::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -18px;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 30px solid #3a7a4a;
+  }
+
+  /* Ground — rich, layered */
+  .ground-m {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 140px;
+    background: linear-gradient(180deg, #4a8a3a 0%, #3a7a2a 20%, #5a4a2a 40%, #4a3a20 100%);
+    border-radius: 40px 40px 0 0;
+  }
+  .ground-grass {
+    position: absolute;
+    bottom: 138px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(90deg, #5aa03a, #6ab04a, #4a903a, #5aa03a, #6ab04a);
+    border-radius: 4px;
+  }
+
+  /* Platforms — clean rounded style */
+  .plat-m {
+    position: absolute;
+    height: 20px;
+    background: linear-gradient(180deg, #6ab04a, #4a903a);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .plat-m::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 8px;
+    right: 8px;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+  }
+
+  /* Player character — modern, clean */
+  .player-m {
+    position: absolute;
+    bottom: 142px;
+    left: 170px;
+  }
+  .pm-body {
+    width: 30px;
+    height: 32px;
+    background: linear-gradient(180deg, #4a9ae8, #3a7ac8);
+    border-radius: 8px 8px 4px 4px;
+    position: relative;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(58,122,200,0.4);
+  }
+  .pm-head {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(180deg, #ffcc88, #eebb77);
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto 2px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .pm-eye {
+    position: absolute;
+    width: 5px;
+    height: 6px;
+    background: #2a3a4a;
+    border-radius: 50%;
+    top: 13px;
+  }
+  .pm-eye.left { left: 8px; }
+  .pm-eye.right { right: 8px; }
+  .pm-eyeshine {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    top: 1px;
+    right: 0;
+  }
+  .pm-smile {
+    position: absolute;
+    width: 10px;
+    height: 5px;
+    border-bottom: 2px solid #cc8855;
+    border-radius: 0 0 50% 50%;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .pm-hair {
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    right: 2px;
+    height: 14px;
+    background: #6a3a1a;
+    border-radius: 14px 14px 0 0;
+  }
+  .pm-legs {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+  }
+  .pm-leg {
+    width: 10px;
+    height: 14px;
+    background: linear-gradient(180deg, #5a6a7a, #4a5a6a);
+    border-radius: 0 0 4px 4px;
+  }
+  .pm-shoe {
+    width: 14px;
+    height: 6px;
+    background: #e85a3a;
+    border-radius: 2px 6px 4px 2px;
+    margin-left: -2px;
+  }
+  .pm-arm {
+    position: absolute;
+    width: 8px;
+    height: 18px;
+    background: #4a9ae8;
+    border-radius: 4px;
+    top: 4px;
+  }
+  .pm-arm.left { left: -6px; transform: rotate(20deg); }
+  .pm-arm.right { right: -6px; transform: rotate(-30deg); }
+  .pm-hand {
+    width: 8px;
+    height: 8px;
+    background: #ffcc88;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -2px;
+  }
+
+  /* Player glow */
+  .pm-glow {
+    position: absolute;
+    bottom: 132px;
+    left: 155px;
+    width: 70px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,154,232,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Food items — modern, smooth */
+  .food-m {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .food-m .fname {
+    font-size: 9px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 3px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .food-m .fname.fibre {
+    color: #a0e8a0;
+  }
+
+  /* Bread — modern */
+  .bread-m {
+    width: 28px;
+    height: 24px;
+    background: linear-gradient(180deg, #d4a040, #c89030);
+    border-radius: 10px 10px 4px 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .bread-m::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+
+  /* Brown bread */
+  .bread-brown-m {
+    width: 28px;
+    height: 24px;
+    background: linear-gradient(180deg, #8a5a20, #6a4a18);
+    border-radius: 10px 10px 4px 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .bread-brown-m::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    width: 3px;
+    height: 3px;
+    background: #b89050;
+    border-radius: 50%;
+    box-shadow: 5px 2px 0 #b89050, 10px 0 0 #b89050, 3px 6px 0 #b89050;
+  }
+
+  /* Banana — modern */
+  .banana-m {
+    width: 30px;
+    height: 16px;
+    background: linear-gradient(180deg, #ffe040, #f0c820);
+    border-radius: 20px 20px 6px 6px;
+    transform: rotate(-10deg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+
+  /* Apple — modern */
+  .apple-m {
+    width: 24px;
+    height: 26px;
+    background: radial-gradient(circle at 35% 30%, #ff5544, #cc2222);
+    border-radius: 50% 50% 45% 45%;
+    box-shadow: 0 2px 8px rgba(204,34,34,0.4);
+    position: relative;
+  }
+  .apple-m::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 6px;
+    background: #5a3a1a;
+    border-radius: 1px;
+  }
+  .apple-m::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 5px;
+    width: 8px;
+    height: 6px;
+    background: #4aaa3a;
+    border-radius: 50% 80% 0 50%;
+    transform: rotate(20deg);
+  }
+  .apple-shine {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 6px;
+    height: 8px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: rotate(-20deg);
+  }
+
+  /* Rice — modern */
+  .rice-m {
+    width: 30px;
+    height: 22px;
+    background: linear-gradient(180deg, #f5f0e0, #e0d8c0);
+    border-radius: 6px 6px 14px 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .rice-m::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 6px;
+    width: 5px;
+    height: 5px;
+    background: #f5f0e0;
+    border-radius: 50%;
+    box-shadow: 6px -1px 0 #f0ead0, 12px 0 0 #f5f0e0;
+  }
+
+  /* Oats — modern */
+  .oats-m {
+    width: 28px;
+    height: 20px;
+    background: linear-gradient(180deg, #d4b87a, #c0a060);
+    border-radius: 6px 6px 12px 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .oats-m::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    box-shadow: 0 4px 0 rgba(255,255,255,0.15);
+  }
+
+  /* Pasta — modern */
+  .pasta-m {
+    width: 26px;
+    height: 26px;
+    border: 4px solid #f0d870;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    background: #e8c840;
+    position: relative;
+  }
+  .pasta-m::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+  }
+
+  /* Orange */
+  .orange-m {
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle at 35% 30%, #ffaa30, #ee8810);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(238,136,16,0.4);
+    position: relative;
+  }
+  .orange-m::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: #4aaa3a;
+    border-radius: 50%;
+  }
+
+  /* Energy Cells — modern glowing */
+  .ecell-m {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle at 40% 35%, #a0ffd0, #30dd88);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(48,221,136,0.5), 0 0 16px rgba(48,221,136,0.2);
+  }
+  .ecell-m::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 6px;
+    height: 5px;
+    background: rgba(255,255,255,0.45);
+    border-radius: 50%;
+  }
+
+  /* Fatigue Phantom — modern, ethereal */
+  .phantom-m {
+    position: absolute;
+  }
+  .pm-phantom-body {
+    width: 44px;
+    height: 40px;
+    background: radial-gradient(ellipse at 50% 40%, rgba(140,100,180,0.7), rgba(80,60,120,0.3));
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+    filter: blur(0.5px);
+    box-shadow: 0 0 20px rgba(140,100,180,0.3);
+  }
+  .pm-phantom-eye {
+    position: absolute;
+    width: 10px;
+    height: 12px;
+    background: radial-gradient(circle, #ddbbff, #aa88dd);
+    border-radius: 50%;
+    top: 12px;
+    box-shadow: 0 0 6px rgba(170,136,221,0.6);
+  }
+  .pm-phantom-eye.left { left: 8px; }
+  .pm-phantom-eye.right { right: 8px; }
+  .pm-phantom-pupil {
+    width: 4px;
+    height: 5px;
+    background: #4a2a6a;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 3px;
+  }
+  .pm-phantom-trail {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-top: -2px;
+  }
+  .pm-phantom-wisp {
+    width: 10px;
+    height: 16px;
+    background: linear-gradient(180deg, rgba(140,100,180,0.4), transparent);
+    border-radius: 0 0 50% 50%;
+  }
+
+  /* Crash pit — modern */
+  .crash-m {
+    position: absolute;
+    bottom: 140px;
+    height: 14px;
+    background: linear-gradient(180deg, #8a7a40, #6a5a20);
+    border-radius: 8px;
+    opacity: 0.8;
+    box-shadow: 0 0 10px rgba(138,122,64,0.3);
+  }
+  .crash-m::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 10px;
+    right: 10px;
+    height: 6px;
+    background: linear-gradient(90deg, transparent, rgba(200,180,100,0.3), transparent);
+    border-radius: 4px;
+  }
+
+  /* Fibre sparkle — modern */
+  .sparkle-m {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+  }
+  .sparkle-m::before {
+    content: '✦';
+    color: #80ee80;
+    font-size: 11px;
+    text-shadow: 0 0 4px #80ee8088;
+  }
+
+  /* HUD — modern, clean */
+  .hud-m {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background: linear-gradient(180deg, rgba(10,15,30,0.85) 0%, rgba(10,15,30,0.4) 80%, transparent 100%);
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 20px;
+    gap: 28px;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+  .hud-m-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hud-m-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .bar-m-bg {
+    height: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+  }
+  .energy-bar-m { width: 220px; }
+  .collection-bar-m { width: 190px; }
+  .bar-m-fill {
+    height: 100%;
+    border-radius: 5px;
+    position: relative;
+  }
+  .bar-m-fill::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 4px;
+    right: 30%;
+    height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+  }
+  .bar-energy-fill {
+    width: 72%;
+    background: linear-gradient(90deg, #30bb60, #60ee50);
+    box-shadow: 0 0 8px rgba(96,238,80,0.4);
+  }
+  .bar-collection-fill {
+    width: 45%;
+    background: linear-gradient(90deg, #d4a040, #f0c840);
+    box-shadow: 0 0 8px rgba(240,200,64,0.3);
+  }
+  .fibre-m-indicator {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 1px;
+  }
+  .fibre-m-label {
+    font-size: 8px;
+    color: #80dd80;
+    letter-spacing: 1px;
+  }
+  .fibre-m-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid #4aaa4a55;
+  }
+  .fibre-m-dot.on {
+    background: #60cc60;
+    box-shadow: 0 0 4px rgba(96,204,96,0.5);
+  }
+  .fibre-m-dot.off { background: rgba(255,255,255,0.06); }
+
+  .ecell-counter-m {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ecell-icon-m {
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 40% 35%, #a0ffd0, #30dd88);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(48,221,136,0.4);
+  }
+  .ecell-num-m {
+    font-size: 15px;
+    color: #80ffc0;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .stars-m {
+    display: flex;
+    gap: 3px;
+  }
+  .star-m {
+    font-size: 13px;
+  }
+  .star-m.on { color: #ffcc40; text-shadow: 0 0 6px rgba(255,204,64,0.4); }
+  .star-m.off { color: rgba(255,255,255,0.15); }
+
+  .level-tag-m {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* Decorative bushes */
+  .bush-m {
+    position: absolute;
+    border-radius: 50% 50% 20% 20%;
+    background: radial-gradient(ellipse, #4a9a3a, #3a7a2a);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* Fireflies / particles */
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255,255,200,0.4);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255,255,200,0.3);
+  }
+</style>
+</head>
+<body>
+  <h1>Style B: Modern Flat / Vector</h1>
+  <p class="subtitle">NutriRun — Level 1: Carbohydrates — Gameplay Mockup</p>
+
+  <div class="game-frame">
+    <!-- Sky gradient -->
+    <div class="sky-gradient"></div>
+
+    <!-- Stars in sky -->
+    <div class="star-bg" style="top: 20px; left: 120px;"></div>
+    <div class="star-bg" style="top: 45px; left: 300px; width: 2px; height: 2px;"></div>
+    <div class="star-bg" style="top: 15px; left: 450px;"></div>
+    <div class="star-bg" style="top: 55px; left: 600px; width: 2px; height: 2px;"></div>
+    <div class="star-bg" style="top: 30px; left: 820px;"></div>
+    <div class="star-bg" style="top: 60px; left: 180px; width: 2px; height: 2px;"></div>
+
+    <!-- Moon -->
+    <div class="moon">
+      <div class="moon-crater" style="width: 8px; height: 8px; top: 12px; left: 15px;"></div>
+      <div class="moon-crater" style="width: 5px; height: 5px; top: 28px; left: 32px;"></div>
+      <div class="moon-crater" style="width: 6px; height: 6px; top: 18px; left: 36px;"></div>
+    </div>
+
+    <!-- Clouds -->
+    <div class="cloud-m" style="width: 120px; height: 20px; top: 80px; left: 80px;"></div>
+    <div class="cloud-m" style="width: 80px; height: 14px; top: 60px; left: 500px;"></div>
+    <div class="cloud-m" style="width: 100px; height: 16px; top: 90px; left: 720px;"></div>
+
+    <!-- Mountains -->
+    <div class="mtn-1"></div>
+    <div class="mtn-2"></div>
+    <div class="mtn-3"></div>
+
+    <!-- Trees -->
+    <div class="tree" style="bottom: 145px; left: 50px;">
+      <div class="tree-crown"></div>
+      <div class="tree-trunk"></div>
+    </div>
+    <div class="tree" style="bottom: 145px; left: 350px; transform: scale(0.8);">
+      <div class="tree-crown"></div>
+      <div class="tree-trunk"></div>
+    </div>
+    <div class="tree" style="bottom: 145px; left: 560px; transform: scale(0.9);">
+      <div class="tree-crown"></div>
+      <div class="tree-trunk"></div>
+    </div>
+    <div class="tree" style="bottom: 145px; left: 850px;">
+      <div class="tree-crown"></div>
+      <div class="tree-trunk"></div>
+    </div>
+
+    <!-- Bushes -->
+    <div class="bush-m" style="width: 40px; height: 22px; bottom: 143px; left: 120px;"></div>
+    <div class="bush-m" style="width: 30px; height: 18px; bottom: 143px; left: 440px;"></div>
+    <div class="bush-m" style="width: 35px; height: 20px; bottom: 143px; left: 680px;"></div>
+    <div class="bush-m" style="width: 28px; height: 16px; bottom: 143px; left: 920px;"></div>
+
+    <!-- Particles / fireflies -->
+    <div class="particle" style="top: 200px; left: 300px;"></div>
+    <div class="particle" style="top: 250px; left: 550px;"></div>
+    <div class="particle" style="top: 180px; left: 700px;"></div>
+    <div class="particle" style="top: 280px; left: 150px;"></div>
+    <div class="particle" style="top: 220px; left: 880px;"></div>
+
+    <!-- Ground -->
+    <div class="ground-grass"></div>
+    <div class="ground-m"></div>
+
+    <!-- Platforms -->
+    <div class="plat-m" style="width: 130px; bottom: 240px; left: 200px;"></div>
+    <div class="plat-m" style="width: 110px; bottom: 320px; left: 420px;"></div>
+    <div class="plat-m" style="width: 150px; bottom: 280px; left: 640px;"></div>
+    <div class="plat-m" style="width: 90px; bottom: 200px; left: 80px;"></div>
+
+    <!-- Crash Pit -->
+    <div class="crash-m" style="left: 360px; width: 80px;"></div>
+
+    <!-- Player -->
+    <div class="pm-glow"></div>
+    <div class="player-m">
+      <div class="pm-head">
+        <div class="pm-hair"></div>
+        <div class="pm-eye left"><div class="pm-eyeshine"></div></div>
+        <div class="pm-eye right"><div class="pm-eyeshine"></div></div>
+        <div class="pm-smile"></div>
+      </div>
+      <div style="position: relative;">
+        <div class="pm-arm left"><div class="pm-hand"></div></div>
+        <div class="pm-body"></div>
+        <div class="pm-arm right"><div class="pm-hand"></div></div>
+      </div>
+      <div class="pm-legs">
+        <div class="pm-leg" style="transform: skewX(-8deg);"><div class="pm-shoe"></div></div>
+        <div class="pm-leg"><div class="pm-shoe"></div></div>
+      </div>
+    </div>
+
+    <!-- Food collectibles -->
+    <div class="food-m" style="bottom: 155px; left: 280px;">
+      <div class="bread-m"></div>
+      <div class="fname">Bread</div>
+    </div>
+    <div class="food-m" style="bottom: 155px; left: 470px;">
+      <div class="banana-m"></div>
+      <div class="fname fibre">Banana ✦</div>
+    </div>
+    <div class="food-m" style="bottom: 155px; left: 600px;">
+      <div class="rice-m"></div>
+      <div class="fname">Rice</div>
+    </div>
+    <div class="food-m" style="bottom: 155px; left: 820px;">
+      <div class="orange-m"></div>
+      <div class="fname fibre">Orange ✦</div>
+    </div>
+
+    <!-- Food on platforms -->
+    <div class="food-m" style="bottom: 268px; left: 235px;">
+      <div class="apple-m"><div class="apple-shine"></div></div>
+      <div class="sparkle-m" style="top: -6px; right: -8px;"></div>
+      <div class="fname fibre">Apple ✦</div>
+    </div>
+    <div class="food-m" style="bottom: 348px; left: 450px;">
+      <div class="oats-m"></div>
+      <div class="sparkle-m" style="top: -6px; right: -8px;"></div>
+      <div class="fname fibre">Oats ✦</div>
+    </div>
+    <div class="food-m" style="bottom: 308px; left: 690px;">
+      <div class="bread-brown-m"></div>
+      <div class="sparkle-m" style="top: -6px; right: -8px;"></div>
+      <div class="fname fibre">Whole Grain ✦</div>
+    </div>
+    <div class="food-m" style="bottom: 228px; left: 100px;">
+      <div class="pasta-m"></div>
+      <div class="fname">Pasta</div>
+    </div>
+
+    <!-- Energy Cells -->
+    <div class="ecell-m" style="bottom: 178px; left: 242px;"></div>
+    <div class="ecell-m" style="bottom: 178px; left: 268px;"></div>
+    <div class="ecell-m" style="bottom: 178px; left: 294px;"></div>
+    <div class="ecell-m" style="bottom: 278px; left: 318px;"></div>
+    <div class="ecell-m" style="bottom: 298px; left: 344px;"></div>
+    <div class="ecell-m" style="bottom: 178px; left: 530px;"></div>
+    <div class="ecell-m" style="bottom: 178px; left: 556px;"></div>
+    <div class="ecell-m" style="bottom: 368px; left: 500px;"></div>
+    <div class="ecell-m" style="bottom: 178px; left: 700px;"></div>
+    <div class="ecell-m" style="bottom: 178px; left: 726px;"></div>
+    <div class="ecell-m" style="bottom: 178px; left: 752px;"></div>
+    <div class="ecell-m" style="bottom: 320px; left: 670px;"></div>
+    <div class="ecell-m" style="bottom: 320px; left: 696px;"></div>
+    <div class="ecell-m" style="bottom: 320px; left: 770px;"></div>
+
+    <!-- Fatigue Phantom -->
+    <div class="phantom-m" style="bottom: 148px; left: 730px;">
+      <div class="pm-phantom-body">
+        <div class="pm-phantom-eye left"><div class="pm-phantom-pupil"></div></div>
+        <div class="pm-phantom-eye right"><div class="pm-phantom-pupil"></div></div>
+      </div>
+      <div class="pm-phantom-trail">
+        <div class="pm-phantom-wisp"></div>
+        <div class="pm-phantom-wisp"></div>
+        <div class="pm-phantom-wisp"></div>
+        <div class="pm-phantom-wisp"></div>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud-m">
+      <div class="hud-m-section">
+        <div class="hud-m-label">Energy</div>
+        <div class="bar-m-bg energy-bar-m">
+          <div class="bar-m-fill bar-energy-fill"></div>
+        </div>
+      </div>
+      <div class="hud-m-section">
+        <div class="hud-m-label">Carbs Collected</div>
+        <div class="bar-m-bg collection-bar-m">
+          <div class="bar-m-fill bar-collection-fill"></div>
+        </div>
+        <div class="fibre-m-indicator">
+          <span class="fibre-m-label">Fibre</span>
+          <div class="fibre-m-dot on"></div>
+          <div class="fibre-m-dot on"></div>
+          <div class="fibre-m-dot off"></div>
+          <div class="fibre-m-dot off"></div>
+          <div class="fibre-m-dot off"></div>
+          <div class="fibre-m-dot off"></div>
+        </div>
+      </div>
+      <div class="hud-m-section">
+        <div class="ecell-counter-m">
+          <div class="ecell-icon-m"></div>
+          <span class="ecell-num-m">23</span>
+        </div>
+        <div class="stars-m">
+          <span class="star-m on">&#9733;</span>
+          <span class="star-m off">&#9733;</span>
+          <span class="star-m off">&#9733;</span>
+        </div>
+      </div>
+      <div class="level-tag-m">L1 — Carbohydrates</div>
+    </div>
+  </div>
+</body>
+</html>
