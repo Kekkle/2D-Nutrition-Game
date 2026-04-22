@@ -12,19 +12,20 @@ All copy has been checked against `.cursor/rules/content-guardrails.mdc`.
 ┌──────────────────────────────────────────────┐
 │  LEVEL 1: CARBOHYDRATES                      │
 │                                              │
-│  [Icons: bread, rice, banana, potato]        │
+│                                              │
 │                                              │
 │  "Carbs are your body's preferred            │
-│   quick-energy fuel. They break down into    │
-│   glucose, which powers your muscles and     │
-│   your brain."                               │
+│   fuel source. They break down into          │
+│   glucose, which powers every cell in your   │
+│  body."                                      │
 │                                              │
-│  YOUR MISSION: Collect all the carb-rich     │
-│  foods! Some also contain fibre — grab       │
-│  those for bonus points.                     │
+│  YOUR MISSION: Collect all the carbs.        │
+│  Bonus points are awarded for collecting     │
+│  all fibre-rich carbs as well.               │
+│                                              │
 │                                              │
 │  WATCH OUT: Fatigue Phantoms drain your      │
-│  energy if they catch you!                   │
+│  energy ... if they catch you!                   │
 │                                              │
 │              [ START ]                       │
 └──────────────────────────────────────────────┘

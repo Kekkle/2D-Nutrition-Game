@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NutriRun — Instruction Splash Mockups (3 Versions)</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<title>NutriRun — Instruction Splash (Version C — Typewriter)</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -15,46 +15,23 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 60px;
+    gap: 48px;
   }
 
   .page-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
+    font-family: 'Special Elite', monospace;
+    font-size: 20px;
     color: #f0c040;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     text-align: center;
-    line-height: 1.8;
+    text-transform: uppercase;
   }
   .page-subtitle {
-    font-size: 12px;
-    color: #888;
-    text-align: center;
-    margin-top: 6px;
-    font-family: 'Courier New', monospace;
-  }
-
-  .version-label {
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    color: #666;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-  .version-name {
-    font-size: 16px;
-    color: #f0c040;
-    margin-bottom: 4px;
-    text-align: center;
-  }
-  .version-desc {
-    font-size: 11px;
+    font-family: 'Special Elite', monospace;
+    font-size: 13px;
     color: #777;
     text-align: center;
-    margin-bottom: 20px;
-    max-width: 500px;
+    margin-top: 6px;
   }
 
   .mockup-wrapper {
@@ -64,8 +41,17 @@
     gap: 8px;
   }
 
+  .level-label {
+    font-family: 'Special Elite', monospace;
+    font-size: 12px;
+    color: #555;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
   /* ═══════════════════════════════════════════
-     SHARED: game-frame backdrop for all versions
+     Game frame backdrop
      ═══════════════════════════════════════════ */
   .game-frame {
     width: 960px;
@@ -77,7 +63,6 @@
     image-rendering: pixelated;
     background: linear-gradient(180deg, #3a7ecf 0%, #5fa8d3 40%, #5fa8d3 100%);
   }
-
   .ground {
     position: absolute;
     bottom: 0; left: 0; right: 0;
@@ -118,507 +103,13 @@
     top: 20px; right: 60px;
     box-shadow: 0 0 20px #f0c04088, 0 0 40px #f0c04044;
   }
-
   .dimmer {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.55);
+    background: rgba(0,0,0,0.58);
     z-index: 2;
   }
 
-  /* ═══════════════════════════════════════════
-     VERSION A — Pixel Typewriter + Icons
-     ═══════════════════════════════════════════ */
-  .splash-a {
-    position: absolute;
-    z-index: 3;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 620px;
-    background: #12121f;
-    border: 4px solid #f0c040;
-    border-radius: 4px;
-    padding: 0;
-    image-rendering: pixelated;
-    box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 60px rgba(240,192,64,0.03);
-  }
-  .splash-a .sa-header {
-    background: #f0c040;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .splash-a .sa-header-text {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 13px;
-    color: #12121f;
-    letter-spacing: 1px;
-  }
-  .splash-a .sa-level-num {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
-    color: #12121f;
-    background: rgba(0,0,0,0.15);
-    padding: 3px 8px;
-    border-radius: 2px;
-  }
-
-  .splash-a .sa-body {
-    padding: 24px 28px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .splash-a .sa-icons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    padding: 8px 0;
-  }
-  .sa-icon-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-  .sa-icon-item .sa-icon-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 6px;
-    color: #888;
-    letter-spacing: 0.5px;
-  }
-
-  .splash-a .sa-fact {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 17px;
-    color: #e8e0d0;
-    line-height: 1.7;
-    text-align: center;
-    padding: 0 12px;
-  }
-
-  .splash-a .sa-divider {
-    height: 2px;
-    background: repeating-linear-gradient(90deg, #f0c04044 0px, #f0c04044 6px, transparent 6px, transparent 12px);
-  }
-
-  .splash-a .sa-mission {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .splash-a .sa-mission-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
-    color: #f0c040;
-    letter-spacing: 2px;
-  }
-  .splash-a .sa-mission-text {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 15px;
-    color: #ccc;
-    line-height: 1.6;
-  }
-
-  .splash-a .sa-hazard {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .splash-a .sa-hazard-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .splash-a .sa-hazard-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
-    color: #cc6666;
-    letter-spacing: 1px;
-  }
-  .splash-a .sa-hazard-text {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 14px;
-    color: #aa8888;
-    line-height: 1.5;
-  }
-
-  .splash-a .sa-start-btn {
-    align-self: center;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    color: #12121f;
-    background: #f0c040;
-    border: none;
-    padding: 12px 40px;
-    cursor: pointer;
-    letter-spacing: 2px;
-    border-radius: 2px;
-    margin-top: 4px;
-    box-shadow: 0 4px 0 #c89c20;
-    transition: transform 0.1s;
-  }
-  .splash-a .sa-start-btn:hover {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 #c89c20;
-  }
-
-  /* Pixel-art food icons for Version A */
-  .px-bread {
-    width: 36px; height: 30px;
-    background: #e8b84c;
-    border: 3px solid #c89030;
-    border-radius: 8px 8px 3px 3px;
-    position: relative;
-  }
-  .px-bread::after {
-    content: '';
-    position: absolute;
-    top: 5px; left: 4px; right: 4px;
-    height: 4px;
-    background: #d4a040;
-    border-radius: 2px;
-  }
-  .px-rice {
-    width: 40px; height: 26px;
-    background: #f5f0e0;
-    border: 3px solid #d0c8a8;
-    border-radius: 5px 5px 14px 14px;
-    position: relative;
-  }
-  .px-rice::before {
-    content: '';
-    position: absolute;
-    top: -5px; left: 6px;
-    width: 5px; height: 5px;
-    background: #f5f0e0;
-    border-radius: 50%;
-    box-shadow: 8px -1px 0 #f5f0e0, 16px 0 0 #f5f0e0;
-  }
-  .px-banana {
-    width: 38px; height: 20px;
-    background: #f0d040;
-    border: 3px solid #c8a820;
-    border-radius: 16px 16px 5px 5px;
-    transform: rotate(-12deg);
-  }
-  .px-potato {
-    width: 36px; height: 26px;
-    background: #c8a060;
-    border: 3px solid #a08040;
-    border-radius: 50%;
-  }
-
-  /* ═══════════════════════════════════════════
-     VERSION B — Clean Geometric Sans + Icons
-     ═══════════════════════════════════════════ */
-  .splash-b {
-    position: absolute;
-    z-index: 3;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 580px;
-    background: linear-gradient(160deg, #1a1a30 0%, #14142a 100%);
-    border: 2px solid rgba(240,192,64,0.3);
-    border-radius: 16px;
-    padding: 0;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 100px rgba(240,192,64,0.05);
-    overflow: hidden;
-  }
-
-  .splash-b .sb-accent-bar {
-    height: 4px;
-    background: linear-gradient(90deg, #f0c040, #e88040, #f0c040);
-  }
-
-  .splash-b .sb-header {
-    padding: 24px 32px 0;
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-  }
-  .splash-b .sb-level-badge {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 12px;
-    color: #f0c040;
-    background: rgba(240,192,64,0.12);
-    padding: 4px 10px;
-    border-radius: 20px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .splash-b .sb-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 26px;
-    color: #fff;
-    letter-spacing: -0.5px;
-  }
-
-  .splash-b .sb-body {
-    padding: 20px 32px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .splash-b .sb-icons {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    padding: 12px 0 4px;
-  }
-  .sb-icon-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-  .sb-icon-item .sb-icon-label {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 11px;
-    color: #777;
-    font-weight: 600;
-  }
-  .sb-icon-box {
-    width: 56px; height: 56px;
-    background: rgba(255,255,255,0.04);
-    border: 2px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .splash-b .sb-fact {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 16px;
-    color: #ccc8c0;
-    line-height: 1.7;
-    text-align: center;
-    font-weight: 400;
-  }
-  .splash-b .sb-fact strong {
-    color: #f0c040;
-    font-weight: 600;
-  }
-
-  .splash-b .sb-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .splash-b .sb-section {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .splash-b .sb-section-label {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .splash-b .sb-section-label.mission { color: #80ee40; }
-  .splash-b .sb-section-label.warning { color: #e86050; }
-  .splash-b .sb-section-text {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
-    color: #aaa;
-    line-height: 1.6;
-    font-weight: 400;
-  }
-
-  .splash-b .sb-start-btn {
-    align-self: center;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: #12121f;
-    background: linear-gradient(135deg, #f0c040, #e8a020);
-    border: none;
-    padding: 14px 52px;
-    cursor: pointer;
-    letter-spacing: 1.5px;
-    border-radius: 8px;
-    text-transform: uppercase;
-    box-shadow: 0 4px 16px rgba(240,192,64,0.25);
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .splash-b .sb-start-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(240,192,64,0.35);
-  }
-
-  /* Pixel icons inside modern frames for Version B */
-  .sb-bread {
-    width: 30px; height: 24px;
-    background: #e8b84c;
-    border: 3px solid #c89030;
-    border-radius: 7px 7px 3px 3px;
-    image-rendering: pixelated;
-  }
-  .sb-rice {
-    width: 32px; height: 20px;
-    background: #f5f0e0;
-    border: 3px solid #d0c8a8;
-    border-radius: 4px 4px 12px 12px;
-    image-rendering: pixelated;
-  }
-  .sb-banana {
-    width: 32px; height: 16px;
-    background: #f0d040;
-    border: 3px solid #c8a820;
-    border-radius: 14px 14px 4px 4px;
-    transform: rotate(-12deg);
-    image-rendering: pixelated;
-  }
-  .sb-potato {
-    width: 30px; height: 22px;
-    background: #c8a060;
-    border: 3px solid #a08040;
-    border-radius: 50%;
-    image-rendering: pixelated;
-  }
-
-  /* ═══════════════════════════════════════════
-     VERSION C — Pixel Typewriter, NO Icons
-     ═══════════════════════════════════════════ */
-  .splash-c {
-    position: absolute;
-    z-index: 3;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 560px;
-    background: #0c0c18;
-    border: 3px solid #f0c04088;
-    padding: 0;
-    image-rendering: pixelated;
-    box-shadow: 0 0 80px rgba(240,192,64,0.06);
-  }
-
-  .splash-c .sc-border-top {
-    height: 3px;
-    background: #f0c040;
-  }
-
-  .splash-c .sc-body {
-    padding: 32px 36px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-  }
-
-  .splash-c .sc-header {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    text-align: center;
-  }
-  .splash-c .sc-level-tag {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 13px;
-    color: #666;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-  }
-  .splash-c .sc-title {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 30px;
-    color: #f0c040;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-  .splash-c .sc-rule {
-    width: 80px;
-    height: 2px;
-    background: #f0c04044;
-    margin: 4px auto 0;
-  }
-
-  .splash-c .sc-fact {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 18px;
-    color: #d8d0c0;
-    line-height: 1.8;
-    text-align: center;
-    padding: 4px 8px;
-  }
-  .splash-c .sc-fact em {
-    color: #f0c040;
-    font-style: normal;
-  }
-
-  .splash-c .sc-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    border-top: 1px solid #ffffff0a;
-    padding-top: 16px;
-  }
-  .splash-c .sc-section {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .splash-c .sc-label {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-  .splash-c .sc-label.mission { color: #80cc60; }
-  .splash-c .sc-label.hazard { color: #cc6655; }
-  .splash-c .sc-text {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 15px;
-    color: #999;
-    line-height: 1.7;
-    padding-left: 16px;
-    border-left: 2px solid #ffffff0a;
-  }
-  .splash-c .sc-text.hazard-text {
-    color: #997777;
-  }
-
-  .splash-c .sc-prompt {
-    text-align: center;
-    padding-top: 8px;
-  }
-  .splash-c .sc-prompt-text {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    font-size: 14px;
-    color: #f0c040;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    animation: blink-c 1.2s ease-in-out infinite;
-  }
-  @keyframes blink-c {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .splash-c .sc-cursor {
-    display: inline-block;
-    width: 10px;
-    height: 2px;
-    background: #f0c040;
-    margin-left: 4px;
-    animation: cursor-blink 0.8s step-end infinite;
-    vertical-align: middle;
-  }
-  @keyframes cursor-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  /* ═══════════════════════════════════════════
-     SHARED: backdrop scene elements
-     ═══════════════════════════════════════════ */
   .backdrop-cloud-1 { width: 80px; height: 30px; top: 40px; left: 100px; }
   .backdrop-cloud-1::before { width: 40px; height: 25px; top: -12px; left: 10px; }
   .backdrop-cloud-1::after { width: 50px; height: 20px; top: -8px; left: 30px; }
@@ -630,100 +121,384 @@
   .backdrop-cloud-3::after { width: 45px; height: 18px; top: -7px; left: 25px; }
 
   /* ═══════════════════════════════════════════
-     "All 4 Levels" preview strip for each version
+     Splash panel
+     ═══════════════════════════════════════════ */
+  .splash {
+    position: absolute;
+    z-index: 3;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    background: #0c0c18;
+    border: 3px solid #f0c04088;
+    image-rendering: pixelated;
+    box-shadow: 0 0 80px rgba(240,192,64,0.06);
+  }
+  .splash .border-top {
+    height: 3px;
+    background: #f0c040;
+  }
+  .splash .body {
+    padding: 28px 36px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* Header — always visible */
+  .splash .header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+  .splash .level-tag {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 13px;
+    color: #666;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .splash .title {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 30px;
+    color: #f0c040;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .splash .rule {
+    width: 80px;
+    height: 2px;
+    background: #f0c04044;
+    margin: 4px auto 0;
+  }
+
+  /* Fact — always visible */
+  .splash .fact {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 17px;
+    color: #d8d0c0;
+    line-height: 1.8;
+    text-align: center;
+    padding: 2px 8px;
+  }
+  .splash .fact em {
+    color: #f0c040;
+    font-style: normal;
+  }
+
+  /* Typed sections */
+  .splash .sections {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border-top: 1px solid #ffffff0a;
+    padding-top: 14px;
+    min-height: 120px;
+  }
+
+  .typed-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .typed-section.visible { opacity: 1; }
+
+  .typed-section .label {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .typed-section .label.mission { color: #80cc60; }
+  .typed-section .label.hazard { color: #cc6655; }
+
+  .typed-section .text-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .typed-section .text {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 15px;
+    color: #999;
+    line-height: 1.7;
+    padding-left: 16px;
+    border-left: 2px solid #ffffff0a;
+    flex: 1;
+  }
+  .typed-section .text.hazard-text { color: #997777; }
+
+  .type-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #f0c040;
+    margin-left: 2px;
+    animation: cursor-blink 0.6s step-end infinite;
+    vertical-align: text-bottom;
+  }
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* Enemy sprite in Watch Out section */
+  .enemy-sprite {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .enemy-sprite.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Start prompt */
+  .splash .prompt {
+    text-align: center;
+    padding-top: 6px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .splash .prompt.visible { opacity: 1; }
+  .splash .prompt-text {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 14px;
+    color: #f0c040;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    animation: blink-prompt 1.2s ease-in-out infinite;
+  }
+  @keyframes blink-prompt {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  /* ═══════════════════════════════════════════
+     Enemy sprites (from enemies-hazards-transparent)
+     ═══════════════════════════════════════════ */
+
+  /* Fatigue Phantom (L1) */
+  .sa-phantom {
+    position: relative;
+    width: 48px;
+    height: 56px;
+  }
+  .sa-phantom-body {
+    width: 48px;
+    height: 40px;
+    background: #8866aa;
+    border: 3px solid #4a3460;
+    border-radius: 50% 50% 0 0;
+    position: relative;
+    opacity: 0.75;
+  }
+  .sa-phantom-eye {
+    position: absolute;
+    width: 10px;
+    height: 3px;
+    background: #4a3460;
+    border-radius: 1px;
+    top: 18px;
+  }
+  .sa-phantom-eye.l { left: 7px; }
+  .sa-phantom-eye.r { right: 7px; }
+  .sa-phantom-mouth {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 2px;
+    background: #4a3460;
+    border-radius: 1px;
+  }
+  .sa-phantom-tail { display: flex; }
+  .sa-phantom-wisp {
+    width: 12px;
+    height: 16px;
+    background: #8866aa;
+    border-left: 3px solid #4a3460;
+    border-right: 3px solid #4a3460;
+    border-bottom: 3px solid #4a3460;
+    border-radius: 0 0 50% 50%;
+    opacity: 0.75;
+  }
+
+  /* Stress Sprite (L2) */
+  .sa-sprite {
+    position: relative;
+    width: 32px;
+    height: 32px;
+  }
+  .sa-sprite-body {
+    width: 32px;
+    height: 32px;
+    background: #44aaee;
+    border: 3px solid #1a6090;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 0 3px #44aaee44;
+    opacity: 0.75;
+  }
+  .sa-sprite-eye {
+    position: absolute;
+    width: 7px;
+    height: 8px;
+    background: #fff;
+    border: 2px solid #1a6090;
+    border-radius: 50%;
+    top: 8px;
+  }
+  .sa-sprite-eye.l { left: 4px; }
+  .sa-sprite-eye.r { right: 4px; }
+  .sa-sprite-zap {
+    position: absolute;
+    width: 10px;
+    height: 14px;
+    background: #fff;
+    border: 1px solid #1a6090;
+    clip-path: polygon(50% 0, 100% 40%, 60% 40%, 80% 100%, 0 50%, 40% 50%);
+    opacity: 0.75;
+  }
+  .sa-sprite-zap.z1 { top: -10px; left: 2px; }
+  .sa-sprite-zap.z2 { top: -8px; right: -2px; transform: rotate(30deg); }
+  .sa-sprite-zap.z3 { bottom: -6px; right: 2px; transform: rotate(-20deg); }
+
+  /* Free Radical (L3) */
+  .sa-radical {
+    position: relative;
+    width: 38px;
+    height: 38px;
+  }
+  .sa-radical-body {
+    width: 28px;
+    height: 28px;
+    background: #aaee44;
+    border: 3px solid #5a8020;
+    border-radius: 50%;
+    position: relative;
+    margin: 5px auto 0;
+    opacity: 0.75;
+  }
+  .sa-radical-eye {
+    position: absolute;
+    width: 8px;
+    height: 5px;
+    background: #5a8020;
+    top: 8px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  .sa-radical-eye.l { left: 4px; }
+  .sa-radical-eye.r { right: 4px; }
+  .sa-radical-spike {
+    position: absolute;
+    width: 12px;
+    height: 14px;
+    background: #aaee44;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    filter: drop-shadow(0 0 1.5px #5a8020) drop-shadow(0 0 1.5px #5a8020);
+    opacity: 0.75;
+  }
+  .sa-radical-spike.s1 { top: -8px; left: 50%; transform: translateX(-50%); }
+  .sa-radical-spike.s2 { top: 0; right: -6px; transform: rotate(60deg); }
+  .sa-radical-spike.s3 { bottom: 0; right: -6px; transform: rotate(120deg); }
+  .sa-radical-spike.s4 { bottom: -8px; left: 50%; transform: translateX(-50%) rotate(180deg); }
+  .sa-radical-spike.s5 { bottom: 0; left: -6px; transform: rotate(-120deg); }
+  .sa-radical-spike.s6 { top: 0; left: -6px; transform: rotate(-60deg); }
+
+  /* Entropy Blob (L4) */
+  .sa-blob {
+    position: relative;
+    width: 58px;
+    height: 44px;
+  }
+  .sa-blob-body {
+    width: 58px;
+    height: 44px;
+    background: #554466;
+    border: 3px solid #2a2030;
+    border-radius: 50%;
+    position: relative;
+    opacity: 0.75;
+  }
+  .sa-blob-eye {
+    position: absolute;
+    width: 8px;
+    height: 6px;
+    background: #aa88cc;
+    border: 2px solid #2a2030;
+    border-radius: 50%;
+    top: 16px;
+  }
+  .sa-blob-eye.l { left: 14px; }
+  .sa-blob-eye.r { right: 14px; }
+
+  /* ═══════════════════════════════════════════
+     L2-L4 Preview strip
      ═══════════════════════════════════════════ */
   .preview-strip {
     display: flex;
     gap: 12px;
-    margin-top: 12px;
+    margin-top: 16px;
   }
   .preview-card {
-    width: 160px;
+    width: 220px;
+    background: #0c0c18;
+    border: 2px solid #f0c04033;
     border-radius: 4px;
-    padding: 12px 10px 10px;
+    padding: 14px 12px 12px;
     display: flex;
     flex-direction: column;
     gap: 6px;
     align-items: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
   }
-  /* Version A preview cards */
-  .preview-card.pa {
-    background: #12121f;
-    border: 2px solid #f0c04066;
+  .preview-card:hover, .preview-card.active {
+    border-color: #f0c04088;
   }
   .preview-card .pc-level {
-    font-size: 7px;
-    letter-spacing: 1px;
-    color: #888;
-  }
-  .preview-card.pa .pc-level {
-    font-family: 'Press Start 2P', monospace;
-  }
-  .preview-card.pa .pc-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
-    color: #f0c040;
-    text-align: center;
-  }
-  .preview-card.pa .pc-fact {
     font-family: 'Special Elite', monospace;
     font-size: 9px;
-    color: #999;
-    text-align: center;
-    line-height: 1.4;
-  }
-
-  /* Version B preview cards */
-  .preview-card.pb {
-    background: linear-gradient(160deg, #1a1a30, #14142a);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-  }
-  .preview-card.pb .pc-level {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    color: #f0c040;
-    background: rgba(240,192,64,0.1);
-    padding: 2px 6px;
-    border-radius: 10px;
-  }
-  .preview-card.pb .pc-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 11px;
-    color: #fff;
-  }
-  .preview-card.pb .pc-fact {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 9px;
-    color: #999;
-    text-align: center;
-    line-height: 1.4;
-  }
-
-  /* Version C preview cards */
-  .preview-card.pc {
-    background: #0c0c18;
-    border: 2px solid #f0c04033;
-  }
-  .preview-card.pc .pc-level {
-    font-family: 'Special Elite', monospace;
     letter-spacing: 2px;
     color: #666;
   }
-  .preview-card.pc .pc-title {
+  .preview-card .pc-title {
     font-family: 'Special Elite', monospace;
-    font-size: 11px;
+    font-size: 13px;
     color: #f0c040;
     letter-spacing: 2px;
     text-transform: uppercase;
   }
-  .preview-card.pc .pc-fact {
+  .preview-card .pc-enemy {
     font-family: 'Special Elite', monospace;
-    font-size: 9px;
-    color: #999;
+    font-size: 10px;
+    color: #997777;
+    margin-top: 2px;
+  }
+  .preview-card .pc-fact {
+    font-family: 'Special Elite', monospace;
+    font-size: 10px;
+    color: #888;
     text-align: center;
     line-height: 1.5;
+  }
+
+  .controls-hint {
+    font-family: 'Special Elite', monospace;
+    font-size: 11px;
+    color: #555;
+    margin-top: 8px;
+    letter-spacing: 1px;
   }
 
   hr.section-break {
@@ -731,31 +506,31 @@
     max-width: 960px;
     border: none;
     border-top: 1px solid #ffffff0a;
-    margin: 20px 0;
+    margin: 0;
+  }
+
+  .footer {
+    font-size: 10px;
+    color: #333;
+    text-align: center;
+    margin-top: 20px;
   }
 </style>
 </head>
 <body>
 
-<div class="page-title">
-  INSTRUCTION SPLASH MOCKUPS
+<div>
+  <div class="page-title">Instruction Splash — Version C</div>
+  <p class="page-subtitle">Typewriter effect on mission &amp; hazard sections &bull; Click a level card to preview</p>
 </div>
-<p class="page-subtitle">Three design directions — each showing L1: Carbohydrates as the example</p>
 
-<!-- ═══════════════════════════════════════════════════════
-     VERSION A — PIXEL TYPEWRITER + PIXEL FOOD ICONS
-     ═══════════════════════════════════════════════════════ -->
 <hr class="section-break">
 
+<!-- ═══════════════════════════════════════════════════════
+     MAIN SPLASH MOCKUP (L1 default, switchable)
+     ═══════════════════════════════════════════════════════ -->
 <div class="mockup-wrapper">
-  <div class="version-label">Version A</div>
-  <div class="version-name" style="font-family: 'Press Start 2P', monospace; font-size: 13px;">Pixel Typewriter + Icons</div>
-  <div class="version-desc" style="font-family: 'Courier New', monospace;">
-    Press Start 2P headers, Special Elite body text (old typewriter feel).<br>
-    Pixel-art food icons from the game's sprite set. Feels like a retro arcade briefing screen.
-  </div>
-
-  <div class="game-frame">
+  <div class="game-frame" id="gameFrame">
     <div class="sun"></div>
     <div class="cloud backdrop-cloud-1"></div>
     <div class="cloud backdrop-cloud-2"></div>
@@ -766,263 +541,259 @@
     <div class="ground"></div>
     <div class="dimmer"></div>
 
-    <div class="splash-a">
-      <div class="sa-header">
-        <span class="sa-level-num">L1</span>
-        <span class="sa-header-text">Carbohydrates</span>
-      </div>
-      <div class="sa-body">
-        <div class="sa-icons">
-          <div class="sa-icon-item">
-            <div class="px-bread"></div>
-            <span class="sa-icon-label">Bread</span>
-          </div>
-          <div class="sa-icon-item">
-            <div class="px-rice"></div>
-            <span class="sa-icon-label">Rice</span>
-          </div>
-          <div class="sa-icon-item">
-            <div class="px-banana"></div>
-            <span class="sa-icon-label">Banana</span>
-          </div>
-          <div class="sa-icon-item">
-            <div class="px-potato"></div>
-            <span class="sa-icon-label">Potato</span>
-          </div>
+    <div class="splash" id="splash">
+      <div class="border-top"></div>
+      <div class="body">
+        <div class="header">
+          <span class="level-tag" id="splashLevelTag">Level One</span>
+          <span class="title" id="splashTitle">Carbohydrates</span>
+          <div class="rule"></div>
         </div>
 
-        <p class="sa-fact">
-          Carbs are your body's preferred quick-energy fuel.<br>
-          They break down into glucose, which powers<br>
-          your muscles and your brain.
+        <p class="fact" id="splashFact">
+          Carbs are your body's preferred <em>fuel source</em>.
+          They break down into glucose, which powers every cell in your body.
         </p>
 
-        <div class="sa-divider"></div>
+        <div class="sections" id="splashSections">
+          <!-- Mission section (typed in) -->
+          <div class="typed-section" id="missionSection">
+            <span class="label mission">Your Mission</span>
+            <p class="text" id="missionText"></p>
+          </div>
 
-        <div class="sa-mission">
-          <span class="sa-mission-label">YOUR MISSION</span>
-          <p class="sa-mission-text">Collect all the carb-rich foods! Some also contain fibre — grab those for bonus points.</p>
-        </div>
-
-        <div class="sa-hazard">
-          <span class="sa-hazard-icon">👻</span>
-          <div>
-            <span class="sa-hazard-label">WATCH OUT</span>
-            <p class="sa-hazard-text">Fatigue Phantoms drain your energy if they catch you!</p>
+          <!-- Watch Out section (typed in after mission) -->
+          <div class="typed-section" id="hazardSection">
+            <span class="label hazard">Watch Out</span>
+            <div class="text-row">
+              <p class="text hazard-text" id="hazardText"></p>
+              <div class="enemy-sprite" id="enemySprite">
+                <!-- L1: Fatigue Phantom (default) -->
+              </div>
+            </div>
           </div>
         </div>
 
-        <button class="sa-start-btn">START</button>
+        <div class="prompt" id="startPrompt">
+          <span class="prompt-text">Press any key to start</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- L1–L4 thumbnail strip for Version A -->
-  <div class="preview-strip">
-    <div class="preview-card pa" style="border-color: #f0c040;">
+  <!-- Level selector strip -->
+  <div class="preview-strip" id="previewStrip">
+    <div class="preview-card active" data-level="0">
       <span class="pc-level">LEVEL 1</span>
       <span class="pc-title">Carbohydrates</span>
-      <span class="pc-fact">Quick-energy fuel for muscles and brain</span>
+      <span class="pc-enemy">Enemy: Fatigue Phantom</span>
+      <span class="pc-fact">Your body's preferred fuel source</span>
     </div>
-    <div class="preview-card pa">
+    <div class="preview-card" data-level="1">
       <span class="pc-level">LEVEL 2</span>
       <span class="pc-title">Protein</span>
-      <span class="pc-fact">Your body's building material for all tissue</span>
+      <span class="pc-enemy">Enemy: Stress Sprite</span>
+      <span class="pc-fact">Your body's building material</span>
     </div>
-    <div class="preview-card pa">
+    <div class="preview-card" data-level="2">
       <span class="pc-level">LEVEL 3</span>
       <span class="pc-title">Fats</span>
-      <span class="pc-fact">Slow-burn energy and cell membrane builder</span>
+      <span class="pc-enemy">Enemy: Free Radical</span>
+      <span class="pc-fact">Slow-burn energy source</span>
     </div>
-    <div class="preview-card pa">
+    <div class="preview-card" data-level="3">
       <span class="pc-level">LEVEL 4</span>
       <span class="pc-title">Fibre</span>
-      <span class="pc-fact">Feeds the trillions of helpful gut bacteria</span>
+      <span class="pc-enemy">Enemy: Entropy Blob</span>
+      <span class="pc-fact">Feeds trillions of helpful gut bacteria</span>
     </div>
   </div>
+  <span class="controls-hint">Click a card to preview that level's splash</span>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     VERSION B — CLEAN GEOMETRIC SANS + ICONS
-     ═══════════════════════════════════════════════════════ -->
-<hr class="section-break">
+<p class="footer">NutriRun — Instruction Splash Mockup — Copy from instruction-splashes.md</p>
 
-<div class="mockup-wrapper">
-  <div class="version-label">Version B</div>
-  <div class="version-name" style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700;">Clean Modern + Icons</div>
-  <div class="version-desc" style="font-family: 'Space Grotesk', sans-serif;">
-    Space Grotesk headings and body (geometric, modern, highly readable).<br>
-    Same pixel food icons inside rounded frames. Feels polished and accessible.
-  </div>
-
-  <div class="game-frame">
-    <div class="sun"></div>
-    <div class="cloud backdrop-cloud-1"></div>
-    <div class="cloud backdrop-cloud-2"></div>
-    <div class="cloud backdrop-cloud-3"></div>
-    <div class="hill" style="width:300px;height:100px;bottom:120px;left:-50px;"></div>
-    <div class="hill" style="width:250px;height:80px;bottom:120px;left:400px;"></div>
-    <div class="hill" style="width:200px;height:70px;bottom:120px;left:750px;"></div>
-    <div class="ground"></div>
-    <div class="dimmer"></div>
-
-    <div class="splash-b">
-      <div class="sb-accent-bar"></div>
-      <div class="sb-header">
-        <span class="sb-level-badge">Level 1</span>
-        <span class="sb-title">Carbohydrates</span>
-      </div>
-      <div class="sb-body">
-        <div class="sb-icons">
-          <div class="sb-icon-item">
-            <div class="sb-icon-box"><div class="sb-bread"></div></div>
-            <span class="sb-icon-label">Bread</span>
-          </div>
-          <div class="sb-icon-item">
-            <div class="sb-icon-box"><div class="sb-rice"></div></div>
-            <span class="sb-icon-label">Rice</span>
-          </div>
-          <div class="sb-icon-item">
-            <div class="sb-icon-box"><div class="sb-banana"></div></div>
-            <span class="sb-icon-label">Banana</span>
-          </div>
-          <div class="sb-icon-item">
-            <div class="sb-icon-box"><div class="sb-potato"></div></div>
-            <span class="sb-icon-label">Potato</span>
-          </div>
+<script>
+const LEVELS = [
+  {
+    tag: 'Level One',
+    title: 'Carbohydrates',
+    fact: 'Carbs are your body\'s preferred <em>fuel source</em>. They break down into glucose, which powers every cell in your body.',
+    mission: 'Collect all the carbs. Bonus points are awarded for collecting all fibre-rich carbs as well.',
+    hazard: 'Fatigue Phantoms drain your energy \u2026 if they catch you!',
+    enemyHTML: `
+      <div class="sa-phantom">
+        <div class="sa-phantom-body">
+          <div class="sa-phantom-eye l"></div>
+          <div class="sa-phantom-eye r"></div>
+          <div class="sa-phantom-mouth"></div>
         </div>
-
-        <p class="sb-fact">
-          Carbs are your body's preferred <strong>quick-energy fuel</strong>.
-          They break down into glucose, which powers your muscles and your brain.
-        </p>
-
-        <div class="sb-sections">
-          <div class="sb-section">
-            <span class="sb-section-label mission">Your Mission</span>
-            <p class="sb-section-text">Collect all the carb-rich foods! Some also contain fibre — grab those for bonus points.</p>
-          </div>
-          <div class="sb-section">
-            <span class="sb-section-label warning">Watch Out</span>
-            <p class="sb-section-text">Fatigue Phantoms drain your energy if they catch you!</p>
-          </div>
+        <div class="sa-phantom-tail">
+          <div class="sa-phantom-wisp"></div>
+          <div class="sa-phantom-wisp"></div>
+          <div class="sa-phantom-wisp"></div>
+          <div class="sa-phantom-wisp"></div>
         </div>
-
-        <button class="sb-start-btn">Start</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- L1–L4 thumbnail strip for Version B -->
-  <div class="preview-strip">
-    <div class="preview-card pb" style="border-color: rgba(240,192,64,0.3);">
-      <span class="pc-level">L1</span>
-      <span class="pc-title">Carbohydrates</span>
-      <span class="pc-fact">Quick-energy fuel for muscles and brain</span>
-    </div>
-    <div class="preview-card pb">
-      <span class="pc-level">L2</span>
-      <span class="pc-title">Protein</span>
-      <span class="pc-fact">Your body's building material for all tissue</span>
-    </div>
-    <div class="preview-card pb">
-      <span class="pc-level">L3</span>
-      <span class="pc-title">Fats</span>
-      <span class="pc-fact">Slow-burn energy and cell membrane builder</span>
-    </div>
-    <div class="preview-card pb">
-      <span class="pc-level">L4</span>
-      <span class="pc-title">Fibre</span>
-      <span class="pc-fact">Feeds the trillions of helpful gut bacteria</span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════
-     VERSION C — PIXEL TYPEWRITER, NO ICONS (TEXT ONLY)
-     ═══════════════════════════════════════════════════════ -->
-<hr class="section-break">
-
-<div class="mockup-wrapper">
-  <div class="version-label">Version C</div>
-  <div class="version-name" style="font-family: 'Special Elite', monospace; font-size: 18px;">Typewriter Only — No Icons</div>
-  <div class="version-desc" style="font-family: 'Courier New', monospace;">
-    Special Elite throughout (vintage typewriter). Zero icons — pure typography and whitespace.<br>
-    Minimal, atmospheric, like reading a mission briefing on old paper. Blinking prompt at the bottom.
-  </div>
-
-  <div class="game-frame">
-    <div class="sun"></div>
-    <div class="cloud backdrop-cloud-1"></div>
-    <div class="cloud backdrop-cloud-2"></div>
-    <div class="cloud backdrop-cloud-3"></div>
-    <div class="hill" style="width:300px;height:100px;bottom:120px;left:-50px;"></div>
-    <div class="hill" style="width:250px;height:80px;bottom:120px;left:400px;"></div>
-    <div class="hill" style="width:200px;height:70px;bottom:120px;left:750px;"></div>
-    <div class="ground"></div>
-    <div class="dimmer"></div>
-
-    <div class="splash-c">
-      <div class="sc-border-top"></div>
-      <div class="sc-body">
-        <div class="sc-header">
-          <span class="sc-level-tag">Level One</span>
-          <span class="sc-title">Carbohydrates</span>
-          <div class="sc-rule"></div>
+      </div>`
+  },
+  {
+    tag: 'Level Two',
+    title: 'Protein',
+    fact: 'Protein is your body\'s <em>building material</em>. Every tissue \u2014 muscle, skin, organs, even your immune cells \u2014 is built and repaired with protein.',
+    mission: 'Collect protein-rich foods! Pair plant proteins together (like rice + beans) for a combo bonus.',
+    hazard: 'Stress Sprites move in erratic clusters \u2014 stay alert!',
+    enemyHTML: `
+      <div class="sa-sprite">
+        <div class="sa-sprite-body">
+          <div class="sa-sprite-eye l"></div>
+          <div class="sa-sprite-eye r"></div>
         </div>
-
-        <p class="sc-fact">
-          Carbs are your body's preferred <em>quick-energy fuel</em>.
-          They break down into glucose, which powers
-          your muscles and your brain.
-        </p>
-
-        <div class="sc-sections">
-          <div class="sc-section">
-            <span class="sc-label mission">Your Mission</span>
-            <p class="sc-text">Collect all the carb-rich foods. Some also contain fibre — grab those for bonus points.</p>
-          </div>
-          <div class="sc-section">
-            <span class="sc-label hazard">Watch Out</span>
-            <p class="sc-text hazard-text">Fatigue Phantoms drain your energy if they catch you.</p>
-          </div>
+        <div class="sa-sprite-zap z1"></div>
+        <div class="sa-sprite-zap z2"></div>
+        <div class="sa-sprite-zap z3"></div>
+      </div>`
+  },
+  {
+    tag: 'Level Three',
+    title: 'Fats',
+    fact: 'Fats are your body\'s <em>slow-burn energy source</em>. They build every cell membrane and help you absorb essential vitamins.',
+    mission: 'Collect a variety of fats! The more types you collect, the more sustained your energy becomes.',
+    hazard: 'Free Radicals bounce off walls unpredictably \u2014 and they split when you jump on them!',
+    enemyHTML: `
+      <div class="sa-radical">
+        <div class="sa-radical-spike s1"></div>
+        <div class="sa-radical-spike s2"></div>
+        <div class="sa-radical-spike s3"></div>
+        <div class="sa-radical-spike s4"></div>
+        <div class="sa-radical-spike s5"></div>
+        <div class="sa-radical-spike s6"></div>
+        <div class="sa-radical-body">
+          <div class="sa-radical-eye l"></div>
+          <div class="sa-radical-eye r"></div>
         </div>
-
-        <div class="sc-prompt">
-          <span class="sc-prompt-text">Press any key to start<span class="sc-cursor"></span></span>
+      </div>`
+  },
+  {
+    tag: 'Level Four',
+    title: 'Fibre',
+    fact: 'Some carbs contain <em>fibre</em> (think fruits and veg). Fibre feeds the trillions of helpful bacteria in your gut. They keep your digestion strong, support your immune system, and even help your brain.',
+    mission: 'Deliver diverse fibre to the microbiome stations! Different sources power up different stations.',
+    hazard: 'Entropy Blobs expand to block your path \u2014 move fast before they grow!',
+    enemyHTML: `
+      <div class="sa-blob">
+        <div class="sa-blob-body">
+          <div class="sa-blob-eye l"></div>
+          <div class="sa-blob-eye r"></div>
         </div>
-      </div>
-    </div>
-  </div>
+      </div>`
+  }
+];
 
-  <!-- L1–L4 thumbnail strip for Version C -->
-  <div class="preview-strip">
-    <div class="preview-card pc" style="border-color: #f0c04066;">
-      <span class="pc-level">LEVEL 1</span>
-      <span class="pc-title">Carbohydrates</span>
-      <span class="pc-fact">Quick-energy fuel for muscles and brain</span>
-    </div>
-    <div class="preview-card pc">
-      <span class="pc-level">LEVEL 2</span>
-      <span class="pc-title">Protein</span>
-      <span class="pc-fact">Your body's building material for all tissue</span>
-    </div>
-    <div class="preview-card pc">
-      <span class="pc-level">LEVEL 3</span>
-      <span class="pc-title">Fats</span>
-      <span class="pc-fact">Slow-burn energy and cell membrane builder</span>
-    </div>
-    <div class="preview-card pc">
-      <span class="pc-level">LEVEL 4</span>
-      <span class="pc-title">Fibre</span>
-      <span class="pc-fact">Feeds the trillions of helpful gut bacteria</span>
-    </div>
-  </div>
-</div>
+const splashLevelTag = document.getElementById('splashLevelTag');
+const splashTitle    = document.getElementById('splashTitle');
+const splashFact     = document.getElementById('splashFact');
+const missionSection = document.getElementById('missionSection');
+const missionText    = document.getElementById('missionText');
+const hazardSection  = document.getElementById('hazardSection');
+const hazardText     = document.getElementById('hazardText');
+const enemySprite    = document.getElementById('enemySprite');
+const startPrompt    = document.getElementById('startPrompt');
+const previewStrip   = document.getElementById('previewStrip');
 
-<p style="margin-top: 40px; font-size: 10px; color: #444; text-align: center;">
-  NutriRun — Instruction Splash Mockups — All copy from instruction-splashes.md
-</p>
+let currentAnimation = null;
+
+function typeText(element, text, speed, callback) {
+  let i = 0;
+  element.innerHTML = '<span class="type-cursor"></span>';
+
+  const PAUSE_PERIOD = 420;
+  const PAUSE_ELLIPSIS = 520;
+
+  function tick() {
+    if (currentAnimation !== tick) return;
+    if (i < text.length) {
+      const before = text.slice(0, i + 1);
+      const cursorHTML = '<span class="type-cursor"></span>';
+      element.innerHTML = before + cursorHTML;
+
+      const ch = text[i];
+      const next = text[i + 1] || '';
+      i++;
+
+      let delay = speed;
+      if (ch === '.' && next === ' ') {
+        delay = PAUSE_PERIOD;
+      } else if (ch === '\u2026') {
+        delay = PAUSE_ELLIPSIS;
+      } else if (ch === '.' && next === '.' ) {
+        delay = PAUSE_ELLIPSIS;
+      }
+
+      setTimeout(tick, delay);
+    } else {
+      element.textContent = text;
+      if (callback) callback();
+    }
+  }
+  currentAnimation = tick;
+  tick();
+}
+
+function loadLevel(index) {
+  const level = LEVELS[index];
+
+  currentAnimation = null;
+
+  missionSection.classList.remove('visible');
+  hazardSection.classList.remove('visible');
+  enemySprite.classList.remove('visible');
+  startPrompt.classList.remove('visible');
+  missionText.innerHTML = '';
+  hazardText.innerHTML = '';
+  enemySprite.innerHTML = level.enemyHTML;
+
+  splashLevelTag.textContent = level.tag;
+  splashTitle.textContent = level.title;
+  splashFact.innerHTML = level.fact;
+
+  document.querySelectorAll('.preview-card').forEach(c => c.classList.remove('active'));
+  previewStrip.children[index].classList.add('active');
+
+  const TYPE_SPEED = 50;
+  const PAUSE_BETWEEN = 400;
+  const PAUSE_AFTER_LABEL = 500;
+  const INITIAL_DELAY = 600;
+
+  setTimeout(() => {
+    missionSection.classList.add('visible');
+    setTimeout(() => {
+      typeText(missionText, level.mission, TYPE_SPEED, () => {
+        setTimeout(() => {
+          hazardSection.classList.add('visible');
+          setTimeout(() => {
+            typeText(hazardText, level.hazard, TYPE_SPEED, () => {
+              setTimeout(() => {
+                enemySprite.classList.add('visible');
+              }, 200);
+              setTimeout(() => {
+                startPrompt.classList.add('visible');
+              }, 600);
+            });
+          }, PAUSE_AFTER_LABEL);
+        }, PAUSE_BETWEEN);
+      });
+    }, PAUSE_AFTER_LABEL);
+  }, INITIAL_DELAY);
+}
+
+document.querySelectorAll('.preview-card').forEach(card => {
+  card.addEventListener('click', () => {
+    loadLevel(parseInt(card.dataset.level));
+  });
+});
+
+loadLevel(0);
+</script>
 
 </body>
 </html>

@@ -119,7 +119,38 @@ Enemies are **abstract physiological threats** — not food items. No food is th
 | **Knowledge Stars** (3 per level) | Hidden in hard-to-reach places; reward exploration and mastery |
 | **Power-up Capsules** | Grant temporary abilities (see Section 2.1 unlockables) |
 
-### 5.2 Currency: Energy Cells
+### 5.2 Rarity Items & Treasure Chests
+
+Scattered **rarely and randomly** throughout the game are **Treasure Chests** — ornate pixel-art chests that glow faintly to catch the player's eye. They appear roughly once every 2–3 levels, and their placement is randomized on each playthrough so they can't be memorized.
+
+**How they work:**
+- A Treasure Chest spawns in a semi-hidden or risk/reward location (behind a hazard, on a hard-to-reach platform, at the end of a short detour).
+- When the player opens the chest, it reveals a single **Rare Food Item** — a complete meal that doesn't appear anywhere else in the game as a normal collectible.
+- The rare item is collected with a distinctive animation (chest opens, golden light, item floats up with a unique chime).
+
+**Rare Food Items:**
+
+| Item | Description |
+|---|---|
+| **Pizza** | A complete meal — carbs (dough), protein (cheese/toppings), fat (cheese/oil), fibre (vegetables) |
+| **Hamburger** | A complete meal — carbs (bun), protein (patty), fat (cheese), fibre (lettuce/tomato) |
+| **Sushi** | A complete meal — carbs (rice), protein (fish), fat (fish oils), fibre (seaweed/vegetables) |
+| **Taco** | A complete meal — carbs (tortilla), protein (meat/beans), fat (cheese/sour cream), fibre (lettuce/salsa) |
+
+**On collection — effect TBD.** The specific gameplay reward for collecting a rare item is still to be decided. Possible directions include:
+- A large, immediate energy meter boost (representing a full, balanced meal)
+- Temporary invincibility or a powerful buff lasting several seconds
+- A permanent collectible tracked in a "Meal Album" that unlocks cosmetics or lore entries
+- Filling all four macro segments at once (relevant in later levels with multi-bar HUDs)
+- A combination of the above
+
+**Design principles:**
+- Rare items reinforce **food neutrality** — pizza, hamburgers, sushi, and tacos are portrayed positively as complete meals containing all macronutrients, not as "junk food."
+- Rarity creates excitement without punishment — missing a chest has no penalty; finding one is a bonus.
+- Randomized placement encourages exploration on every playthrough.
+- The treasure chest visual language is distinct from normal food collectibles — players should immediately recognize "this is something special."
+
+### 5.3 Currency: Energy Cells
 
 The game's currency is **Energy Cells** — small glowing orbs scattered throughout levels that represent the fundamental unit of biological energy (a nod to ATP, the molecule cells actually use for energy). This keeps the economy thematically grounded in nutrition science without turning any specific food into a "coin."
 
