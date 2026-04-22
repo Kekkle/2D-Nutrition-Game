@@ -126,10 +126,6 @@ const L1 = {
     { id: 'grapes',      x: 4340, onGround: true },
     { id: 'cucumber',    x: 5180, onGround: true },
     { id: 'chia',        x: 6160, onGround: true },
-    // Neutral protein/fat items
-    { id: 'egg',         x: 630,  onGround: true, neutral: true },
-    { id: 'chicken',     x: 2660, onGround: true, neutral: true },
-    { id: 'cheese',      x: 4490, onGround: true, neutral: true },
     // Fun foods — quick energy
     { id: 'cookie',      x: 1470, onGround: true, fun: true },
     { id: 'fries',       x: 2940, onGround: true, fun: true },
@@ -999,23 +995,8 @@ class GameScene extends Phaser.Scene {
       sprite.setData('fun', !!f.fun);
       sprite.body.setSize(def.w, def.h); sprite.setDepth(5);
 
-      const isFibre = def.type === 'fibre';
-      const isFun = def.type === 'fun';
-      let labelColor = '#ffffff';
-      if (isFibre) labelColor = '#aaffaa';
-      else if (def.type === 'neutral') labelColor = '#aaaaff';
-      else if (isFun) labelColor = '#ff9966';
-      let labelText = def.name;
-      if (isFibre) labelText += ' ✦';
-
-      const label = this.add.text(f.x, y - def.h / 2 - 8, labelText, {
-        fontFamily: 'Courier New', fontSize: '8px', color: labelColor,
-        stroke: '#000000', strokeThickness: 2,
-      }).setOrigin(0.5).setDepth(5);
-      sprite.setData('label', label);
-
       this.tweens.add({
-        targets: [sprite, label], y: '-=4',
+        targets: sprite, y: '-=4',
         duration: 1200 + Math.random() * 400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
       });
 
@@ -1030,28 +1011,27 @@ class GameScene extends Phaser.Scene {
   collectFood(player, food) {
     const type = food.getData('type');
     const id = food.getData('foodId');
-    const label = food.getData('label');
+    const name = food.getData('name');
 
     if (type === 'starchy') {
       this.carbsCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_CARB);
-      this.showCollectFX(food.x, food.y, '#f0c040', '+Energy');
+      this.showCollectFX(food.x, food.y, '#f0c040', name);
     } else if (type === 'fibre') {
       this.carbsCollected++;
       this.fibreCollected++;
       this.fibreItemsFound.push(id);
       this.energy = Math.min(100, this.energy + ENERGY_FIBRE);
-      this.showCollectFX(food.x, food.y, '#80ff80', '+Fibre!');
+      this.showCollectFX(food.x, food.y, '#80ff80', name);
     } else if (type === 'fun') {
       this.funCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_FUN);
-      this.showCollectFX(food.x, food.y, '#ff9966', '+Quick Energy!');
+      this.showCollectFX(food.x, food.y, '#ff9966', name);
     } else {
       this.neutralCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
-      this.showCollectFX(food.x, food.y, '#aaaaff', '+Energy');
+      this.showCollectFX(food.x, food.y, '#aaaaff', name);
     }
-    if (label) label.destroy();
     food.destroy();
     this.updateHUD();
   }
@@ -1060,7 +1040,7 @@ class GameScene extends Phaser.Scene {
     const fx = this.add.text(x, y - 10, text, {
       fontFamily: 'Courier New', fontSize: '12px', color, stroke: '#000000', strokeThickness: 2,
     }).setOrigin(0.5).setDepth(20);
-    this.tweens.add({ targets: fx, y: y - 40, alpha: 0, duration: 800, ease: 'Power2', onComplete: () => fx.destroy() });
+    this.tweens.add({ targets: fx, y: y - 45, alpha: 0, duration: 1400, ease: 'Power2', onComplete: () => fx.destroy() });
   }
 
   createEnergyCells() {
