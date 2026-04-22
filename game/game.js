@@ -12,7 +12,6 @@ const GROUND_H = 120;
 
 const PLAYER_SPEED = 250;
 const PLAYER_JUMP = -520;
-const DUCK_SPEED = 120;
 const PHANTOM_SPEED = 55;
 const PHANTOM_DETECT = 280;
 
@@ -64,9 +63,14 @@ const FOOD_DEFS = {
   fries:        { name: 'Fries',        type: 'fun',     w: 28, h: 32 },
   cookie:       { name: 'Cookie',       type: 'fun',     w: 30, h: 30 },
   donut:        { name: 'Donut',        type: 'fun',     w: 34, h: 32 },
-  // Rare items
-  sushi:        { name: 'Sushi',        type: 'rare',    w: 28, h: 26 },
 };
+
+const RARE_ITEMS = [
+  { id: 'pizza',     name: 'Pizza',     desc: 'Complete Meal!' },
+  { id: 'hamburger', name: 'Hamburger', desc: 'Complete Meal!' },
+  { id: 'sushi',     name: 'Sushi',     desc: 'Complete Meal!' },
+  { id: 'taco',      name: 'Taco',      desc: 'Complete Meal!' },
+];
 
 // ----- Level 1 layout -----
 
@@ -130,22 +134,18 @@ const L1 = {
     { id: 'cookie',      x: 1470, onGround: true, fun: true },
     { id: 'fries',       x: 2940, onGround: true, fun: true },
     { id: 'donut',       x: 5040, onGround: true, fun: true },
-    // Rare item — hidden on high platform
-    { id: 'sushi',       x: 3470, platIdx: 9, rare: true },
   ],
   energyCells: [
-    450, 480, 800, 830, 1220, 1250, 1280, 1640, 1670,
-    2130, 2160, 2550, 2580, 3080, 3110, 3600, 3630,
-    4020, 4050, 4440, 4470, 5050, 5080, 5460, 5490,
-    5880, 5910, 6240, 6270, 6310,
+    450, 900, 1300, 1700, 2200, 2600,
+    3100, 3400,
+    3900, 4200,
+    4700,
+    5500,
   ],
   cellsOnPlats: [
-    { x: 310, pi: 0 },  { x: 360, pi: 0 },
-    { x: 650, pi: 1 },  { x: 690, pi: 1 },
-    { x: 1490, pi: 3 }, { x: 1530, pi: 3 },
-    { x: 2330, pi: 5 }, { x: 2370, pi: 5 },
-    { x: 3450, pi: 9 }, { x: 3480, pi: 9 },
-    { x: 4990, pi: 13 }, { x: 5020, pi: 13 },
+    { x: 650, pi: 1 },
+    { x: 2350, pi: 5 },
+    { x: 5000, pi: 13 },
   ],
   phantoms: [
     { x: 2940 }, { x: 3780 }, { x: 4490 }, { x: 5180 }, { x: 6020 },
@@ -176,9 +176,13 @@ class BootScene extends Phaser.Scene {
     this.generateEnergyCell();
     this.generateEnergyBall();
     this.generatePhantom();
+    this.generateTreasureChest();
+    this.generateRareItems();
     this.generateStar();
     this.generateFinishFlag();
-    this.scene.start('Splash');
+    document.fonts.load('16px "Special Elite"').then(() => {
+      this.scene.start('Splash');
+    });
   }
 
 
@@ -524,16 +528,6 @@ class BootScene extends Phaser.Scene {
     g.lineStyle(2, 0xb06828); g.strokeCircle(P+15, P+15, 3);
     g.generateTexture('food_donut', 34, 32);
 
-    // --- RARE ---
-
-    // Sushi — sa-sushi: nori #444/#2a2a2a, rice #f5f0e0, salmon #e87830/#c86020
-    g.clear(); g.fillStyle(0x444444); g.fillRoundedRect(P, P, 24, 22, 4);
-    g.lineStyle(2, 0x2a2a2a); g.strokeRoundedRect(P, P, 24, 22, 4);
-    g.fillStyle(0xf5f0e0); g.fillRoundedRect(P+2, P+2, 20, 18, 2);
-    g.fillStyle(0xe87830); g.fillRoundedRect(P+7, P+8, 10, 6, 1);
-    g.lineStyle(1, 0xc86020); g.strokeRoundedRect(P+7, P+8, 10, 6, 1);
-    g.generateTexture('food_sushi', 28, 26);
-
     g.destroy();
   }
 
@@ -552,6 +546,81 @@ class BootScene extends Phaser.Scene {
     g.fillStyle(0x80ffd0, 0.7); g.fillCircle(5, 5, 4);
     g.fillStyle(0xffffff, 0.6); g.fillCircle(4, 3, 2);
     g.generateTexture('energy_ball', 12, 12);
+    g.destroy();
+  }
+
+  generateTreasureChest() {
+    const g = this.make.graphics({ add: false });
+
+    // Closed chest
+    g.fillStyle(0x8a5a20); g.fillRoundedRect(0, 10, 32, 22, 3);
+    g.lineStyle(2, 0x5a3810); g.strokeRoundedRect(0, 10, 32, 22, 3);
+    g.fillStyle(0xa06828); g.fillRoundedRect(0, 0, 32, 14, { tl: 6, tr: 6, bl: 0, br: 0 });
+    g.lineStyle(2, 0x5a3810); g.strokeRoundedRect(0, 0, 32, 14, { tl: 6, tr: 6, bl: 0, br: 0 });
+    g.fillStyle(0xf0c040); g.fillRect(12, 8, 8, 10);
+    g.lineStyle(1, 0xb08020); g.strokeRect(12, 8, 8, 10);
+    g.fillStyle(0xf0c040); g.fillCircle(16, 11, 3);
+    g.generateTexture('chest_closed', 32, 32);
+
+    // Open chest
+    g.clear();
+    g.fillStyle(0x8a5a20); g.fillRoundedRect(0, 16, 32, 16, 3);
+    g.lineStyle(2, 0x5a3810); g.strokeRoundedRect(0, 16, 32, 16, 3);
+    g.fillStyle(0x6a4418); g.fillRect(2, 18, 28, 12);
+    g.fillStyle(0xf0c040, 0.6); g.fillRect(4, 20, 24, 8);
+    g.fillStyle(0xa06828); g.fillRoundedRect(0, 0, 32, 12, { tl: 6, tr: 6, bl: 0, br: 0 });
+    g.lineStyle(2, 0x5a3810); g.strokeRoundedRect(0, 0, 32, 12, { tl: 6, tr: 6, bl: 0, br: 0 });
+    g.generateTexture('chest_open', 32, 32);
+
+    g.destroy();
+  }
+
+  generateRareItems() {
+    const g = this.make.graphics({ add: false });
+    const P = 2;
+
+    // Pizza — dough base, red sauce, yellow cheese, green pepper dots
+    g.fillStyle(0xd4a040); g.fillCircle(P+14, P+14, 14);
+    g.lineStyle(2, 0xa07020); g.strokeCircle(P+14, P+14, 14);
+    g.fillStyle(0xcc3020); g.fillCircle(P+14, P+14, 10);
+    g.fillStyle(0xf0c840); g.fillCircle(P+10, P+10, 3);
+    g.fillStyle(0xf0c840); g.fillCircle(P+18, P+12, 3);
+    g.fillStyle(0xf0c840); g.fillCircle(P+13, P+18, 3);
+    g.fillStyle(0x40a030); g.fillCircle(P+8, P+16, 2);
+    g.fillStyle(0x40a030); g.fillCircle(P+19, P+8, 2);
+    g.generateTexture('rare_pizza', 32, 32);
+
+    // Hamburger — bun top, lettuce, patty, bun bottom
+    g.clear();
+    g.fillStyle(0xc88030); g.fillRoundedRect(P, P, 28, 10, { tl: 10, tr: 10, bl: 0, br: 0 });
+    g.lineStyle(2, 0x9a6020); g.strokeRoundedRect(P, P, 28, 10, { tl: 10, tr: 10, bl: 0, br: 0 });
+    g.fillStyle(0x50b830); g.fillRect(P, P+10, 28, 4);
+    g.fillStyle(0x7a3a10); g.fillRect(P+2, P+14, 24, 6);
+    g.lineStyle(1, 0x5a2a08); g.strokeRect(P+2, P+14, 24, 6);
+    g.fillStyle(0xc88030); g.fillRoundedRect(P, P+20, 28, 6, { tl: 0, tr: 0, bl: 4, br: 4 });
+    g.lineStyle(2, 0x9a6020); g.strokeRoundedRect(P, P+20, 28, 6, { tl: 0, tr: 0, bl: 4, br: 4 });
+    g.generateTexture('rare_hamburger', 32, 30);
+
+    // Sushi — nori wrap, rice, salmon
+    g.clear();
+    g.fillStyle(0x444444); g.fillRoundedRect(P, P, 24, 22, 4);
+    g.lineStyle(2, 0x2a2a2a); g.strokeRoundedRect(P, P, 24, 22, 4);
+    g.fillStyle(0xf5f0e0); g.fillRoundedRect(P+2, P+2, 20, 18, 2);
+    g.fillStyle(0xe87830); g.fillRoundedRect(P+7, P+8, 10, 6, 1);
+    g.lineStyle(1, 0xc86020); g.strokeRoundedRect(P+7, P+8, 10, 6, 1);
+    g.generateTexture('rare_sushi', 28, 26);
+
+    // Taco — shell, meat, lettuce, cheese
+    g.clear();
+    g.fillStyle(0xd4a040); g.fillRoundedRect(P, P+8, 28, 16, { tl: 0, tr: 0, bl: 12, br: 12 });
+    g.lineStyle(2, 0xa07020); g.strokeRoundedRect(P, P+8, 28, 16, { tl: 0, tr: 0, bl: 12, br: 12 });
+    g.fillStyle(0x7a3a10); g.fillRect(P+4, P+10, 20, 5);
+    g.fillStyle(0x50b830); g.fillRect(P+3, P+8, 22, 4);
+    g.fillStyle(0xf0c840); g.fillRect(P+6, P+6, 4, 3);
+    g.fillStyle(0xf0c840); g.fillRect(P+14, P+6, 4, 3);
+    g.fillStyle(0xf0c840); g.fillRect(P+20, P+7, 4, 3);
+    g.generateTexture('rare_taco', 32, 28);
+
     g.destroy();
   }
 
@@ -625,7 +694,7 @@ class BootScene extends Phaser.Scene {
 }
 
 // =================================================================
-// SPLASH SCENE — Instruction splash before L1
+// SPLASH SCENE — Instruction splash before L1 (Typewriter Version C)
 // =================================================================
 
 class SplashScene extends Phaser.Scene {
@@ -633,51 +702,148 @@ class SplashScene extends Phaser.Scene {
 
   create() {
     const cx = GAME_W / 2, cy = GAME_H / 2;
-    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x1a1a2e);
-    const panelW = 620, panelH = 380;
-    this.add.rectangle(cx, cy, panelW + 4, panelH + 4, 0xf0c040);
-    this.add.rectangle(cx, cy, panelW, panelH, 0x1a1a2e);
 
-    this.add.text(cx, cy - 150, 'LEVEL 1: CARBOHYDRATES', {
-      fontFamily: 'Courier New', fontSize: '22px', color: '#f0c040', letterSpacing: 3,
+    // Sky background
+    const skyGfx = this.add.graphics();
+    skyGfx.fillGradientStyle(0x3a7ecf, 0x3a7ecf, 0x5fa8d3, 0x5fa8d3, 1);
+    skyGfx.fillRect(0, 0, GAME_W, GAME_H);
+
+    // Sun
+    const sun = this.add.graphics();
+    sun.fillStyle(0xf0c040); sun.fillCircle(0, 0, 25);
+    sun.setPosition(GAME_W - 60, 40);
+
+    // Clouds
+    const cg = this.add.graphics();
+    cg.fillStyle(0xffffff);
+    cg.fillRoundedRect(100, 40, 80, 30, 15);
+    cg.fillRoundedRect(110, 28, 40, 25, 12);
+    cg.fillRoundedRect(130, 32, 50, 20, 10);
+    cg.fillRoundedRect(500, 70, 60, 22, 11);
+    cg.fillRoundedRect(508, 60, 35, 18, 9);
+    cg.fillRoundedRect(750, 30, 70, 26, 13);
+    cg.fillRoundedRect(762, 20, 38, 20, 10);
+
+    // Hills + ground
+    const hills = this.add.graphics();
+    hills.fillStyle(0x4a8e2e, 0.5);
+    hills.fillEllipse(100, GAME_H - 120, 300, 100);
+    hills.fillEllipse(525, GAME_H - 120, 250, 80);
+    hills.fillEllipse(850, GAME_H - 120, 200, 70);
+    const ground = this.add.graphics();
+    ground.fillStyle(0x5a9e3e); ground.fillRect(0, GAME_H - 120, GAME_W, 80);
+    ground.fillStyle(0x8b6914); ground.fillRect(0, GAME_H - 40, GAME_W, 40);
+    ground.lineStyle(4, 0x4a8e2e); ground.lineBetween(0, GAME_H - 120, GAME_W, GAME_H - 120);
+    ground.lineStyle(4, 0x6d5410); ground.lineBetween(0, GAME_H - 40, GAME_W, GAME_H - 40);
+
+    // Dimmer overlay
+    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.58);
+
+    // Splash panel
+    const panelW = 580, panelH = 340;
+    const panelX = cx, panelY = cy;
+    this.add.rectangle(panelX, panelY, panelW + 3, panelH + 3, 0xf0c040, 0.35);
+    this.add.rectangle(panelX, panelY, panelW, panelH, 0x0c0c18);
+    this.add.rectangle(panelX, panelY - panelH / 2 + 1.5, panelW, 3, 0xf0c040);
+
+    const SF = "'Special Elite', 'Courier New', monospace";
+
+    // Header
+    const headerY = panelY - panelH / 2 + 36;
+    this.add.text(panelX, headerY, 'Level One', {
+      fontFamily: SF, fontSize: '13px', color: '#666666', letterSpacing: 4,
+    }).setOrigin(0.5);
+    this.add.text(panelX, headerY + 26, 'CARBOHYDRATES', {
+      fontFamily: SF, fontSize: '30px', color: '#f0c040', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.rectangle(panelX, headerY + 48, 80, 2, 0xf0c040, 0.27);
+
+    // Fact text
+    this.add.text(panelX, headerY + 78, 'Carbs are your body\'s preferred fuel source.\nThey break down into glucose, which powers\nevery cell in your body.', {
+      fontFamily: SF, fontSize: '17px', color: '#d8d0c0', align: 'center', lineSpacing: 8,
     }).setOrigin(0.5);
 
-    const iconKeys = ['food_white_bread', 'food_white_rice', 'food_banana', 'food_potato'];
-    const iconStartX = cx - (iconKeys.length - 1) * 36 / 2;
-    iconKeys.forEach((key, i) => this.add.image(iconStartX + i * 36, cy - 110, key).setScale(1.4));
+    // Divider
+    this.add.rectangle(panelX, headerY + 120, panelW - 72, 1, 0xffffff, 0.04);
 
-    this.add.text(cx, cy - 55, [
-      '"Carbs are your body\'s preferred',
-      ' quick-energy fuel. They break down into',
-      ' glucose, which powers your muscles',
-      ' and your brain."',
-    ].join('\n'), { fontFamily: 'Courier New', fontSize: '13px', color: '#cccccc', align: 'center', lineSpacing: 4 }).setOrigin(0.5);
+    // Mission section (typed in)
+    const sectY = headerY + 138;
+    const missionLabel = this.add.text(panelX - panelW / 2 + 40, sectY, 'YOUR MISSION', {
+      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
+    }).setAlpha(0);
+    const missionBar = this.add.rectangle(panelX - panelW / 2 + 42, sectY + 19, 2, 0, 0xffffff, 0.04).setOrigin(0, 0);
+    const missionText = this.add.text(panelX - panelW / 2 + 56, sectY + 20, '', {
+      fontFamily: SF, fontSize: '15px', color: '#999999', lineSpacing: 6, wordWrap: { width: panelW - 120 },
+    });
 
-    this.add.text(cx, cy + 15, 'YOUR MISSION:', { fontFamily: 'Courier New', fontSize: '14px', color: '#f0c040' }).setOrigin(0.5);
-    this.add.text(cx, cy + 38, 'Collect all the carb-rich foods!\nSome also contain fibre — grab those\nfor bonus points.', {
-      fontFamily: 'Courier New', fontSize: '12px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
-    }).setOrigin(0.5);
+    // Hazard section (typed in after mission)
+    const hazardY = sectY + 74;
+    const hazardLabel = this.add.text(panelX - panelW / 2 + 40, hazardY, 'WATCH OUT', {
+      fontFamily: SF, fontSize: '12px', color: '#cc6655', letterSpacing: 3,
+    }).setAlpha(0);
+    const hazardBar = this.add.rectangle(panelX - panelW / 2 + 42, hazardY + 19, 2, 0, 0xffffff, 0.04).setOrigin(0, 0);
+    const hazardText = this.add.text(panelX - panelW / 2 + 56, hazardY + 20, '', {
+      fontFamily: SF, fontSize: '15px', color: '#997777', lineSpacing: 6, wordWrap: { width: panelW - 180 },
+    });
 
-    this.add.text(cx, cy + 85, 'WATCH OUT:', { fontFamily: 'Courier New', fontSize: '14px', color: '#cc6666' }).setOrigin(0.5);
-    this.add.text(cx, cy + 104, 'Fatigue Phantoms drain your energy!\nJump on them or throw energy balls.', {
-      fontFamily: 'Courier New', fontSize: '12px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
-    }).setOrigin(0.5);
+    // Phantom sprite next to hazard text
+    const phantomImg = this.add.image(panelX + panelW / 2 - 60, hazardY + 32, 'phantom').setAlpha(0).setScale(0.9);
 
-    this.add.text(cx, cy + 130, '← → Move    ↑ / SPACE Jump    ↓ Duck', {
-      fontFamily: 'Courier New', fontSize: '10px', color: '#666666',
-    }).setOrigin(0.5);
-    this.add.text(cx, cy + 146, 'CLICK to throw energy balls at enemies!', {
-      fontFamily: 'Courier New', fontSize: '10px', color: '#40e8a0',
-    }).setOrigin(0.5);
+    // Start prompt
+    const promptText = this.add.text(panelX, panelY + panelH / 2 - 24, 'PRESS ANY KEY TO START', {
+      fontFamily: SF, fontSize: '14px', color: '#f0c040', letterSpacing: 4,
+    }).setOrigin(0.5).setAlpha(0);
 
-    const btnY = cy + 170;
-    const btn = this.add.rectangle(cx, btnY, 160, 36, 0xf0c040, 1).setInteractive({ useHandCursor: true });
-    this.add.text(cx, btnY, '[ START ]', { fontFamily: 'Courier New', fontSize: '16px', color: '#1a1a2e', fontStyle: 'bold' }).setOrigin(0.5);
-    btn.on('pointerover', () => btn.setFillStyle(0xf8d868));
-    btn.on('pointerout', () => btn.setFillStyle(0xf0c040));
-    btn.on('pointerdown', () => this.scene.start('Game'));
-    this.input.keyboard.on('keydown-SPACE', () => this.scene.start('Game'));
-    this.input.keyboard.on('keydown-ENTER', () => this.scene.start('Game'));
+    // Typewriter animation
+    const TYPE_SPEED = 40;
+    const missionStr = 'Collect all the carbs. Bonus points are awarded for collecting all fibre-rich carbs as well.';
+    const hazardStr = 'Fatigue Phantoms drain your energy \u2026 if they catch you!';
+
+    const typeText = (textObj, str, speed, cb) => {
+      let i = 0;
+      const timer = this.time.addEvent({
+        delay: speed, repeat: str.length - 1,
+        callback: () => {
+          i++;
+          textObj.setText(str.slice(0, i));
+          if (i >= str.length && cb) cb();
+        },
+      });
+    };
+
+    this.time.delayedCall(500, () => {
+      missionLabel.setAlpha(1);
+      missionBar.setSize(2, 34);
+      this.time.delayedCall(400, () => {
+        typeText(missionText, missionStr, TYPE_SPEED, () => {
+          this.time.delayedCall(350, () => {
+            hazardLabel.setAlpha(1);
+            hazardBar.setSize(2, 34);
+            this.time.delayedCall(400, () => {
+              typeText(hazardText, hazardStr, TYPE_SPEED, () => {
+                this.tweens.add({ targets: phantomImg, alpha: 1, scale: 1, duration: 400 });
+                this.time.delayedCall(500, () => {
+                  promptText.setAlpha(1);
+                  this.tweens.add({
+                    targets: promptText, alpha: 0.35, duration: 600,
+                    yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+                  });
+                  this.startEnabled = true;
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    this.startEnabled = false;
+    this.input.keyboard.on('keydown', () => {
+      if (this.startEnabled) this.scene.start('Game');
+    });
+    this.input.on('pointerdown', () => {
+      if (this.startEnabled) this.scene.start('Game');
+    });
   }
 }
 
@@ -702,7 +868,6 @@ class GameScene extends Phaser.Scene {
     this.totalCarbItems = 0;
     this.totalFibreItems = 0;
     this.dmgTaken = false;
-    this.isDucking = false;
     this.isInvincible = false;
     this.levelComplete = false;
     this.levelFailed = false;
@@ -721,6 +886,7 @@ class GameScene extends Phaser.Scene {
     this.createPhantoms();
     this.createCrashPits();
     this.createHiddenAlcove();
+    this.createTreasureChest();
     this.createFinish();
     this.createHUD();
 
@@ -831,20 +997,16 @@ class GameScene extends Phaser.Scene {
       sprite.setData('type', def.type);
       sprite.setData('name', def.name);
       sprite.setData('fun', !!f.fun);
-      sprite.setData('rare', !!f.rare);
       sprite.body.setSize(def.w, def.h); sprite.setDepth(5);
 
       const isFibre = def.type === 'fibre';
       const isFun = def.type === 'fun';
-      const isRare = def.type === 'rare';
       let labelColor = '#ffffff';
       if (isFibre) labelColor = '#aaffaa';
       else if (def.type === 'neutral') labelColor = '#aaaaff';
       else if (isFun) labelColor = '#ff9966';
-      else if (isRare) labelColor = '#ffcc88';
       let labelText = def.name;
       if (isFibre) labelText += ' ✦';
-      if (isRare) labelText += ' ★';
 
       const label = this.add.text(f.x, y - def.h / 2 - 8, labelText, {
         fontFamily: 'Courier New', fontSize: '8px', color: labelColor,
@@ -869,8 +1031,6 @@ class GameScene extends Phaser.Scene {
     const type = food.getData('type');
     const id = food.getData('foodId');
     const label = food.getData('label');
-    const isFun = food.getData('fun');
-    const isRare = food.getData('rare');
 
     if (type === 'starchy') {
       this.carbsCollected++;
@@ -886,10 +1046,6 @@ class GameScene extends Phaser.Scene {
       this.funCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_FUN);
       this.showCollectFX(food.x, food.y, '#ff9966', '+Quick Energy!');
-    } else if (type === 'rare') {
-      this.rareCollected++;
-      this.energy = Math.min(100, this.energy + ENERGY_RARE);
-      this.showCollectFX(food.x, food.y, '#ffcc88', '+Complete Meal!');
     } else {
       this.neutralCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
@@ -1044,6 +1200,86 @@ class GameScene extends Phaser.Scene {
     }, null, this);
   }
 
+  createTreasureChest() {
+    const levelData = this.levelData || L1;
+    if (!levelData.chestSpots || levelData.chestSpots.length === 0) return;
+    const spot = Phaser.Utils.Array.GetRandom(levelData.chestSpots);
+    const rareItem = Phaser.Utils.Array.GetRandom(RARE_ITEMS);
+
+    const plat = levelData.platforms[spot.platIdx];
+    const cx = spot.x;
+    const cy = plat.y - 20;
+
+    this.chest = this.physics.add.image(cx, cy, 'chest_closed');
+    this.chest.body.allowGravity = false;
+    this.chest.body.setImmovable(true);
+    this.chest.setDepth(5);
+    this.chest.setData('rareItem', rareItem);
+    this.chest.setData('opened', false);
+
+    this.tweens.add({
+      targets: this.chest, y: cy - 3, duration: 1400,
+      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    });
+
+    const glow = this.add.graphics();
+    glow.fillStyle(0xf0c040, 0.15);
+    glow.fillCircle(0, 0, 22);
+    glow.setPosition(cx, cy);
+    glow.setDepth(4);
+    this.tweens.add({
+      targets: glow, alpha: 0.4, duration: 800,
+      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    });
+    this.chest.setData('glow', glow);
+
+    this.physics.add.overlap(this.player, this.chest, this.openChest, null, this);
+  }
+
+  openChest(player, chest) {
+    if (chest.getData('opened')) return;
+    chest.setData('opened', true);
+
+    const rareItem = chest.getData('rareItem');
+    const glow = chest.getData('glow');
+    const cx = chest.x;
+    const cy = chest.y;
+
+    chest.setTexture('chest_open');
+    this.tweens.killTweensOf(chest);
+    this.tweens.killTweensOf(glow);
+    glow.destroy();
+
+    const burst = this.add.graphics();
+    burst.fillStyle(0xf0c040, 0.5);
+    burst.fillCircle(0, 0, 4);
+    burst.setPosition(cx, cy);
+    burst.setDepth(12);
+    this.tweens.add({
+      targets: burst, scaleX: 8, scaleY: 8, alpha: 0, duration: 600,
+      onComplete: () => burst.destroy(),
+    });
+
+    const itemSprite = this.add.image(cx, cy, 'rare_' + rareItem.id);
+    itemSprite.setDepth(13).setScale(0.3).setAlpha(0);
+    this.tweens.add({
+      targets: itemSprite, y: cy - 50, scaleX: 1.5, scaleY: 1.5, alpha: 1,
+      duration: 800, ease: 'Back.easeOut',
+      onComplete: () => {
+        this.showCollectFX(cx, cy - 60, '#f0c040', '★ ' + rareItem.name + '!');
+        this.showCollectFX(cx, cy - 75, '#ffcc88', rareItem.desc);
+        this.rareCollected++;
+        this.energy = Math.min(100, this.energy + ENERGY_RARE);
+        this.updateHUD();
+        this.tweens.add({
+          targets: itemSprite, alpha: 0, scaleX: 0.5, scaleY: 0.5, y: cy - 70,
+          duration: 500, delay: 800,
+          onComplete: () => itemSprite.destroy(),
+        });
+      },
+    });
+  }
+
   createEnergyBalls() {
     this.ballGroup = this.physics.add.group({ allowGravity: false });
     this.physics.add.overlap(this.ballGroup, this.phantomGroup, this.ballHitPhantom, null, this);
@@ -1051,9 +1287,9 @@ class GameScene extends Phaser.Scene {
 
   fireEnergyBall(pointer) {
     const BALL_SPEED = 500;
-    const BALL_COST = 2;
-    if (this.energy < BALL_COST + 5) return;
-    this.energy -= BALL_COST;
+    if (this.cellsCollected < 1) return;
+    this.cellsCollected--;
+    this.updateHUD();
 
     const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const ball = this.ballGroup.create(this.player.x, this.player.y - 10, 'energy_ball');
@@ -1179,7 +1415,7 @@ class GameScene extends Phaser.Scene {
     const dt = delta / 1000;
     const onGround = this.player.body.blocked.down || this.player.body.touching.down;
 
-    const speed = this.isDucking ? DUCK_SPEED : this.getPlayerSpeed();
+    const speed = this.getPlayerSpeed();
     const isMoving = this.cursors.left.isDown || this.cursors.right.isDown;
     if (isMoving) this.hasStartedMoving = true;
 
@@ -1188,37 +1424,17 @@ class GameScene extends Phaser.Scene {
       this.energy -= drain * dt;
       if (this.energy <= 0) { this.energy = 0; this.triggerFail(); return; }
     }
-    this.updatePlayerState();
 
     if (this.cursors.left.isDown) { this.player.setVelocityX(-speed); this.player.setFlipX(true); }
     else if (this.cursors.right.isDown) { this.player.setVelocityX(speed); this.player.setFlipX(false); }
     else { this.player.setVelocityX(0); }
 
-    if ((this.cursors.up.isDown || this.spaceKey.isDown) && onGround && !this.isDucking) {
+    if ((this.cursors.up.isDown || this.spaceKey.isDown) && onGround) {
       if (!this.hasStartedMoving) this.hasStartedMoving = true;
       this.player.setVelocityY(this.getJumpPower());
     }
 
-    if (this.cursors.down.isDown && onGround) {
-      if (!this.isDucking) {
-        this.isDucking = true;
-        this.player.body.setSize(32, 28);
-        this.player.body.setOffset(8, 15);
-        this.player.setScale(1, 0.7);
-      }
-    } else if (this.isDucking) {
-      this.isDucking = false;
-      this.player.body.setSize(32, 44);
-      this.player.body.setOffset(8, 7);
-      this.player.setScale(1, 1);
-    }
-
-    if (!onGround && this.isDucking) {
-      this.isDucking = false;
-      this.player.body.setSize(32, 44);
-      this.player.body.setOffset(8, 7);
-      this.player.setScale(1, 1);
-    }
+    this.updatePlayerState();
 
     const maxY = GROUND_Y - 22;
     if (this.player.y > maxY && onGround) this.player.y = maxY;
@@ -1239,7 +1455,7 @@ class GameScene extends Phaser.Scene {
   checkCrashPits() {
     for (const cp of L1.crashPits) {
       if (this.player.x > cp.x && this.player.x < cp.x + cp.w && this.player.y > GROUND_Y - 30) {
-        if (!this.isDucking) this.player.setVelocityX(this.player.body.velocity.x * 0.5);
+        this.player.setVelocityX(this.player.body.velocity.x * 0.5);
         return;
       }
     }
