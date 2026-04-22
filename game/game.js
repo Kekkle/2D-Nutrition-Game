@@ -185,11 +185,12 @@ class BootScene extends Phaser.Scene {
   generateNibble() {
     const P = 2;
     const states = [
-      { key: 'nibble',           body: 0x48a8e0, border: 0x2868a0, shadow: 0x1a4878, foot: 0x48a8e0, footBorder: 0x2868a0, highlight: 0x68c8f8, hlAlpha: 0.6, blush: 0xf08ca0, smile: 0x1a4878 },
-      { key: 'nibble_energized', body: 0xf0d040, border: 0xc8a020, shadow: 0xa08018, foot: 0xf0d040, footBorder: 0xc8a020, highlight: 0xf8e878, hlAlpha: 0.8, blush: 0xffa078, smile: 0xa08018 },
-      { key: 'nibble_tired',     body: 0xb0b8c0, border: 0x8890a0, shadow: 0x686878, foot: 0xb0b8c0, footBorder: 0x8890a0, highlight: 0xc8d0d8, hlAlpha: 0.3, blush: null,     smile: null },
+      { key: 'nibble',           body: 0x48a8e0, border: 0x2868a0, shadow: 0x1a4878, foot: 0x48a8e0, footBorder: 0x2868a0, highlight: 0x68c8f8, hlAlpha: 0.6 },
+      { key: 'nibble_energized', body: 0x60c8ff, border: 0x3090d0, shadow: 0x2070a8, foot: 0x60c8ff, footBorder: 0x3090d0, highlight: 0xa0e8ff, hlAlpha: 0.9 },
+      { key: 'nibble_tired',     body: 0x6888a0, border: 0x486878, shadow: 0x384858, foot: 0x6888a0, footBorder: 0x486878, highlight: 0x8098a8, hlAlpha: 0.25 },
     ];
     const tired = (s) => s.key === 'nibble_tired';
+    const energized = (s) => s.key === 'nibble_energized';
 
     for (const s of states) {
       const g = this.make.graphics({ add: false });
@@ -240,21 +241,6 @@ class BootScene extends Phaser.Scene {
         g.fillStyle(0xffffff);
         g.fillCircle(P + 15, pupilY + 1, 1.5);
         g.fillCircle(P + 37, pupilY + 1, 1.5);
-      }
-
-      // Blush
-      if (s.blush) {
-        g.fillStyle(s.blush, 0.45);
-        g.fillEllipse(P + 6, P + 36, 8, 5);
-        g.fillEllipse(P + 38, P + 36, 8, 5);
-      }
-
-      // Smile
-      if (s.smile) {
-        g.lineStyle(3, s.smile);
-        g.beginPath();
-        g.arc(P + 22, P + 34, 6, 0.2, Math.PI - 0.2, false);
-        g.strokePath();
       }
 
       g.generateTexture(s.key, 48, 58);
@@ -790,55 +776,85 @@ class SplashScene extends Phaser.Scene {
       fontFamily: SF, fontSize: '14px', color: '#f0c040', letterSpacing: 4,
     }).setOrigin(0.5).setAlpha(0);
 
-    // Typewriter animation
+    // Typewriter animation with click-to-skip
     const TYPE_SPEED = 40;
     const missionStr = 'Collect all the carbs. Bonus points are awarded for collecting all fibre-rich carbs as well.';
     const hazardStr = 'Fatigue Phantoms drain your energy \u2026 if they catch you!';
+
+    this.startEnabled = false;
+    this.animComplete = false;
+    this.activeTimers = [];
+
+    const showComplete = () => {
+      if (this.animComplete) return;
+      this.animComplete = true;
+      this.activeTimers.forEach(t => t.remove && t.remove());
+      this.activeTimers = [];
+      missionLabel.setAlpha(1); missionBar.setSize(2, 34);
+      missionText.setText(missionStr);
+      hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
+      hazardText.setText(hazardStr);
+      phantomImg.setAlpha(1).setScale(1);
+      promptText.setAlpha(1);
+      this.tweens.add({
+        targets: promptText, alpha: 0.35, duration: 600,
+        yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+      });
+      this.startEnabled = true;
+    };
 
     const typeText = (textObj, str, speed, cb) => {
       let i = 0;
       const timer = this.time.addEvent({
         delay: speed, repeat: str.length - 1,
         callback: () => {
+          if (this.animComplete) return;
           i++;
           textObj.setText(str.slice(0, i));
           if (i >= str.length && cb) cb();
         },
       });
+      this.activeTimers.push(timer);
+      return timer;
     };
 
-    this.time.delayedCall(500, () => {
-      missionLabel.setAlpha(1);
-      missionBar.setSize(2, 34);
-      this.time.delayedCall(400, () => {
+    const d1 = this.time.delayedCall(500, () => {
+      missionLabel.setAlpha(1); missionBar.setSize(2, 34);
+      const d2 = this.time.delayedCall(400, () => {
         typeText(missionText, missionStr, TYPE_SPEED, () => {
-          this.time.delayedCall(350, () => {
-            hazardLabel.setAlpha(1);
-            hazardBar.setSize(2, 34);
-            this.time.delayedCall(400, () => {
+          const d3 = this.time.delayedCall(350, () => {
+            hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
+            const d4 = this.time.delayedCall(400, () => {
               typeText(hazardText, hazardStr, TYPE_SPEED, () => {
                 this.tweens.add({ targets: phantomImg, alpha: 1, scale: 1, duration: 400 });
-                this.time.delayedCall(500, () => {
+                const d5 = this.time.delayedCall(500, () => {
                   promptText.setAlpha(1);
                   this.tweens.add({
                     targets: promptText, alpha: 0.35, duration: 600,
                     yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
                   });
                   this.startEnabled = true;
+                  this.animComplete = true;
                 });
+                this.activeTimers.push(d5);
               });
             });
+            this.activeTimers.push(d4);
           });
+          this.activeTimers.push(d3);
         });
       });
+      this.activeTimers.push(d2);
     });
+    this.activeTimers.push(d1);
 
-    this.startEnabled = false;
     this.input.keyboard.on('keydown', () => {
       if (this.startEnabled) this.scene.start('Game');
+      else if (!this.animComplete) showComplete();
     });
     this.input.on('pointerdown', () => {
       if (this.startEnabled) this.scene.start('Game');
+      else if (!this.animComplete) showComplete();
     });
   }
 }
@@ -892,11 +908,74 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.setDeadzone(100, GAME_H);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+    this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
     this.input.on('pointerdown', (pointer) => {
       if (this.levelComplete || this.levelFailed || this.isPaused) return;
       this.fireEnergyBall(pointer);
     });
+    this.keyF.on('down', () => {
+      if (this.levelComplete || this.levelFailed || this.isPaused) return;
+      this.fireEnergyBall({ x: this.input.activePointer.x, y: this.input.activePointer.y });
+    });
+
+    this.createTutorialOverlay();
+  }
+
+  createTutorialOverlay() {
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+    const SF = "'Special Elite', 'Courier New', monospace";
+    this.tutorialGroup = this.add.group();
+
+    const dim = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setScrollFactor(0).setDepth(200);
+    const panel = this.add.rectangle(cx, cy, 400, 240, 0x0c0c18, 0.95).setScrollFactor(0).setDepth(201);
+    const border = this.add.rectangle(cx, cy, 400, 240).setStrokeStyle(2, 0xf0c040, 0.5).setScrollFactor(0).setDepth(201);
+
+    const title = this.add.text(cx, cy - 95, 'CONTROLS', {
+      fontFamily: SF, fontSize: '18px', color: '#f0c040', letterSpacing: 4,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
+
+    const lines = [
+      { key: 'A / D  or  ← / →', action: 'Move left / right' },
+      { key: 'W  or  SPACE', action: 'Jump' },
+      { key: 'F  or  CLICK', action: 'Throw energy ball (aim with mouse)' },
+      { key: 'P', action: 'Pause' },
+    ];
+    const lineObjs = lines.map((l, i) => {
+      const y = cy - 50 + i * 32;
+      const k = this.add.text(cx - 180, y, l.key, {
+        fontFamily: SF, fontSize: '13px', color: '#f0c040',
+      }).setScrollFactor(0).setDepth(202);
+      const v = this.add.text(cx + 20, y, l.action, {
+        fontFamily: SF, fontSize: '13px', color: '#999999',
+      }).setScrollFactor(0).setDepth(202);
+      return [k, v];
+    });
+
+    const hint = this.add.text(cx, cy + 100, 'Press any key to begin', {
+      fontFamily: SF, fontSize: '12px', color: '#f0c040', letterSpacing: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
+    this.tweens.add({ targets: hint, alpha: 0.35, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+    const allObjs = [dim, panel, border, title, hint, ...lineObjs.flat()];
+    allObjs.forEach(o => this.tutorialGroup.add(o));
+
+    this.isPaused = true;
+    this.physics.world.isPaused = true;
+
+    const dismiss = () => {
+      allObjs.forEach(o => o.destroy());
+      this.isPaused = false;
+      this.physics.world.isPaused = false;
+      this.input.keyboard.off('keydown', dismiss);
+      this.input.off('pointerdown', dismiss);
+    };
+    this.input.keyboard.on('keydown', dismiss);
+    this.input.on('pointerdown', dismiss);
   }
 
   drawBackground() {
@@ -1308,13 +1387,14 @@ class GameScene extends Phaser.Scene {
   }
 
   createFinish() {
-    this.finishFlag = this.add.image(L1.finishX, GROUND_Y - 40, 'finish_flag').setOrigin(0.5, 1).setDepth(5);
-    this.finishZone = this.add.zone(L1.finishX, GROUND_Y - 30, 40, 60);
-    this.physics.add.existing(this.finishZone, true);
-    this.physics.add.overlap(this.player, this.finishZone, this.reachFinish, null, this);
+    this.finishFlag = this.add.image(L1.finishX, GROUND_Y, 'finish_flag').setOrigin(0.5, 1).setDepth(5);
     this.add.text(L1.finishX, GROUND_Y - 90, 'FINISH', {
       fontFamily: 'Courier New', fontSize: '14px', color: '#f0c040', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0.5).setDepth(5);
+    const zoneW = LEVEL_W - L1.finishX + 40;
+    this.finishZone = this.add.zone(L1.finishX - 20 + zoneW / 2, GAME_H / 2, zoneW, GAME_H);
+    this.physics.add.existing(this.finishZone, true);
+    this.physics.add.overlap(this.player, this.finishZone, this.reachFinish, null, this);
   }
 
   reachFinish() {
@@ -1396,7 +1476,10 @@ class GameScene extends Phaser.Scene {
     const onGround = this.player.body.blocked.down || this.player.body.touching.down;
 
     const speed = this.getPlayerSpeed();
-    const isMoving = this.cursors.left.isDown || this.cursors.right.isDown;
+    const moveLeft = this.cursors.left.isDown || this.keyA.isDown;
+    const moveRight = this.cursors.right.isDown || this.keyD.isDown;
+    const jumpDown = this.cursors.up.isDown || this.spaceKey.isDown || this.keyW.isDown;
+    const isMoving = moveLeft || moveRight;
     if (isMoving) this.hasStartedMoving = true;
 
     if (this.hasStartedMoving) {
@@ -1405,11 +1488,11 @@ class GameScene extends Phaser.Scene {
       if (this.energy <= 0) { this.energy = 0; this.triggerFail(); return; }
     }
 
-    if (this.cursors.left.isDown) { this.player.setVelocityX(-speed); this.player.setFlipX(true); }
-    else if (this.cursors.right.isDown) { this.player.setVelocityX(speed); this.player.setFlipX(false); }
+    if (moveLeft) { this.player.setVelocityX(-speed); this.player.setFlipX(true); }
+    else if (moveRight) { this.player.setVelocityX(speed); this.player.setFlipX(false); }
     else { this.player.setVelocityX(0); }
 
-    if ((this.cursors.up.isDown || this.spaceKey.isDown) && onGround) {
+    if (jumpDown && onGround) {
       if (!this.hasStartedMoving) this.hasStartedMoving = true;
       this.player.setVelocityY(this.getJumpPower());
     }
