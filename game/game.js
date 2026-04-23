@@ -32,7 +32,7 @@ const FOOD_DEFS = {
   white_bread:  { name: 'White Bread',  type: 'starchy', w: 32, h: 28 },
   white_rice:   { name: 'White Rice',   type: 'starchy', w: 34, h: 26 },
   pasta:        { name: 'Pasta',        type: 'starchy', w: 30, h: 22 },
-  potato:       { name: 'Potato',       type: 'fibre',   w: 30, h: 24 },
+  potato:       { name: 'Potato',       type: 'starchy', w: 30, h: 24 },
   cereal:       { name: 'Cereal',       type: 'starchy', w: 32, h: 24 },
   tortilla:     { name: 'Tortilla',     type: 'starchy', w: 32, h: 20 },
   pita:         { name: 'Pita Bread',   type: 'starchy', w: 32, h: 22 },
@@ -163,6 +163,85 @@ const FIBRE_IDS = [
   'pear','raspberries','watermelon','grapes','cherry','broccoli','carrots',
   'tomato','cucumber','sweetpotato','chia',
 ];
+
+// =================================================================
+// SFX — Procedural sound effects via Web Audio API
+// =================================================================
+
+const SFX = {
+  ctx: null,
+  init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  },
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  _tone(freq, dur, type, vol, ramp) {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (ramp) o.frequency.linearRampToValueAtTime(ramp, t + dur);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t); o.stop(t + dur);
+  },
+  collectStarchy() {
+    this._tone(520, 0.12, 'square', 0.15);
+    setTimeout(() => this._tone(660, 0.12, 'square', 0.12), 60);
+  },
+  collectFibre() {
+    this._tone(440, 0.1, 'sine', 0.15);
+    setTimeout(() => this._tone(587, 0.1, 'sine', 0.15), 70);
+    setTimeout(() => this._tone(740, 0.15, 'sine', 0.12), 140);
+  },
+  collectFun() {
+    this._tone(600, 0.08, 'triangle', 0.12);
+    setTimeout(() => this._tone(750, 0.1, 'triangle', 0.1), 50);
+  },
+  collectCell() {
+    this._tone(880, 0.08, 'sine', 0.1);
+    setTimeout(() => this._tone(1100, 0.06, 'sine', 0.08), 50);
+  },
+  shootBall() {
+    this._tone(300, 0.15, 'sawtooth', 0.08, 800);
+  },
+  hitEnemy() {
+    this._tone(200, 0.1, 'square', 0.12);
+    setTimeout(() => this._tone(300, 0.08, 'square', 0.1), 60);
+  },
+  defeatEnemy() {
+    this._tone(330, 0.08, 'square', 0.12);
+    setTimeout(() => this._tone(440, 0.08, 'square', 0.12), 70);
+    setTimeout(() => this._tone(660, 0.15, 'square', 0.1), 140);
+  },
+  playerHurt() {
+    this._tone(180, 0.2, 'sawtooth', 0.12, 80);
+  },
+  crashPit() {
+    this._tone(120, 0.3, 'triangle', 0.12, 60);
+  },
+  stomp() {
+    this._tone(250, 0.06, 'square', 0.12);
+    setTimeout(() => this._tone(500, 0.08, 'square', 0.1), 40);
+  },
+  faint() {
+    this._tone(400, 0.4, 'sine', 0.12, 100);
+    setTimeout(() => this._tone(150, 0.5, 'sine', 0.1, 60), 300);
+  },
+  finish() {
+    [523, 659, 784, 1047].forEach((f, i) => {
+      setTimeout(() => this._tone(f, 0.2, 'sine', 0.12), i * 120);
+    });
+  },
+  starEarned() {
+    this._tone(880, 0.1, 'sine', 0.1);
+    setTimeout(() => this._tone(1100, 0.15, 'sine', 0.1), 80);
+  },
+};
 
 // =================================================================
 // BOOT SCENE — Generate all textures
@@ -944,10 +1023,12 @@ class SplashScene extends Phaser.Scene {
     this.activeTimers.push(d1);
 
     this.input.keyboard.on('keydown', () => {
+      SFX.init(); SFX.resume();
       if (this.startEnabled) this.scene.start('Game');
       else if (!this.animComplete) showComplete();
     });
     this.input.on('pointerdown', () => {
+      SFX.init(); SFX.resume();
       if (this.startEnabled) this.scene.start('Game');
       else if (!this.animComplete) showComplete();
     });
@@ -1204,20 +1285,24 @@ class GameScene extends Phaser.Scene {
       this.carbsCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_CARB);
       this.showCollectFX(food.x, food.y, '#f0c040', name);
+      SFX.collectStarchy();
     } else if (type === 'fibre') {
       this.carbsCollected++;
       this.fibreCollected++;
       this.fibreItemsFound.push(id);
       this.energy = Math.min(100, this.energy + ENERGY_FIBRE);
       this.showCollectFX(food.x, food.y, '#80ff80', name);
+      SFX.collectFibre();
     } else if (type === 'fun') {
       this.funCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_FUN);
       this.showCollectFX(food.x, food.y, '#ff9966', name);
+      SFX.collectFun();
     } else {
       this.neutralCollected++;
       this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
       this.showCollectFX(food.x, food.y, '#aaaaff', name);
+      SFX.collectStarchy();
     }
     const tag = food.getData('fibreTag');
     if (tag) tag.destroy();
@@ -1248,7 +1333,8 @@ class GameScene extends Phaser.Scene {
 
   collectCell(player, cell) {
     this.cellsCollected++;
-    this.showCollectFX(cell.x, cell.y, '#80ffcc', '+1');
+    this.showCollectFX(cell.x, cell.y, '#f0d860', '+1');
+    SFX.collectCell();
     cell.destroy();
     this.updateHUD();
   }
@@ -1279,6 +1365,7 @@ class GameScene extends Phaser.Scene {
 
     if (isStomp) {
       player.setVelocityY(PLAYER_JUMP * 0.6);
+      SFX.stomp();
       this.damagePhantom(phantom, 'Stomped!');
       return;
     }
@@ -1287,6 +1374,7 @@ class GameScene extends Phaser.Scene {
     this.dmgTaken = true;
     this.isInvincible = true;
     this.showCollectFX(player.x, player.y - 20, '#cc4444', '-Energy!');
+    SFX.playerHurt();
     this.tweens.add({
       targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
       onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
@@ -1459,6 +1547,7 @@ class GameScene extends Phaser.Scene {
     if (this.cellsCollected < 1) return;
     this.cellsCollected--;
     this.updateHUD();
+    SFX.shootBall();
 
     const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const ball = this.ballGroup.create(this.player.x, this.player.y - 10, 'energy_ball');
@@ -1482,6 +1571,7 @@ class GameScene extends Phaser.Scene {
     phantom.setData('hp', hp);
     if (hp <= 0) {
       this.showCollectFX(phantom.x, phantom.y - 20, '#40e8a0', 'Defeated!');
+      SFX.defeatEnemy();
       phantom.setData('active', false);
       this.tweens.add({
         targets: phantom, alpha: 0, scale: 0.3, duration: 400,
@@ -1489,6 +1579,7 @@ class GameScene extends Phaser.Scene {
       });
     } else {
       this.showCollectFX(phantom.x, phantom.y - 20, '#80ccaa', label + ' ' + hp + '/3');
+      SFX.hitEnemy();
       this.tweens.add({
         targets: phantom, alpha: 0.3, duration: 80, yoyo: true, repeat: 2,
         onComplete: () => phantom.setAlpha(1),
@@ -1510,6 +1601,7 @@ class GameScene extends Phaser.Scene {
   reachFinish() {
     if (this.levelComplete || this.levelFailed) return;
     this.levelComplete = true;
+    SFX.finish();
     const elapsed = (this.time.now - this.startTime) / 1000;
     const stars = [];
     if (this.fibreCollected >= this.totalFibreItems) stars.push(1);
@@ -1634,6 +1726,7 @@ class GameScene extends Phaser.Scene {
           const drain = this.energy * 0.33;
           this.energy = Math.max(0, this.energy - drain);
           this.showCollectFX(this.player.x, this.player.y - 20, '#cc6644', 'Energy Crash!');
+          SFX.crashPit();
           this.updateHUD();
           if (this.energy <= 0) { this.triggerFail(); return; }
         }
@@ -1713,6 +1806,7 @@ class GameScene extends Phaser.Scene {
         ease: 'Bounce.easeOut',
       });
       this.showCollectFX(baseX, baseY - 30, '#cc6666', 'Out of fuel!');
+      SFX.faint();
     });
 
     this.time.delayedCall(2000, () => {
@@ -1753,14 +1847,22 @@ class ResultScene extends Phaser.Scene {
     else this.showFail(cx, cy, d, SF, panelW, panelH);
 
     const btnY = cy + panelH / 2 - 35;
-    const btn = this.add.rectangle(cx, btnY, 200, 38, 0xf0c040).setInteractive({ useHandCursor: true });
-    this.add.text(cx, btnY, d.success ? '[ CONTINUE ]' : '[ TRY AGAIN ]', {
-      fontFamily: SF, fontSize: '14px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 3,
-    }).setOrigin(0.5);
-    btn.on('pointerover', () => btn.setFillStyle(0xf8d868));
-    btn.on('pointerout', () => btn.setFillStyle(0xf0c040));
-    btn.on('pointerdown', () => this.scene.start(d.success ? 'Splash' : 'Game'));
-    this.input.keyboard.on('keydown-SPACE', () => this.scene.start(d.success ? 'Splash' : 'Game'));
+    const makeBtn = (x, label, color, scene) => {
+      const bg = this.add.rectangle(x, btnY, 180, 36, color).setInteractive({ useHandCursor: true });
+      this.add.text(x, btnY, label, {
+        fontFamily: SF, fontSize: '13px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 2,
+      }).setOrigin(0.5);
+      bg.on('pointerover', () => bg.setFillStyle(Phaser.Display.Color.ValueToColor(color).lighten(15).color));
+      bg.on('pointerout', () => bg.setFillStyle(color));
+      bg.on('pointerdown', () => this.scene.start(scene));
+    };
+
+    makeBtn(cx - 100, '[ REPLAY ]', 0x888888, 'Game');
+    if (d.success) {
+      makeBtn(cx + 100, '[ NEXT LEVEL ]', 0xf0c040, 'Splash');
+    } else {
+      makeBtn(cx + 100, '[ TRY AGAIN ]', 0xf0c040, 'Game');
+    }
   }
 
   showSuccess(cx, cy, d, SF, panelW, panelH) {
@@ -1821,6 +1923,7 @@ class ResultScene extends Phaser.Scene {
           ease: 'Back.easeOut',
         });
         if (earned) {
+          SFX.starEarned();
           this.tweens.add({
             targets: starImg, scale: 1.15, duration: 150, delay: 400,
             yoyo: true, ease: 'Sine.easeInOut',
