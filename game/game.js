@@ -32,7 +32,7 @@ const FOOD_DEFS = {
   white_bread:  { name: 'White Bread',  type: 'starchy', w: 32, h: 28 },
   white_rice:   { name: 'White Rice',   type: 'starchy', w: 34, h: 26 },
   pasta:        { name: 'Pasta',        type: 'starchy', w: 30, h: 22 },
-  potato:       { name: 'Potato',       type: 'starchy', w: 30, h: 24 },
+  potato:       { name: 'Potato',       type: 'fibre',   w: 30, h: 24 },
   cereal:       { name: 'Cereal',       type: 'starchy', w: 32, h: 24 },
   tortilla:     { name: 'Tortilla',     type: 'starchy', w: 32, h: 20 },
   pita:         { name: 'Pita Bread',   type: 'starchy', w: 32, h: 22 },
@@ -130,6 +130,11 @@ const L1 = {
     { id: 'cookie',      x: 1470, onGround: true, fun: true },
     { id: 'fries',       x: 2940, onGround: true, fun: true },
     { id: 'donut',       x: 5040, onGround: true, fun: true },
+    // Above crash pits (reachable by jumping)
+    { id: 'banana',      x: 2060, aboveY: GROUND_Y - 70 },
+    { id: 'oats',        x: 2140, aboveY: GROUND_Y - 70 },
+    { id: 'orange',      x: 4940, aboveY: GROUND_Y - 70 },
+    { id: 'apple',       x: 5020, aboveY: GROUND_Y - 70 },
   ],
   energyCells: [
     450, 900, 1300, 1700, 2200, 2600,
@@ -172,6 +177,7 @@ class BootScene extends Phaser.Scene {
     this.generateEnergyCell();
     this.generateEnergyBall();
     this.generatePhantom();
+    this.generateFibreTag();
     this.generateTreasureChest();
     this.generateRareItems();
     this.generateStar();
@@ -246,6 +252,39 @@ class BootScene extends Phaser.Scene {
       g.generateTexture(s.key, 48, 58);
       g.destroy();
     }
+
+    // Fainted state — fallen over with X eyes
+    const fg = this.make.graphics({ add: false });
+    const footR = { tl: 0, tr: 0, bl: 6, br: 6 };
+    const fc = states[2]; // use tired colors as base
+
+    // Feet (sideways — character tipped over)
+    fg.fillStyle(fc.foot);
+    fg.fillRoundedRect(P + 44, P + 28, 10, 14, { tl: 0, tr: 6, bl: 0, br: 6 });
+    fg.fillRoundedRect(P + 44, P + 6, 10, 14, { tl: 0, tr: 6, bl: 0, br: 6 });
+    fg.lineStyle(3, fc.footBorder);
+    fg.strokeRoundedRect(P + 44, P + 28, 10, 14, { tl: 0, tr: 6, bl: 0, br: 6 });
+    fg.strokeRoundedRect(P + 44, P + 6, 10, 14, { tl: 0, tr: 6, bl: 0, br: 6 });
+
+    // Body shadow (tipped)
+    fg.fillStyle(fc.shadow);
+    fg.fillRoundedRect(P, P + 3, 44, 44, 10);
+
+    // Body
+    fg.fillStyle(fc.body);
+    fg.fillRoundedRect(P, P, 44, 44, 10);
+    fg.lineStyle(3, fc.border);
+    fg.strokeRoundedRect(P, P, 44, 44, 10);
+
+    // X eyes
+    fg.lineStyle(3, 0xcc4444);
+    fg.lineBetween(P + 7, P + 12, P + 17, P + 22);
+    fg.lineBetween(P + 17, P + 12, P + 7, P + 22);
+    fg.lineBetween(P + 27, P + 12, P + 37, P + 22);
+    fg.lineBetween(P + 37, P + 12, P + 27, P + 22);
+
+    fg.generateTexture('nibble_fainted', 58, 48);
+    fg.destroy();
   }
 
   generateFoods() {
@@ -515,8 +554,8 @@ class BootScene extends Phaser.Scene {
 
   generateEnergyCell() {
     const g = this.make.graphics({ add: false });
-    g.fillStyle(0x20cc88); g.fillCircle(8, 8, 7);
-    g.fillStyle(0x80ffcc, 0.8); g.fillCircle(7, 7, 5);
+    g.fillStyle(0xccaa20); g.fillCircle(8, 8, 7);
+    g.fillStyle(0xf0d860, 0.8); g.fillCircle(7, 7, 5);
     g.fillStyle(0xffffff, 0.5); g.fillCircle(6, 5, 2);
     g.generateTexture('energy_cell', 16, 16);
     g.destroy();
@@ -524,10 +563,26 @@ class BootScene extends Phaser.Scene {
 
   generateEnergyBall() {
     const g = this.make.graphics({ add: false });
-    g.fillStyle(0x40e8a0); g.fillCircle(6, 6, 6);
-    g.fillStyle(0x80ffd0, 0.7); g.fillCircle(5, 5, 4);
+    g.fillStyle(0xe0c040); g.fillCircle(6, 6, 6);
+    g.fillStyle(0xf0dd70, 0.7); g.fillCircle(5, 5, 4);
     g.fillStyle(0xffffff, 0.6); g.fillCircle(4, 3, 2);
     g.generateTexture('energy_ball', 12, 12);
+    g.destroy();
+  }
+
+  generateFibreTag() {
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0x3a8a2a);
+    g.beginPath();
+    g.moveTo(5, 0); g.lineTo(10, 5); g.lineTo(5, 10); g.lineTo(0, 5);
+    g.closePath(); g.fillPath();
+    g.fillStyle(0x80ff80, 0.6);
+    g.beginPath();
+    g.moveTo(5, 1); g.lineTo(8, 5); g.lineTo(5, 9); g.lineTo(2, 5);
+    g.closePath(); g.fillPath();
+    g.fillStyle(0xffffff, 0.4);
+    g.fillCircle(4, 4, 1.5);
+    g.generateTexture('fibre_tag', 10, 10);
     g.destroy();
   }
 
@@ -659,6 +714,46 @@ class BootScene extends Phaser.Scene {
     }
     g.closePath(); g.fillPath();
     g.generateTexture('star_icon', 20, 20);
+    g.destroy();
+
+    this.generateResultStar('result_star_earned', 0xf0c040, 0xd4a020, true);
+    this.generateResultStar('result_star_empty', 0x444455, 0x333344, false);
+  }
+
+  generateResultStar(key, fill, outline, glow) {
+    const size = 48, cx = size / 2, cy = size / 2;
+    const outer = 20, inner = 8;
+    const g = this.make.graphics({ add: false });
+    if (glow) {
+      g.fillStyle(fill, 0.15);
+      g.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const aO = (i * 72 - 90) * Math.PI / 180;
+        const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
+        g.lineTo(cx + Math.cos(aO) * (outer + 4), cy + Math.sin(aO) * (outer + 4));
+        g.lineTo(cx + Math.cos(aI) * (inner + 2), cy + Math.sin(aI) * (inner + 2));
+      }
+      g.closePath(); g.fillPath();
+    }
+    g.fillStyle(fill);
+    g.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const aO = (i * 72 - 90) * Math.PI / 180;
+      const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
+      g.lineTo(cx + Math.cos(aO) * outer, cy + Math.sin(aO) * outer);
+      g.lineTo(cx + Math.cos(aI) * inner, cy + Math.sin(aI) * inner);
+    }
+    g.closePath(); g.fillPath();
+    g.lineStyle(3, outline);
+    g.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const aO = (i * 72 - 90) * Math.PI / 180;
+      const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
+      g.lineTo(cx + Math.cos(aO) * outer, cy + Math.sin(aO) * outer);
+      g.lineTo(cx + Math.cos(aI) * inner, cy + Math.sin(aI) * inner);
+    }
+    g.closePath(); g.strokePath();
+    g.generateTexture(key, size, size);
     g.destroy();
   }
 
@@ -931,32 +1026,35 @@ class GameScene extends Phaser.Scene {
     const SF = "'Special Elite', 'Courier New', monospace";
     this.tutorialGroup = this.add.group();
 
+    const pW = 520, pH = 250;
     const dim = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setScrollFactor(0).setDepth(200);
-    const panel = this.add.rectangle(cx, cy, 400, 240, 0x0c0c18, 0.95).setScrollFactor(0).setDepth(201);
-    const border = this.add.rectangle(cx, cy, 400, 240).setStrokeStyle(2, 0xf0c040, 0.5).setScrollFactor(0).setDepth(201);
+    const panel = this.add.rectangle(cx, cy, pW, pH, 0x0c0c18, 0.95).setScrollFactor(0).setDepth(201);
+    const border = this.add.rectangle(cx, cy, pW, pH).setStrokeStyle(2, 0xf0c040, 0.5).setScrollFactor(0).setDepth(201);
 
-    const title = this.add.text(cx, cy - 95, 'CONTROLS', {
+    const title = this.add.text(cx, cy - pH / 2 + 24, 'CONTROLS', {
       fontFamily: SF, fontSize: '18px', color: '#f0c040', letterSpacing: 4,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
 
     const lines = [
-      { key: 'A / D  or  ← / →', action: 'Move left / right' },
+      { key: 'A / D  or  ← →', action: 'Move left / right' },
       { key: 'W  or  SPACE', action: 'Jump' },
-      { key: 'F  or  CLICK', action: 'Throw energy ball (aim with mouse)' },
+      { key: 'F  or  CLICK', action: 'Shoot energy ball (aim with mouse)' },
       { key: 'P', action: 'Pause' },
     ];
+    const leftX = cx - pW / 2 + 30;
+    const rightX = cx + 10;
     const lineObjs = lines.map((l, i) => {
-      const y = cy - 50 + i * 32;
-      const k = this.add.text(cx - 180, y, l.key, {
+      const y = cy - 40 + i * 32;
+      const k = this.add.text(leftX, y, l.key, {
         fontFamily: SF, fontSize: '13px', color: '#f0c040',
       }).setScrollFactor(0).setDepth(202);
-      const v = this.add.text(cx + 20, y, l.action, {
+      const v = this.add.text(rightX, y, l.action, {
         fontFamily: SF, fontSize: '13px', color: '#999999',
       }).setScrollFactor(0).setDepth(202);
       return [k, v];
     });
 
-    const hint = this.add.text(cx, cy + 100, 'Press any key to begin', {
+    const hint = this.add.text(cx, cy + pH / 2 - 22, 'Press any key to begin', {
       fontFamily: SF, fontSize: '12px', color: '#f0c040', letterSpacing: 2,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
     this.tweens.add({ targets: hint, alpha: 0.35, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
@@ -1061,7 +1159,9 @@ class GameScene extends Phaser.Scene {
     for (const f of L1.foods) {
       const def = FOOD_DEFS[f.id];
       let y;
-      if (f.onGround) {
+      if (f.aboveY) {
+        y = f.aboveY - def.h / 2;
+      } else if (f.onGround) {
         y = GROUND_Y - def.h / 2 - 4;
       } else {
         const plat = L1.platforms[f.platIdx];
@@ -1074,8 +1174,16 @@ class GameScene extends Phaser.Scene {
       sprite.setData('fun', !!f.fun);
       sprite.body.setSize(def.w, def.h); sprite.setDepth(5);
 
+      const tweenTargets = [sprite];
+
+      if (def.type === 'fibre') {
+        const tag = this.add.image(f.x + def.w / 2 + 4, y - def.h / 2 + 2, 'fibre_tag').setDepth(6);
+        sprite.setData('fibreTag', tag);
+        tweenTargets.push(tag);
+      }
+
       this.tweens.add({
-        targets: sprite, y: '-=4',
+        targets: tweenTargets, y: '-=4',
         duration: 1200 + Math.random() * 400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
       });
 
@@ -1111,6 +1219,8 @@ class GameScene extends Phaser.Scene {
       this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
       this.showCollectFX(food.x, food.y, '#aaaaff', name);
     }
+    const tag = food.getData('fibreTag');
+    if (tag) tag.destroy();
     food.destroy();
     this.updateHUD();
   }
@@ -1439,7 +1549,7 @@ class GameScene extends Phaser.Scene {
     }
 
     this.hudCellIcon = this.add.image(500, 14, 'energy_cell').setScrollFactor(0).setDepth(51).setScale(0.8);
-    this.hudCellText = this.add.text(512, 8, '× 0', { fontFamily: 'Courier New', fontSize: '14px', color: '#80ffcc', fontStyle: 'bold' }).setScrollFactor(0).setDepth(51);
+    this.hudCellText = this.add.text(512, 8, '× 0', { fontFamily: 'Courier New', fontSize: '14px', color: '#f0d860', fontStyle: 'bold' }).setScrollFactor(0).setDepth(51);
 
     this.hudStars = [];
     for (let i = 0; i < 3; i++) {
@@ -1519,7 +1629,17 @@ class GameScene extends Phaser.Scene {
     for (const cp of L1.crashPits) {
       if (this.player.x > cp.x && this.player.x < cp.x + cp.w && this.player.y > GROUND_Y - 30) {
         this.player.setVelocityX(this.player.body.velocity.x * 0.5);
+        if (!cp.drained) {
+          cp.drained = true;
+          const drain = this.energy * 0.33;
+          this.energy = Math.max(0, this.energy - drain);
+          this.showCollectFX(this.player.x, this.player.y - 20, '#cc6644', 'Energy Crash!');
+          this.updateHUD();
+          if (this.energy <= 0) { this.triggerFail(); return; }
+        }
         return;
+      } else {
+        cp.drained = false;
       }
     }
   }
@@ -1559,10 +1679,43 @@ class GameScene extends Phaser.Scene {
   triggerFail() {
     if (this.levelFailed) return;
     this.levelFailed = true;
-    this.player.setTexture('nibble_tired'); this.player.setVelocityX(0); this.player.setVelocityY(0);
+    this.player.setVelocityX(0); this.player.setVelocityY(0);
     const elapsed = (this.time.now - this.startTime) / 1000;
     const progress = this.player.x / L1.finishX;
-    this.time.delayedCall(1200, () => {
+
+    this.player.setTexture('nibble_tired');
+    this.player.body.allowGravity = false;
+    const baseX = this.player.x;
+    const baseY = GROUND_Y - this.player.displayHeight / 2;
+    this.player.y = baseY;
+
+    // Fritz / buzz shake
+    let shakeCount = 0;
+    const shakeTimer = this.time.addEvent({
+      delay: 50, repeat: 11,
+      callback: () => {
+        shakeCount++;
+        this.player.x = baseX + (shakeCount % 2 === 0 ? 3 : -3);
+        this.player.setAlpha(shakeCount % 2 === 0 ? 0.6 : 1);
+      },
+    });
+
+    // After shake, fall over on the grass
+    this.time.delayedCall(650, () => {
+      this.player.x = baseX;
+      this.player.setAlpha(1);
+      this.player.setTexture('nibble_fainted');
+      this.tweens.add({
+        targets: this.player,
+        angle: 90,
+        y: GROUND_Y - 14,
+        duration: 300,
+        ease: 'Bounce.easeOut',
+      });
+      this.showCollectFX(baseX, baseY - 30, '#cc6666', 'Out of fuel!');
+    });
+
+    this.time.delayedCall(2000, () => {
       this.scene.start('Result', {
         success: false, nearMiss: progress > 0.75,
         carbsCollected: this.carbsCollected, totalCarbs: this.totalCarbItems,
@@ -1586,31 +1739,43 @@ class ResultScene extends Phaser.Scene {
   create() {
     const d = this.resultData;
     const cx = GAME_W / 2, cy = GAME_H / 2;
-    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x1a1a2e);
-    const panelW = 580, panelH = 420;
-    this.add.rectangle(cx, cy, panelW + 4, panelH + 4, 0xf0c040);
-    this.add.rectangle(cx, cy, panelW, panelH, 0x1a1a2e);
+    const SF = "'Special Elite', 'Courier New', monospace";
 
-    if (d.success) this.showSuccess(cx, cy, d);
-    else if (d.nearMiss) this.showNearMiss(cx, cy, d);
-    else this.showFail(cx, cy, d);
+    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x0e0e1a);
+
+    const panelW = 580, panelH = 420;
+    this.add.rectangle(cx, cy, panelW + 6, panelH + 6, 0xf0c040, 0.35);
+    this.add.rectangle(cx, cy, panelW, panelH, 0x0c0c18);
+    this.add.rectangle(cx, cy - panelH / 2 + 1.5, panelW, 3, 0xf0c040);
+
+    if (d.success) this.showSuccess(cx, cy, d, SF, panelW, panelH);
+    else if (d.nearMiss) this.showNearMiss(cx, cy, d, SF, panelW, panelH);
+    else this.showFail(cx, cy, d, SF, panelW, panelH);
 
     const btnY = cy + panelH / 2 - 35;
-    const btn = this.add.rectangle(cx, btnY, 180, 36, 0xf0c040).setInteractive({ useHandCursor: true });
-    this.add.text(cx, btnY, d.success ? '[ CONTINUE ]' : '[ TRY AGAIN ]', { fontFamily: 'Courier New', fontSize: '14px', color: '#1a1a2e', fontStyle: 'bold' }).setOrigin(0.5);
+    const btn = this.add.rectangle(cx, btnY, 200, 38, 0xf0c040).setInteractive({ useHandCursor: true });
+    this.add.text(cx, btnY, d.success ? '[ CONTINUE ]' : '[ TRY AGAIN ]', {
+      fontFamily: SF, fontSize: '14px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 3,
+    }).setOrigin(0.5);
     btn.on('pointerover', () => btn.setFillStyle(0xf8d868));
     btn.on('pointerout', () => btn.setFillStyle(0xf0c040));
     btn.on('pointerdown', () => this.scene.start(d.success ? 'Splash' : 'Game'));
     this.input.keyboard.on('keydown-SPACE', () => this.scene.start(d.success ? 'Splash' : 'Game'));
   }
 
-  showSuccess(cx, cy, d) {
-    this.add.text(cx, cy - 170, 'Fueled Up!', { fontFamily: 'Courier New', fontSize: '28px', color: '#f0c040', fontStyle: 'bold' }).setOrigin(0.5);
-    this.add.text(cx, cy - 110, '"Great work! You collected the carbs your\n body needs for quick energy. Carbs break\n down into glucose — the fuel your brain\n and muscles run on."', {
-      fontFamily: 'Courier New', fontSize: '11px', color: '#cccccc', align: 'center', lineSpacing: 4,
+  showSuccess(cx, cy, d, SF, panelW, panelH) {
+    const headerY = cy - panelH / 2 + 40;
+
+    this.add.text(cx, headerY, 'Fueled Up!', {
+      fontFamily: SF, fontSize: '30px', color: '#f0c040', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.rectangle(cx, headerY + 20, 80, 2, 0xf0c040, 0.27);
+
+    this.add.text(cx, headerY + 55, '"Great work! You fueled up with carbs!\nYour muscles and brain now have the\nenergy they need to keep going."', {
+      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
     }).setOrigin(0.5);
 
-    const statY = cy - 40;
+    const statY = headerY + 115;
     const stats = [
       `Carb items collected: ${d.carbsCollected} / ${d.totalCarbs}`,
       `Fibre-rich carbs found: ${d.fibreCollected} / ${d.totalFibre}`,
@@ -1618,53 +1783,112 @@ class ResultScene extends Phaser.Scene {
       `Energy Cells: ${d.cells}`,
       `Time: ${d.elapsed.toFixed(1)}s`,
     ];
-    stats.forEach((s, i) => this.add.text(cx, statY + i * 20, s, { fontFamily: 'Courier New', fontSize: '12px', color: '#aaaaaa' }).setOrigin(0.5));
+    stats.forEach((s, i) => this.add.text(cx, statY + i * 20, s, {
+      fontFamily: SF, fontSize: '13px', color: '#aaaaaa',
+    }).setOrigin(0.5));
 
-    const starY = statY + stats.length * 20 + 15;
-    this.add.text(cx, starY, 'KNOWLEDGE STARS', { fontFamily: 'Courier New', fontSize: '10px', color: '#f0c040', letterSpacing: 2 }).setOrigin(0.5);
+    const starLabelY = statY + stats.length * 20 + 14;
+    this.add.text(cx, starLabelY, 'KNOWLEDGE STARS', {
+      fontFamily: SF, fontSize: '11px', color: '#f0c040', letterSpacing: 3,
+    }).setOrigin(0.5);
+
     const starDescs = [
       { id: 1, text: 'Collected all fibre-rich carbs' },
       { id: 2, text: 'Found the hidden alcove' },
       { id: 3, text: 'Finished with 90%+ energy' },
     ];
+
+    const starRowY = starLabelY + 30;
+    const starSpacing = 28;
+
     starDescs.forEach((s, i) => {
       const earned = d.stars.includes(s.id);
-      this.add.text(cx - 140, starY + 18 + i * 18, `${earned ? '★' : '☆'} ${s.text}`, {
-        fontFamily: 'Courier New', fontSize: '11px', color: earned ? '#f0c040' : '#555555',
+      const rowY = starRowY + i * starSpacing;
+
+      const starImg = this.add.image(cx - 150, rowY, earned ? 'result_star_earned' : 'result_star_empty')
+        .setOrigin(0.5).setScale(0).setAlpha(0);
+
+      const label = this.add.text(cx - 126, rowY, s.text, {
+        fontFamily: SF, fontSize: '13px', color: earned ? '#f0c040' : '#555555',
+      }).setOrigin(0, 0.5).setAlpha(0);
+
+      const delay = 400 + i * 500;
+
+      this.time.delayedCall(delay, () => {
+        label.setAlpha(1);
+        this.tweens.add({
+          targets: starImg, scale: earned ? 1 : 0.75, alpha: 1, duration: 400,
+          ease: 'Back.easeOut',
+        });
+        if (earned) {
+          this.tweens.add({
+            targets: starImg, scale: 1.15, duration: 150, delay: 400,
+            yoyo: true, ease: 'Sine.easeInOut',
+          });
+        }
       });
     });
+
     if (!d.dmgTaken) {
-      this.add.text(cx, starY + 80, 'No damage taken! +5 bonus cells', { fontFamily: 'Courier New', fontSize: '11px', color: '#80ffcc' }).setOrigin(0.5);
+      const bonusY = starRowY + starDescs.length * starSpacing + 8;
+      const bonusText = this.add.text(cx, bonusY, 'No damage taken! +5 bonus cells', {
+        fontFamily: SF, fontSize: '12px', color: '#80ffcc',
+      }).setOrigin(0.5).setAlpha(0);
+      this.time.delayedCall(400 + starDescs.length * 500 + 300, () => {
+        this.tweens.add({ targets: bonusText, alpha: 1, duration: 400 });
+      });
     }
   }
 
-  showNearMiss(cx, cy, d) {
-    this.add.text(cx, cy - 150, 'Almost There!', { fontFamily: 'Courier New', fontSize: '28px', color: '#e8b84c', fontStyle: 'bold' }).setOrigin(0.5);
-    this.add.text(cx, cy - 85, '"You were so close! Your energy ran out\n just before the finish. Try collecting a\n few more carb items along the way —\n every one tops up your fuel."', {
-      fontFamily: 'Courier New', fontSize: '11px', color: '#cccccc', align: 'center', lineSpacing: 4,
+  showNearMiss(cx, cy, d, SF, panelW, panelH) {
+    const headerY = cy - panelH / 2 + 40;
+
+    this.add.image(cx, headerY - 5, 'nibble_fainted').setScale(0.8);
+    this.add.text(cx, headerY + 30, 'Fuel Tank Empty!', {
+      fontFamily: SF, fontSize: '28px', color: '#e8b84c', letterSpacing: 3,
     }).setOrigin(0.5);
-    this.add.text(cx, cy, 'HINT:', { fontFamily: 'Courier New', fontSize: '12px', color: '#f0c040' }).setOrigin(0.5);
-    this.add.text(cx, cy + 22, '"Fibre-rich carbs (like oats and fruits)\n give a little bonus energy. Look for the\n items with a green sparkle!"', {
-      fontFamily: 'Courier New', fontSize: '11px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
+    this.add.rectangle(cx, headerY + 50, 80, 2, 0xf0c040, 0.27);
+
+    this.add.text(cx, headerY + 80, '"So close! Nibble ran out of fuel just\nbefore the finish line. A few more carbs\nalong the way would have kept\nthe engine running."', {
+      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
     }).setOrigin(0.5);
-    this.showBasicStats(cx, cy + 80, d);
+
+    this.add.text(cx, headerY + 148, 'TIP', {
+      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.text(cx, headerY + 170, '"Fibre-rich carbs like oats and fruits\ngive bonus fuel. Jump over crash pits\nto grab the food floating above them!"', {
+      fontFamily: SF, fontSize: '13px', color: '#aaaaaa', align: 'center', lineSpacing: 5,
+    }).setOrigin(0.5);
+
+    this.showBasicStats(cx, headerY + 230, d, SF);
   }
 
-  showFail(cx, cy, d) {
-    this.add.text(cx, cy - 150, 'Running on Empty', { fontFamily: 'Courier New', fontSize: '28px', color: '#cc6666', fontStyle: 'bold' }).setOrigin(0.5);
-    this.add.text(cx, cy - 85, '"Your energy dipped to zero — time to\n refuel and try again! Focus on grabbing\n the carb items and steering clear of\n Fatigue Phantoms."', {
-      fontFamily: 'Courier New', fontSize: '11px', color: '#cccccc', align: 'center', lineSpacing: 4,
+  showFail(cx, cy, d, SF, panelW, panelH) {
+    const headerY = cy - panelH / 2 + 40;
+
+    this.add.image(cx, headerY - 5, 'nibble_fainted').setScale(0.8);
+    this.add.text(cx, headerY + 30, 'Out of Fuel!', {
+      fontFamily: SF, fontSize: '28px', color: '#cc6666', letterSpacing: 3,
     }).setOrigin(0.5);
-    this.add.text(cx, cy, 'HINT:', { fontFamily: 'Courier New', fontSize: '12px', color: '#f0c040' }).setOrigin(0.5);
-    this.add.text(cx, cy + 22, '"Fatigue Phantoms glow before they appear.\n When you see the shimmer, get ready\n to jump!"', {
-      fontFamily: 'Courier New', fontSize: '11px', color: '#aaaaaa', align: 'center', lineSpacing: 3,
+    this.add.rectangle(cx, headerY + 50, 80, 2, 0xf0c040, 0.27);
+
+    this.add.text(cx, headerY + 80, '"Nibble\'s energy hit zero — time for a\npit stop! Grab more carbs along the\nway and watch out for those\nFatigue Phantoms."', {
+      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
     }).setOrigin(0.5);
-    this.showBasicStats(cx, cy + 80, d);
+
+    this.add.text(cx, headerY + 148, 'TIP', {
+      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.text(cx, headerY + 170, '"Phantoms shimmer before they appear.\nWhen you spot the glow, jump or\nfire an energy ball their way!"', {
+      fontFamily: SF, fontSize: '13px', color: '#aaaaaa', align: 'center', lineSpacing: 5,
+    }).setOrigin(0.5);
+
+    this.showBasicStats(cx, headerY + 230, d, SF);
   }
 
-  showBasicStats(cx, y, d) {
+  showBasicStats(cx, y, d, SF) {
     [`Carbs collected: ${d.carbsCollected} / ${d.totalCarbs}`, `Fibre found: ${d.fibreCollected} / ${d.totalFibre}`, `Energy Cells: ${d.cells}`].forEach((s, i) => {
-      this.add.text(cx, y + i * 18, s, { fontFamily: 'Courier New', fontSize: '11px', color: '#888888' }).setOrigin(0.5);
+      this.add.text(cx, y + i * 20, s, { fontFamily: SF, fontSize: '13px', color: '#888888' }).setOrigin(0.5);
     });
   }
 }
