@@ -1,5 +1,5 @@
 2D Game Idea: 
-
+https://www.youtube.com/watch?v=Q52XlYaqqUM
 I would like to create a 2D style game, similar to the simple Mario game where he jumps along and has to collect coins and avoid negative things. 
 
 This 2D game will be based on Nutrition pricinples. For example, the first level will focus on "collect all the Carbs" Next level "Collect Protein" then "Collect Fats". The Concepts and learning woul dbe like:
@@ -25,7 +25,7 @@ With this information in mind, create for me a game plan md file. Give me accura
 --Ooh idea for Ultraprocessed food level. Aim for 80-20%. fill the bar up to 80% with whole foods, and then allowance of 20% for fun snacks (fries, cookie, candy, sugar drink, etc). 
 
 --Kai: have a book feature. when kids collect items, items go in book with name of item. learn as they go. 
---have treasure chest with rare item (pizza, chocolate, mango, pomegranite, coconut, cashews). when thye find and collect item, the avatar changes to the item for the remainder of the game (new skin unlocked). 
+
 
 -Erik: Coins defeat eneimes. throw at the enemies, defeat eneimes gain abilities. 
 - Generate random platforms, terreria camera move style. 
@@ -62,6 +62,7 @@ With this information in mind, create for me a game plan md file. Give me accura
 -Deceided to give agent another try, this time going about changes piece by pieces (first work on clouds and hills--real background, then foreground floor, etc)
 -i asked it create the hills more slope like, and didn't mention anything about clouds. again, looked terrible. so asked the agent if i needed to create something visually. 
 
+
 the agent responded: Yes — a Canva image or any PNG mockup of what you want the background to look like would be extremely helpful. The core problem is that CSS border-radius and stacked divs are very limited for creating natural-looking shapes like hills and clouds. I'm essentially sculpting with rectangles and circles, which is why the results keep looking off. Alternatively, we could consider a different technical approach entirely — instead of building hills from CSS shapes, I could use SVG paths directly in the HTML, which allows actual curved, organic shapes (real slopes, natural cloud contours) rather than fighting with border-radius. That would get much closer to what you're envisioning.
 
 SVG approach was just as ugly. the agent then worked wit the png that i created. But something was just not looking right. 
@@ -69,9 +70,16 @@ SVG approach was just as ugly. the agent then worked wit the png that i created.
 I showed my daughter and she said "make it more blocky, more pixels, like the old mario game.' I thot, aha, that's was the original idea which had actually started morphing into something else. So we went that way to see what would happen. 
 
 -It tried, but based it off of our recent mockups which I hadn't wanted. So I corrected, realised I hadn't been clear (if this process teaches you nothing, it at least shows you where your gaps in clarity and explaining lie). i asked to create this version based off of our original mockup. i also gave it an image for 'inspiration' (do ai agents need inspiration?(. 
+- whne the agent creates a new version, saves over the old version so i can't see the old one any more, unless i ask it to create a new html. it must be somewhere on github that i can see. Frurstating for me as an editor where i can always esasily look back or revert to original or past form. I take screen shots so that I can have some documentation of the older versions.  
+-my daughter played the game and i noticed she avoided the fries. "get the firies" i said, "oh, i thot they'd be bad". That made me smile because that's exactly what i am not trying to "message" with this game. The idea is food nuetrality, but the concept of beneficial vs less benefical foods will come through the game experience itself. For example, in a game level where we consider UPFs vs more whole foods,  the energy bar will go up but decrease more quickly afterward collecting UPFs which will not happen with eating wholefoods, giving the idea that it may not benenfit the energy bar quest to continue to collect those foods. also teaching the 80 20% idea, of "if most of the time we are eating wholesome foods, 20% of the time ok to have less beneficial foods. Therefore 80% of th collectible items are whole foods, with 20% of the items allowing for "less healthy" food types. 
 
 -LOOK INTO: https://www.mockplus.com/blog/post/game-ui-design
 
 -make clouds non transparent. start f game always have energy bar only start going down once player stars moving. whenever player is still, energy bar should slow down. In all games/Levels. Add this to the rules. 
 
 -new feature. I wnt the avtar to be able to throw energy balls at the enemies in order to defeat them. this is controled with mouse aim. the avatar should be able to jump on top evenies and not lose energy. this would be a rule for all future games. This curren level may need a few more landing spots. for example the sushi and pear are impossible to reach. and sweet potatoe was only possible to reach by jumping on enemy head. this is okay, so long as avatar doesn't lose energy when doing so. 
+
+add to the game plan the idea of having "rarity items"--treasure chests that will show up rarely and randomly through the levels (maybe one chest every 2-3 levels) with one rare food item (rare food items are already created in food-items-inventory-thin.html.) When the player collects this food item, something will happen but that is yet to be decided. essentially rare food items only appear in a treasure box, not as the normal food items appear. 
+
+
+

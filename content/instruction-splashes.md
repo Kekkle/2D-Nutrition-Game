@@ -20,8 +20,8 @@ All copy has been checked against `.cursor/rules/content-guardrails.mdc`.
 │  body."                                      │
 │                                              │
 │  YOUR MISSION: Collect all the carbs.        │
-│  Bonus points are awarded for collecting     │
-│  all fibre-rich carbs as well.               │
+│  Bonus points for collecting                 │
+│  all fibre-carbs as well.                    │
 │                                              │
 │                                              │
 │  WATCH OUT: Fatigue Phantoms drain your      │
@@ -44,19 +44,18 @@ All copy has been checked against `.cursor/rules/content-guardrails.mdc`.
 ┌──────────────────────────────────────────────┐
 │  LEVEL 2: PROTEIN                            │
 │                                              │
-│  [Icons: egg, chicken leg, beans, fish]      │
+│                                              │
 │                                              │
 │  "Protein is your body's building material.  │
-│   Every tissue — muscle, skin, organs, even  │
-│   your immune cells — is built and repaired  │
-│   with protein."                             │
+│   Every tissue — muscle, skin, organs,       │
+│   is built and repaired with protein."       │
 │                                              │
-│  YOUR MISSION: Collect protein-rich foods!   │
+│  YOUR MISSION: Collect all proteins.         │
 │  Pair plant proteins together (like rice +   │
 │  beans) for a combo bonus.                   │
 │                                              │
 │  WATCH OUT: Stress Sprites move in erratic   │
-│  clusters — stay alert!                      │
+│  clusters. Stay alert!                       │
 │                                              │
 │              [ START ]                       │
 └──────────────────────────────────────────────┘

@@ -139,6 +139,39 @@ This is the first real level. The player just came from Tutorial L0 (controls on
 
 ---
 
+## End-of-Level Screen
+
+**Title:** "Fueled Up!"
+
+**Message:**
+> "Great work! You fueled up with carbs! Your muscles and brain now have the energy they need to keep going."
+
+**Stats displayed:**
+
+| Stat | Example Value |
+|---|---|
+| Carb items collected | 19 / 27 |
+| Fibre-rich carbs found | 10 / 18 |
+| Energy at finish | 99% |
+| Energy Cells | 28 |
+| Time | 61.4s |
+
+**Knowledge Stars:**
+
+| Star | Description | Condition |
+|---|---|---|
+| ★ | Collected all fibre-containing carbs | All fibre-containing carb items collected |
+| ★ | Found the hidden alcove | Hidden alcove above second Crash Pit reached |
+| ★ | Finished with 90%+ energy | Energy meter ≥ 90% at level end |
+
+Earned stars display in gold; unearned stars are greyed out.
+
+**Button:** [ CONTINUE ]
+**Button:** [ REPLAY ]
+
+
+---
+
 ## Visual / Audio Notes
 
 - **Environment:** Bright, welcoming. A kitchen or farm/garden aesthetic. First-level warmth.

@@ -11,7 +11,7 @@ All feedback follows the content guardrails: no shame, no "good/bad" food langua
 **Header:** "Fueled Up!"
 
 **Message:**
-> "Great work! You collected the carbs your body needs for quick energy. Carbs break down into glucose — the fuel your brain and muscles run on."
+> "Great work! You fueled up with carbs! Your muscles and brain now have the energy they need to keep going."
 
 **Stats shown:**
 - Carb items collected: X / Y

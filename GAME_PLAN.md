@@ -169,9 +169,86 @@ The game's currency is **Energy Cells** — small glowing orbs scattered through
 
 > **Design note:** Energy Cells are *separate* from the Energy Meter. The meter is your in-level health/fuel (filled by food). Energy Cells are your persistent currency (spent between levels). This distinction keeps the economy clean — food fuels you in the moment, Energy Cells represent long-term progress.
 
+### 5.4 Foodpedia — Inventory Book
+
+The **Foodpedia** is the player's personal collection book — a pixel-art book UI that tracks every food item encountered throughout the game. It's accessible from the pause menu and the between-levels hub screen.
+
+**Layout & structure:**
+- The Foodpedia is organized by **level group** (Tier 1 foods, Tier 2 foods, etc.) with tabs or chapter dividers styled as book pages.
+- Each page shows a grid of **item slots** — one slot per collectible food item in that group. Uncollected items appear as **greyed-out silhouettes**, so the player always knows how many remain.
+- When a food is collected for the first time, its slot fills in with the full-color pixel-art icon, its name, and a one-line nutritional tag (e.g., "Fibre-rich," "Omega-3," "Complete protein").
+- Rare food items (Pizza, Hamburger, Sushi, Taco) have a dedicated **golden page** at the back of the book with special framing.
+
+**Completion rewards:**
+
+| Achievement | Reward |
+|---|---|
+| **Complete a single level's page** (all items from that level found) | Energy Cell bonus + a small Foodpedia stamp/badge on that page |
+| **Complete a full tier** (all items across all levels in a tier) | Larger Energy Cell bonus + a cosmetic reward (character skin, trail effect, or book cover theme) |
+| **Complete the entire Foodpedia** (100% collection) | Major reward — unique cosmetic, a celebratory animation, and a "Nutrition Master" title displayed on the player's profile |
+
+**Design principles:**
+- The book is a **passive motivator** — it's always there, gently showing the player how much they've found and how much is left, without pressuring them.
+- Empty silhouette slots create a natural "gotta catch 'em all" pull that encourages replay and exploration.
+- Completion rewards are cosmetic and celebratory, never gameplay-gating — a player who ignores the Foodpedia can still finish every level.
+- The book reinforces learning — revisiting the Foodpedia lets players see all the foods they've encountered alongside their nutritional tags, serving as a passive reference.
+
 ---
 
-## 6. Instruction Splash Design
+## 6. Tier Boss & Bonus Levels
+
+After completing each tier's standard levels, the player faces a **Tier Boss Level** or **Bonus Challenge Level** before advancing to the next tier. These are special single-screen or arena-style encounters that break up the side-scrolling platforming with a different gameplay format, test the player's knowledge from the tier they just completed, and act as a capstone moment.
+
+### 6.1 Format Options
+
+Each tier-end level uses one of two formats (or alternates between them across tiers):
+
+**Format A — Boss Encounter (Arena Fight)**
+
+- The player faces a **stationary boss enemy** (a larger, more dramatic version of one of the tier's abstract threats — e.g., a giant Fatigue Phantom for Tier 1) on a single-screen arena.
+- The boss **throws hazard projectiles** at the player (energy drains, fog bombs, crash waves, etc.).
+- **Red warning zones** flash on the ground/platforms ~1 second before a projectile lands, giving the player time to dodge.
+- Simultaneously, **food items from the tier** spawn around the arena. The player must collect the correct target foods while dodging the boss's attacks.
+- The boss is defeated by collecting enough food to fill a "Fuel Meter" — each correct food fuels the meter, and when full it triggers a blast that weakens the boss. Multiple rounds increase in speed and complexity.
+- Collecting neutral/wrong items doesn't damage the player but wastes time — the boss ramps up aggression the longer the fight goes.
+
+**Format B — Bonus Challenge (Food Rain)**
+
+- A timed challenge (~60–90 seconds) on a single screen where **food items fall from the top of the screen** at increasing speed.
+- The player moves left and right (no jumping) to catch items.
+- The goal is to collect **only the correct food items** for the tier's concepts (e.g., for Tier 1: collect one of each macro category — a carb, a protein, a fat, and a fibre source).
+- Wrong items flash briefly if caught — no harsh penalty, but they don't count toward the goal and a short stun animation costs precious time.
+- The screen gets progressively busier with more items falling faster, mixing in more neutral/decoy items.
+- Bonus points for catching rare items if a Treasure Chest drops during the challenge.
+
+### 6.2 Placement
+
+| After Tier | Boss/Bonus Level | Theme |
+|---|---|
+| **Tier 1** (L1–L4) | **Tier 1 Boss or Bonus** | Test all four macronutrients — collect one of each category under pressure |
+| **Tier 2** (L5–L7) | **Tier 2 Boss or Bonus** | Test building blocks — match glucose, amino acids, and lipids to the correct body systems |
+| **Tier 3** (L8–L12) | **Tier 3 Boss or Bonus** | Test energy systems — manage quick vs. slow fuel, storage, and system fueling in an arena setting |
+| **Tier 4** (L13–L15) | **Final Boss** (L15 already serves this role) | The existing L15 "Boss Level" is the Tier 4 capstone; no additional boss needed |
+
+> **Design note:** Tier boss/bonus levels are **not numbered as regular levels** — they sit between tiers as special events (e.g., "Tier 1 Boss" rather than "L4.5"). This keeps the 15-level structure clean while adding 3 additional special encounters, bringing the total playable stages to 18.
+
+### 6.3 Rewards
+
+- Completing a tier boss/bonus level awards a **Tier Completion Badge** displayed on the level select screen.
+- Bonus Energy Cells based on performance (speed, accuracy, no-hit runs).
+- First-time completion unlocks the next tier's levels.
+- The boss/bonus level is **replayable** for score chasing and Foodpedia completion.
+
+### 6.4 Design Principles
+
+- Boss/bonus levels should feel like a **celebration** of what the player just learned, not a frustrating gate. Difficulty should be moderate — closer to a victory lap than a wall.
+- The format change (arena or food rain vs. side-scrolling) keeps the game feeling fresh and prevents tier transitions from blurring together.
+- Boss encounters use abstract enemies (not food) — consistent with the game's no-food-villains rule.
+- Bonus challenges are low-pressure by default, with optional "hard mode" variants for experienced players.
+
+---
+
+## 7. Instruction Splash Design
 
 Since this is the sole teaching moment, it needs to hit hard in under 10 seconds of reading:
 
@@ -202,9 +279,9 @@ Since this is the sole teaching moment, it needs to hit hard in under 10 seconds
 
 ---
 
-## 7. Technical Considerations
+## 8. Technical Considerations
 
-### 7.1 Engine & Framework Options
+### 8.1 Engine & Framework Options
 
 | Option | Pros | Cons | Recommendation |
 |---|---|---|---|
@@ -213,19 +290,19 @@ Since this is the sole teaching moment, it needs to hit hard in under 10 seconds
 | **Phaser.js** | Runs in browser, JS-based, easy to share | Performance limits, no native mobile build | Great if you want a web-playable prototype |
 | **Pygame** | Python-based, simple | Limited tooling, no built-in editor | Good for learning, not for shipping |
 
-### 7.2 Art Style
+### 8.2 Art Style
 
 - **Pixel art** (16-bit or 32-bit style) is the most achievable solo or small-team style and fits the Mario-like aesthetic.
 - Food items should be **instantly recognizable** — stylized but not abstract.
 - Character should show visible state changes (energized vs. exhausted) through animation and color.
 
-### 7.3 Audio
+### 8.3 Audio
 
 - Upbeat chiptune soundtrack per level.
 - Distinct SFX for: correct collect, wrong collect, enemy hit, energy crash, power-up.
 - Consider a subtle heartbeat or stomach-growl SFX when energy is critically low.
 
-### 7.4 Target Platforms
+### 8.4 Target Platforms
 
 Decide early — this affects engine choice:
 - **Web (browser)** — Lowest friction for players; great for educational contexts (schools).
@@ -234,9 +311,9 @@ Decide early — this affects engine choice:
 
 ---
 
-## 8. Things You May Not Have Considered
+## 9. Things You May Not Have Considered
 
-### 8.1 Nutrition Accuracy & Nuance
+### 9.1 Nutrition Accuracy & Nuance
 
 These points need careful research or expert review:
 
@@ -252,7 +329,7 @@ These points need careful research or expert review:
   - Framing all foods as fuel on a spectrum of duration/efficiency, not good vs. bad.
   - Consulting with an RD (Registered Dietitian) or eating disorder specialist during content review.
 
-### 8.2 Game Design Gaps
+### 9.2 Game Design Gaps
 
 - **Difficulty curve.** How does difficulty scale? Consider: more enemies, faster scrolling, tighter timers, more decoy items, and platforming complexity — not just more "wrong" answers.
 - **Replayability.** Stars, time trials, and leaderboards give reasons to replay. Consider randomized item placement on replay so memorization doesn't replace learning.
@@ -261,7 +338,7 @@ These points need careful research or expert review:
 - **Save system.** Even a simple level-unlock save prevents frustration.
 - **Pause & quit.** Sounds obvious but is often forgotten in early design docs.
 
-### 8.3 Scope Management
+### 9.3 Scope Management
 
 - **MVP (Minimum Viable Product):** Levels 1–4 (Tier 1: all macronutrients + fibre), basic movement (run/jump/duck), one enemy type, one hazard type, energy meter, Energy Cells, instruction splashes. This alone is a complete, shippable game.
 - **V2:** Levels 5–7 (Tier 2: building blocks), unlockable abilities, Energy Cell shop.
@@ -271,7 +348,7 @@ Do NOT try to build all 15 levels before testing Tier 1 with real players. Playt
 
 ---
 
-## 9. Research Checklist
+## 10. Research Checklist
 
 Areas that need verified, source-backed information before writing instruction splashes:
 
@@ -294,24 +371,25 @@ Areas that need verified, source-backed information before writing instruction s
 
 ---
 
-## 10. Development Milestones
+## 11. Development Milestones
 
 | Milestone | Deliverable | Target |
 |---|---|---|
 | **M0: Prototype** | Character movement + one scrolling level + placeholder art | Week 2–3 |
 | **M1: Core Loop** | L1 playable with energy meter, Energy Cells, one enemy type, instruction splash | Week 5–6 |
-| **M2: Tier 1** | L1–L4 complete with unique art, enemies, and splashes | Week 10–13 |
-| **M3: Playtest** | Get 5–10 people to play L1–L4; collect feedback | Week 13–14 |
-| **M4: Iterate** | Revise based on feedback; add Energy Cell shop and unlockables | Week 15–17 |
-| **M5: Tier 2** | L5–L7 complete | Week 21–24 |
-| **M6: Tier 3** | L8–L12 complete (energy storage/reserve system introduced here) | Week 28–33 |
-| **M7: Tier 4 & Polish** | L13–L15, audio, menus, save system, final polish | Week 36–42 |
+| **M2: Tier 1** | L1–L4 complete with unique art, enemies, splashes + Tier 1 Boss/Bonus level | Week 10–13 |
+| **M2.5: Foodpedia** | Foodpedia book UI with Tier 1 item slots, silhouettes, and completion tracking | Week 13–14 |
+| **M3: Playtest** | Get 5–10 people to play L1–L4 + boss; collect feedback | Week 14–15 |
+| **M4: Iterate** | Revise based on feedback; add Energy Cell shop and unlockables | Week 16–18 |
+| **M5: Tier 2** | L5–L7 complete + Tier 2 Boss/Bonus level; expand Foodpedia | Week 22–25 |
+| **M6: Tier 3** | L8–L12 complete + Tier 3 Boss/Bonus level (energy storage/reserve system) | Week 29–34 |
+| **M7: Tier 4 & Polish** | L13–L15 (L15 is final boss), Foodpedia 100% rewards, audio, menus, save system, polish | Week 37–43 |
 
 > Timelines assume solo developer working part-time (~10–15 hrs/week). Adjust accordingly.
 
 ---
 
-## 11. Open Questions to Resolve
+## 12. Open Questions to Resolve
 
 1. **Target audience age range?** This heavily affects art style, reading level of splashes, difficulty, and how nuanced the nutrition info should be.
 2. **Monetization model?** Free (educational grant/portfolio piece), paid ($2–5 indie game), or freemium (cosmetics)?
@@ -322,7 +400,7 @@ Areas that need verified, source-backed information before writing instruction s
 
 ---
 
-## 12. Summary of Recommendations
+## 13. Summary of Recommendations
 
 1. **Start with the energy meter + storage reserve** — these two mechanics are what make this a nutrition game rather than a reskinned Mario. The meter is your moment-to-moment fuel; the reserve is your body's long-term savings. Prototype both early.
 2. **Keep instruction splashes ruthlessly short** — if a player skips it, the gameplay itself should still teach the concept through mechanics (correct collection = sustained energy, poor collection = fading performance).
