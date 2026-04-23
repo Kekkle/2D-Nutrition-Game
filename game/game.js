@@ -203,8 +203,25 @@ const SFX = {
     setTimeout(() => this._tone(750, 0.1, 'triangle', 0.1), 50);
   },
   collectCell() {
-    this._tone(880, 0.08, 'sine', 0.1);
-    setTimeout(() => this._tone(1100, 0.06, 'sine', 0.08), 50);
+    this._tone(1200, 0.15, 'sine', 0.1, 2400);
+    this._tone(1800, 0.08, 'triangle', 0.06);
+    setTimeout(() => this._tone(2200, 0.12, 'sine', 0.07), 40);
+  },
+  typeClick() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.02, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.20, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+    const f = this.ctx.createBiquadFilter();
+    f.type = 'bandpass'; f.frequency.value = 3000 + Math.random() * 1000; f.Q.value = 2;
+    src.connect(f); f.connect(g); g.connect(this.ctx.destination);
+    src.start(t); src.stop(t + 0.03);
   },
   shootBall() {
     this._tone(300, 0.15, 'sawtooth', 0.08, 800);
@@ -957,7 +974,17 @@ class SplashScene extends Phaser.Scene {
 
     this.startEnabled = false;
     this.animComplete = false;
+    this.typingStarted = false;
     this.activeTimers = [];
+
+    // Initial prompt — wait for user interaction to init audio & start typewriter
+    const beginPrompt = this.add.text(panelX, panelY + panelH / 2 - 24, 'CLICK OR PRESS ANY KEY', {
+      fontFamily: SF, fontSize: '14px', color: '#f0c040', letterSpacing: 4,
+    }).setOrigin(0.5).setAlpha(1);
+    this.tweens.add({
+      targets: beginPrompt, alpha: 0.35, duration: 600,
+      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    });
 
     const showComplete = () => {
       if (this.animComplete) return;
@@ -985,6 +1012,7 @@ class SplashScene extends Phaser.Scene {
           if (this.animComplete) return;
           i++;
           textObj.setText(str.slice(0, i));
+          if (str[i - 1] !== ' ') SFX.typeClick();
           if (i >= str.length && cb) cb();
         },
       });
@@ -992,46 +1020,48 @@ class SplashScene extends Phaser.Scene {
       return timer;
     };
 
-    const d1 = this.time.delayedCall(500, () => {
-      missionLabel.setAlpha(1); missionBar.setSize(2, 34);
-      const d2 = this.time.delayedCall(400, () => {
-        typeText(missionText, missionStr, TYPE_SPEED, () => {
-          const d3 = this.time.delayedCall(350, () => {
-            hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
-            const d4 = this.time.delayedCall(400, () => {
-              typeText(hazardText, hazardStr, TYPE_SPEED, () => {
-                this.tweens.add({ targets: phantomImg, alpha: 1, scale: 1, duration: 400 });
-                const d5 = this.time.delayedCall(500, () => {
-                  promptText.setAlpha(1);
-                  this.tweens.add({
-                    targets: promptText, alpha: 0.35, duration: 600,
-                    yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    const startTypewriter = () => {
+      beginPrompt.destroy();
+      const d1 = this.time.delayedCall(300, () => {
+        missionLabel.setAlpha(1); missionBar.setSize(2, 34);
+        const d2 = this.time.delayedCall(400, () => {
+          typeText(missionText, missionStr, TYPE_SPEED, () => {
+            const d3 = this.time.delayedCall(350, () => {
+              hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
+              const d4 = this.time.delayedCall(400, () => {
+                typeText(hazardText, hazardStr, TYPE_SPEED, () => {
+                  this.tweens.add({ targets: phantomImg, alpha: 1, scale: 1, duration: 400 });
+                  const d5 = this.time.delayedCall(500, () => {
+                    promptText.setAlpha(1);
+                    this.tweens.add({
+                      targets: promptText, alpha: 0.35, duration: 600,
+                      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+                    });
+                    this.startEnabled = true;
+                    this.animComplete = true;
                   });
-                  this.startEnabled = true;
-                  this.animComplete = true;
+                  this.activeTimers.push(d5);
                 });
-                this.activeTimers.push(d5);
               });
+              this.activeTimers.push(d4);
             });
-            this.activeTimers.push(d4);
+            this.activeTimers.push(d3);
           });
-          this.activeTimers.push(d3);
         });
+        this.activeTimers.push(d2);
       });
-      this.activeTimers.push(d2);
-    });
-    this.activeTimers.push(d1);
+      this.activeTimers.push(d1);
+    };
 
-    this.input.keyboard.on('keydown', () => {
+    const handleInput = () => {
       SFX.init(); SFX.resume();
-      if (this.startEnabled) this.scene.start('Game');
-      else if (!this.animComplete) showComplete();
-    });
-    this.input.on('pointerdown', () => {
-      SFX.init(); SFX.resume();
-      if (this.startEnabled) this.scene.start('Game');
-      else if (!this.animComplete) showComplete();
-    });
+      if (this.startEnabled) { this.scene.start('Game'); return; }
+      if (!this.typingStarted) { this.typingStarted = true; startTypewriter(); return; }
+      if (!this.animComplete) showComplete();
+    };
+
+    this.input.keyboard.on('keydown', handleInput);
+    this.input.on('pointerdown', handleInput);
   }
 }
 
