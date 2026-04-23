@@ -170,15 +170,31 @@ const FIBRE_IDS = [
 
 const SFX = {
   ctx: null,
+  sfxMuted: false,
+  musicMuted: false,
+  musicGain: null,
+  musicPlaying: false,
   init() {
     if (this.ctx) return;
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.musicGain = this.ctx.createGain();
+    this.musicGain.gain.value = 0.06;
+    this.musicGain.connect(this.ctx.destination);
   },
   resume() {
     if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
   },
+  toggleSfx() {
+    this.sfxMuted = !this.sfxMuted;
+    return this.sfxMuted;
+  },
+  toggleMusic() {
+    this.musicMuted = !this.musicMuted;
+    if (this.musicGain) this.musicGain.gain.value = this.musicMuted ? 0 : 0.06;
+    return this.musicMuted;
+  },
   _tone(freq, dur, type, vol, ramp) {
-    if (!this.ctx) return;
+    if (!this.ctx || this.sfxMuted) return;
     const t = this.ctx.currentTime;
     const o = this.ctx.createOscillator();
     const g = this.ctx.createGain();
@@ -208,7 +224,7 @@ const SFX = {
     setTimeout(() => this._tone(2200, 0.12, 'sine', 0.07), 40);
   },
   typeClick() {
-    if (!this.ctx) return;
+    if (!this.ctx || this.sfxMuted) return;
     const t = this.ctx.currentTime;
     const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.02, this.ctx.sampleRate);
     const data = buf.getChannelData(0);
@@ -258,6 +274,75 @@ const SFX = {
     this._tone(880, 0.1, 'sine', 0.1);
     setTimeout(() => this._tone(1100, 0.15, 'sine', 0.1), 80);
   },
+
+  // Background music — gentle classical minuet style
+  _playNote(freq, start, dur, type, vol) {
+    if (!this.ctx) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, start);
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(vol, start + 0.02);
+    g.gain.setValueAtTime(vol * 0.7, start + dur * 0.3);
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    o.connect(g); g.connect(this.musicGain);
+    o.start(start); o.stop(start + dur + 0.01);
+  },
+  startMusic() {
+    if (!this.ctx || this.musicPlaying) return;
+    this.musicPlaying = true;
+    const bpm = 100;
+    const q = 60 / bpm;
+
+    // Gentle waltz in C major — melody (sine) + bass (triangle)
+    // Each entry: [freq, startBeat, durationBeats]
+    const melodyNotes = [
+      // Phrase 1 — ascending, hopeful
+      [523, 0, 1], [587, 1, 1], [659, 2, 1.5], [587, 3.5, 0.5],
+      [523, 4, 1], [494, 5, 0.5], [523, 5.5, 0.5], [587, 6, 2],
+      // Phrase 2 — gentle descent
+      [659, 8, 1], [784, 9, 1], [740, 10, 1.5], [659, 11.5, 0.5],
+      [587, 12, 1], [523, 13, 1], [494, 14, 0.5], [523, 14.5, 1.5],
+      // Phrase 3 — lilting middle section
+      [440, 16, 1], [523, 17, 0.5], [587, 17.5, 0.5], [659, 18, 1.5], [587, 19.5, 0.5],
+      [523, 20, 1], [440, 21, 1], [392, 22, 1], [440, 23, 1],
+      // Phrase 4 — resolution
+      [523, 24, 1], [587, 25, 1], [659, 26, 0.5], [587, 26.5, 0.5],
+      [523, 27, 0.5], [494, 27.5, 0.5], [440, 28, 1], [494, 29, 1], [523, 30, 2],
+    ];
+
+    const bassNotes = [
+      // Waltz bass — root on beat 1, chord on beats 2-3
+      [131, 0, 1.5], [196, 1.5, 0.5], [196, 2, 0.5],
+      [131, 4, 1.5], [165, 5.5, 0.5], [165, 6, 0.5],
+      [165, 8, 1.5], [196, 9.5, 0.5], [196, 10, 0.5],
+      [131, 12, 1.5], [165, 13.5, 0.5], [165, 14, 0.5],
+      [110, 16, 1.5], [165, 17.5, 0.5], [165, 18, 0.5],
+      [131, 20, 1.5], [165, 21.5, 0.5], [165, 22, 0.5],
+      [131, 24, 1.5], [196, 25.5, 0.5], [196, 26, 0.5],
+      [110, 28, 1.5], [131, 29.5, 0.5], [131, 30, 2],
+    ];
+
+    const loopBeats = 32;
+
+    const playLoop = () => {
+      if (!this.musicPlaying) return;
+      const now = this.ctx.currentTime + 0.05;
+      melodyNotes.forEach(([f, b, d]) => {
+        this._playNote(f, now + b * q, d * q, 'sine', 0.5);
+      });
+      bassNotes.forEach(([f, b, d]) => {
+        this._playNote(f, now + b * q, d * q, 'triangle', 0.35);
+      });
+      this._musicTimer = setTimeout(() => playLoop(), loopBeats * q * 1000 - 100);
+    };
+    playLoop();
+  },
+  stopMusic() {
+    this.musicPlaying = false;
+    if (this._musicTimer) { clearTimeout(this._musicTimer); this._musicTimer = null; }
+  },
 };
 
 // =================================================================
@@ -274,6 +359,7 @@ class BootScene extends Phaser.Scene {
     this.generateEnergyBall();
     this.generatePhantom();
     this.generateFibreTag();
+    this.generateSpeakerIcons();
     this.generateTreasureChest();
     this.generateRareItems();
     this.generateStar();
@@ -682,6 +768,52 @@ class BootScene extends Phaser.Scene {
     g.destroy();
   }
 
+  generateSpeakerIcons() {
+    // Music note ON
+    const m1 = this.make.graphics({ add: false });
+    m1.fillStyle(0xf0c040);
+    m1.fillEllipse(7, 18, 10, 7);
+    m1.fillRect(11, 4, 3, 15);
+    m1.fillRect(11, 3, 12, 3);
+    m1.fillEllipse(20, 8, 8, 6);
+    m1.generateTexture('music_on', 26, 24);
+    m1.destroy();
+
+    // Music note OFF
+    const m2 = this.make.graphics({ add: false });
+    m2.fillStyle(0x666666);
+    m2.fillEllipse(7, 18, 10, 7);
+    m2.fillRect(11, 4, 3, 15);
+    m2.fillRect(11, 3, 12, 3);
+    m2.fillEllipse(20, 8, 8, 6);
+    m2.lineStyle(2.5, 0xcc4444);
+    m2.lineBetween(2, 2, 24, 22);
+    m2.generateTexture('music_off', 26, 24);
+    m2.destroy();
+
+    // SFX speaker ON
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0xf0c040);
+    g.fillRect(4, 7, 5, 10);
+    g.fillTriangle(9, 5, 9, 19, 17, 12);
+    g.lineStyle(2, 0xf0c040);
+    g.beginPath(); g.arc(17, 12, 5, -0.7, 0.7); g.strokePath();
+    g.beginPath(); g.arc(17, 12, 9, -0.5, 0.5); g.strokePath();
+    g.generateTexture('sfx_on', 28, 24);
+    g.destroy();
+
+    // SFX speaker OFF
+    const g2 = this.make.graphics({ add: false });
+    g2.fillStyle(0x666666);
+    g2.fillRect(4, 7, 5, 10);
+    g2.fillTriangle(9, 5, 9, 19, 17, 12);
+    g2.lineStyle(2.5, 0xcc4444);
+    g2.lineBetween(19, 6, 27, 18);
+    g2.lineBetween(27, 6, 19, 18);
+    g2.generateTexture('sfx_off', 28, 24);
+    g2.destroy();
+  }
+
   generateTreasureChest() {
     const g = this.make.graphics({ add: false });
 
@@ -1062,6 +1194,24 @@ class SplashScene extends Phaser.Scene {
 
     this.input.keyboard.on('keydown', handleInput);
     this.input.on('pointerdown', handleInput);
+
+    // Audio toggles on splash
+    const musicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    musicIcon.on('pointerdown', (p, lx, ly, e) => {
+      e.stopPropagation();
+      SFX.init(); SFX.resume();
+      const m = SFX.toggleMusic();
+      musicIcon.setTexture(m ? 'music_off' : 'music_on');
+    });
+    const sfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    sfxIcon.on('pointerdown', (p, lx, ly, e) => {
+      e.stopPropagation();
+      SFX.init(); SFX.resume();
+      const m = SFX.toggleSfx();
+      sfxIcon.setTexture(m ? 'sfx_off' : 'sfx_on');
+    });
   }
 }
 
@@ -1120,8 +1270,9 @@ class GameScene extends Phaser.Scene {
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
-    this.input.on('pointerdown', (pointer) => {
+    this.input.on('pointerdown', (pointer, targets) => {
       if (this.levelComplete || this.levelFailed || this.isPaused) return;
+      if (targets.length > 0) return;
       this.fireEnergyBall(pointer);
     });
     this.keyF.on('down', () => {
@@ -1130,6 +1281,7 @@ class GameScene extends Phaser.Scene {
     });
 
     this.createTutorialOverlay();
+    SFX.startMusic();
   }
 
   createTutorialOverlay() {
@@ -1631,6 +1783,7 @@ class GameScene extends Phaser.Scene {
   reachFinish() {
     if (this.levelComplete || this.levelFailed) return;
     this.levelComplete = true;
+    SFX.stopMusic();
     SFX.finish();
     const elapsed = (this.time.now - this.startTime) / 1000;
     const stars = [];
@@ -1688,6 +1841,19 @@ class GameScene extends Phaser.Scene {
       this.pauseOverlay.setVisible(this.isPaused);
       this.pauseText.setVisible(this.isPaused);
       this.physics.world.isPaused = this.isPaused;
+    });
+
+    const hudMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
+      .setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true }).setScale(1.2);
+    hudMusicIcon.on('pointerdown', () => {
+      const m = SFX.toggleMusic();
+      hudMusicIcon.setTexture(m ? 'music_off' : 'music_on');
+    });
+    const hudSfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
+      .setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true }).setScale(1.2);
+    hudSfxIcon.on('pointerdown', () => {
+      const m = SFX.toggleSfx();
+      hudSfxIcon.setTexture(m ? 'sfx_off' : 'sfx_on');
     });
   }
 
@@ -1802,6 +1968,7 @@ class GameScene extends Phaser.Scene {
   triggerFail() {
     if (this.levelFailed) return;
     this.levelFailed = true;
+    SFX.stopMusic();
     this.player.setVelocityX(0); this.player.setVelocityY(0);
     const elapsed = (this.time.now - this.startTime) / 1000;
     const progress = this.player.x / L1.finishX;
@@ -1893,6 +2060,19 @@ class ResultScene extends Phaser.Scene {
     } else {
       makeBtn(cx + 100, '[ TRY AGAIN ]', 0xf0c040, 'Game');
     }
+
+    const rMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    rMusicIcon.on('pointerdown', function () {
+      const m = SFX.toggleMusic();
+      this.setTexture(m ? 'music_off' : 'music_on');
+    });
+    const rSfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    rSfxIcon.on('pointerdown', function () {
+      const m = SFX.toggleSfx();
+      this.setTexture(m ? 'sfx_off' : 'sfx_on');
+    });
   }
 
   showSuccess(cx, cy, d, SF, panelW, panelH) {
