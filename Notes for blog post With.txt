@@ -1,41 +1,9 @@
-2D Game Idea: 
-https://www.youtube.com/watch?v=Q52XlYaqqUM
-I would like to create a 2D style game, similar to the simple Mario game where he jumps along and has to collect coins and avoid negative things. 
+Notes for blog post. 
 
-This 2D game will be based on Nutrition pricinples. For example, the first level will focus on "collect all the Carbs" Next level "Collect Protein" then "Collect Fats". The Concepts and learning woul dbe like:
-
--Learn about Carbs (L1), Proteins (L2) Fats (L3)
--Learn about Glucose (L4), amino acids, and lipids that make up each macronutritient.
--Identify foods based on glucose, amino acid, lipids. 
--Learn about energy needs. Carb = quick energy. Fats = Slower energy source. Protein, not really for energy, mostly structure. 
--Learn about low energy availability. Breakdown of tissue and fats for glucose substrate for energy. 
--Learn about ineffeciency of ultra processed foods like chicken nuggets and fries. How eating those things provides quick, short-term energy and doesn't fuel (or satiate for long). 
--Learn about bodies needs for energy. Brain has high energy demands. Same as immune system and digestive tract. How systems run less well when energy is low. 
-
+my ideas for the game: 
+I would like to create a 2D style game based on Nutrition pricinples. For example, the first level will focus on "collect all the Carbs" Next level "Collect Protein" then "Collect Fats". Principles would be acquired simply through game play, not reading pr listening to information. For example, when the user jumps along and doesn't collect carbs, they lose energy, each time they eat a carb, energy gained. etc. 
 
 So the idea is that the start of the game level would have a simple piece of info on the opening window to "teach" the basic concept for that level like "Carbs are found in such and such items, and provide such and such" then the user collects all carbs. The idea is that the instruction window is the only real learning moment, so it's simple but memorable. 
-
-There would need to be consistent mods for the user to avoid or be wary of, but I'm not sure what those are yet. 
-
-User skill should include running, jumping and walking and ducking. User gains points and coins as they go along which can unlock momentary new powers, like gliding down from a jump. 
-
-With this information in mind, create for me a game plan md file. Give me accurate counsel and feedback on what such a game like this might need, what points need to be well researched (nutrition aspects), what things I may not have thought about. 
-
-
---Ooh idea for Ultraprocessed food level. Aim for 80-20%. fill the bar up to 80% with whole foods, and then allowance of 20% for fun snacks (fries, cookie, candy, sugar drink, etc). 
-
---Kai: have a book feature. when kids collect items, items go in book with name of item. learn as they go. 
-
-
--Erik: Coins defeat eneimes. throw at the enemies, defeat eneimes gain abilities. 
-- Generate random platforms, terreria camera move style. 
--Boss level before moving to next section, where boss is stationary, throws things, collect all foods without getting hit. area lights up red where the bad thing will be thrown. 
-- drop orbs, or food drop in the boss level. 
--In splash content, remove emojis of food to collect? have users figure it out? watch out section just shows the enemies, but doesn't tell you what happens. info window pops up once hit by an eneime. 
--Begin with spawnign to home page with shop for abilities, skins, tokens. 
--RPG?
-
--have agent do competitor reserach to see if this is unique or if something like this alreayd exists. 
 
 -With this project I took more of a publishing approach. 
 -write out what my project idea was.
@@ -69,7 +37,7 @@ SVG approach was just as ugly. the agent then worked wit the png that i created.
 
 I showed my daughter and she said "make it more blocky, more pixels, like the old mario game.' I thot, aha, that's was the original idea which had actually started morphing into something else. So we went that way to see what would happen. 
  My kids played the game and one of my dauthers friends played it and it took her a little while to get through it,. Overlal, seems sufficient for a first level. 
- 
+ - removed labels of food items on icons. have the word appear when the food is collected. little green icon for fibre containing carbs,. different sound effect for different foods. 
 Overall I'm not very happy with the food, how the collectibles look. everything is just a bit too simplistic and unclear. BUT I am happy with how the game is functioning, the sound effects, and after just a few more adjustmnets I'll move on to the next level. 
 
 tried adding music, but the boop-boop-beep looping tune was really rather anoyning. 
@@ -77,14 +45,4 @@ tried adding music, but the boop-boop-beep looping tune was really rather anoyni
 -It tried, but based it off of our recent mockups which I hadn't wanted. So I corrected, realised I hadn't been clear (if this process teaches you nothing, it at least shows you where your gaps in clarity and explaining lie). i asked to create this version based off of our original mockup. i also gave it an image for 'inspiration' (do ai agents need inspiration?(. 
 - whne the agent creates a new version, saves over the old version so i can't see the old one any more, unless i ask it to create a new html. it must be somewhere on github that i can see. Frurstating for me as an editor where i can always esasily look back or revert to original or past form. I take screen shots so that I can have some documentation of the older versions.  
 -my daughter played the game and i noticed she avoided the fries. "get the firies" i said, "oh, i thot they'd be bad". That made me smile because that's exactly what i am not trying to "message" with this game. The idea is food nuetrality, but the concept of beneficial vs less benefical foods will come through the game experience itself. For example, in a game level where we consider UPFs vs more whole foods,  the energy bar will go up but decrease more quickly afterward collecting UPFs which will not happen with eating wholefoods, giving the idea that it may not benenfit the energy bar quest to continue to collect those foods. also teaching the 80 20% idea, of "if most of the time we are eating wholesome foods, 20% of the time ok to have less beneficial foods. Therefore 80% of th collectible items are whole foods, with 20% of the items allowing for "less healthy" food types. 
-
--LOOK INTO: https://www.mockplus.com/blog/post/game-ui-design
-
--make clouds non transparent. start f game always have energy bar only start going down once player stars moving. whenever player is still, energy bar should slow down. In all games/Levels. Add this to the rules. 
-
--new feature. I wnt the avtar to be able to throw energy balls at the enemies in order to defeat them. this is controled with mouse aim. the avatar should be able to jump on top evenies and not lose energy. this would be a rule for all future games. This curren level may need a few more landing spots. for example the sushi and pear are impossible to reach. and sweet potatoe was only possible to reach by jumping on enemy head. this is okay, so long as avatar doesn't lose energy when doing so. 
-
-add to the game plan the idea of having "rarity items"--treasure chests that will show up rarely and randomly through the levels (maybe one chest every 2-3 levels) with one rare food item (rare food items are already created in food-items-inventory-thin.html.) When the player collects this food item, something will happen but that is yet to be decided. essentially rare food items only appear in a treasure box, not as the normal food items appear. 
-
-
 
