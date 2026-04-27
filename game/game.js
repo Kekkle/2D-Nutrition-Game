@@ -98,13 +98,13 @@ const L1 = {
   foods: [
     // Starchy carbs — ground (easy pickups)
     { id: 'white_bread', x: 350,  onGround: true },
-    { id: 'white_rice',  x: 770,  onGround: true },
-    { id: 'pasta',       x: 1190, onGround: true },
+    { id: 'white_rice',  x: 780,  onGround: true },
+    { id: 'pasta',       x: 1200, onGround: true },
     { id: 'potato',      x: 1680, onGround: true },
-    { id: 'cereal',      x: 2450, onGround: true },
+    { id: 'cereal',      x: 2480, onGround: true },
     { id: 'tortilla',    x: 3300, onGround: true },
     { id: 'pita',        x: 4000, onGround: true },
-    { id: 'white_bread', x: 4760, onGround: true },
+    { id: 'white_bread', x: 4540, onGround: true },
     { id: 'pasta',       x: 5740, onGround: true },
     // Fibre+ carbs — platforms (reward exploration)
     { id: 'oats',        x: 320,  platIdx: 0 },
@@ -121,32 +121,32 @@ const L1 = {
     { id: 'carrots',     x: 5430, platIdx: 14 },
     { id: 'sweetpotato', x: 5850, platIdx: 16 },
     // Fibre+ carbs — ground (mixed in)
-    { id: 'broccoli',    x: 2100, onGround: true },
+    { id: 'broccoli',    x: 2820, onGround: true },
     { id: 'tomato',      x: 3640, onGround: true },
-    { id: 'grapes',      x: 4340, onGround: true },
-    { id: 'cucumber',    x: 5180, onGround: true },
+    { id: 'grapes',      x: 4380, onGround: true },
+    { id: 'cucumber',    x: 5200, onGround: true },
     { id: 'chia',        x: 6160, onGround: true },
     // Fun foods — quick energy
-    { id: 'cookie',      x: 1470, onGround: true, fun: true },
-    { id: 'fries',       x: 2940, onGround: true, fun: true },
-    { id: 'donut',       x: 5040, onGround: true, fun: true },
+    { id: 'cookie',      x: 1440, onGround: true, fun: true },
+    { id: 'fries',       x: 2960, onGround: true, fun: true },
+    { id: 'donut',       x: 5360, onGround: true, fun: true },
     // Above crash pits (reachable by jumping)
     { id: 'banana',      x: 2060, aboveY: GROUND_Y - 70 },
-    { id: 'oats',        x: 2140, aboveY: GROUND_Y - 70 },
-    { id: 'orange',      x: 4940, aboveY: GROUND_Y - 70 },
+    { id: 'oats',        x: 2150, aboveY: GROUND_Y - 70 },
+    { id: 'orange',      x: 4920, aboveY: GROUND_Y - 70 },
     { id: 'apple',       x: 5020, aboveY: GROUND_Y - 70 },
   ],
   energyCells: [
-    450, 900, 1300, 1700, 2200, 2600,
-    3100, 3400,
-    3900, 4200,
-    4700,
-    5500,
+    500, 940, 1350, 1780, 2260, 2680,
+    3160, 3480,
+    3940, 4140,
+    4480,
+    5560,
   ],
   cellsOnPlats: [
-    { x: 650, pi: 1 },
-    { x: 2350, pi: 5 },
-    { x: 5000, pi: 13 },
+    { x: 640, pi: 1 },
+    { x: 2380, pi: 5 },
+    { x: 5060, pi: 13 },
   ],
   phantoms: [
     { x: 2940 }, { x: 3780 }, { x: 4490 }, { x: 5180 }, { x: 6020 },
@@ -266,8 +266,16 @@ const SFX = {
     setTimeout(() => this._tone(150, 0.5, 'sine', 0.1, 60), 300);
   },
   finish() {
-    [523, 659, 784, 1047].forEach((f, i) => {
-      setTimeout(() => this._tone(f, 0.2, 'sine', 0.12), i * 120);
+    const fanfare = [
+      { f: 523, t: 0,   dur: 0.12, vol: 0.13 },   // ta  (C5)
+      { f: 659, t: 130, dur: 0.12, vol: 0.13 },   // ta  (E5)
+      { f: 784, t: 260, dur: 0.12, vol: 0.14 },   // ta  (G5)
+      { f: 1047, t: 480, dur: 0.45, vol: 0.16 },  // DA! (C6 — held longer after a pause)
+      { f: 1319, t: 500, dur: 0.35, vol: 0.07 },  // harmonic shimmer (E6)
+      { f: 1568, t: 520, dur: 0.28, vol: 0.04 },  // upper sparkle (G6)
+    ];
+    fanfare.forEach(n => {
+      setTimeout(() => this._tone(n.f, n.dur, 'sine', n.vol), n.t);
     });
   },
   starEarned() {
@@ -950,37 +958,49 @@ class BootScene extends Phaser.Scene {
 
   generateResultStar(key, fill, outline, glow) {
     const size = 48, cx = size / 2, cy = size / 2;
-    const outer = 20, inner = 8;
+    const outer = 20, inner = 9;
     const g = this.make.graphics({ add: false });
-    if (glow) {
-      g.fillStyle(fill, 0.15);
-      g.beginPath();
+
+    const drawStar = (g2, ox, oy, or, ir) => {
+      g2.beginPath();
       for (let i = 0; i < 5; i++) {
         const aO = (i * 72 - 90) * Math.PI / 180;
         const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
-        g.lineTo(cx + Math.cos(aO) * (outer + 4), cy + Math.sin(aO) * (outer + 4));
-        g.lineTo(cx + Math.cos(aI) * (inner + 2), cy + Math.sin(aI) * (inner + 2));
+        g2.lineTo(ox + Math.cos(aO) * or, oy + Math.sin(aO) * or);
+        g2.lineTo(ox + Math.cos(aI) * ir, oy + Math.sin(aI) * ir);
       }
-      g.closePath(); g.fillPath();
+      g2.closePath();
+    };
+
+    if (glow) {
+      g.fillStyle(fill, 0.12);
+      drawStar(g, cx, cy, outer + 5, inner + 3);
+      g.fillPath();
     }
+
+    // Shadow
+    g.fillStyle(outline, 0.5);
+    drawStar(g, cx + 1, cy + 2, outer, inner);
+    g.fillPath();
+
+    // Main fill
     g.fillStyle(fill);
-    g.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const aO = (i * 72 - 90) * Math.PI / 180;
-      const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
-      g.lineTo(cx + Math.cos(aO) * outer, cy + Math.sin(aO) * outer);
-      g.lineTo(cx + Math.cos(aI) * inner, cy + Math.sin(aI) * inner);
-    }
-    g.closePath(); g.fillPath();
+    drawStar(g, cx, cy, outer, inner);
+    g.fillPath();
+
+    // Bold outline
     g.lineStyle(3, outline);
-    g.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const aO = (i * 72 - 90) * Math.PI / 180;
-      const aI = ((i * 72) + 36 - 90) * Math.PI / 180;
-      g.lineTo(cx + Math.cos(aO) * outer, cy + Math.sin(aO) * outer);
-      g.lineTo(cx + Math.cos(aI) * inner, cy + Math.sin(aI) * inner);
+    drawStar(g, cx, cy, outer, inner);
+    g.strokePath();
+
+    // Cartoon highlight on upper-left arm
+    if (glow) {
+      g.fillStyle(0xffffff, 0.4);
+      g.fillCircle(cx - 5, cy - 8, 4);
+      g.fillStyle(0xffffff, 0.2);
+      g.fillCircle(cx - 8, cy - 4, 2.5);
     }
-    g.closePath(); g.strokePath();
+
     g.generateTexture(key, size, size);
     g.destroy();
   }
@@ -1832,16 +1852,44 @@ class GameScene extends Phaser.Scene {
     }
 
     this.hudLevelName = this.add.text(GAME_W - 16, 10, 'L1 — CARBOHYDRATES', { fontFamily: 'Courier New', fontSize: '10px', color: '#f0c040', letterSpacing: 2 }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
-    this.add.text(GAME_W - 16, 38, 'P = Pause', { fontFamily: 'Courier New', fontSize: '8px', color: '#555555' }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
+
+    // Pause button (clickable, bottom-left)
+    const pauseBtn = this.add.text(24, GAME_H - 24, '⏸', {
+      fontFamily: 'Courier New', fontSize: '18px', color: '#f0c040',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true });
 
     this.pauseOverlay = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.6).setScrollFactor(0).setDepth(100).setVisible(false);
-    this.pauseText = this.add.text(GAME_W / 2, GAME_H / 2, 'PAUSED\n\nPress P to resume', { fontFamily: 'Courier New', fontSize: '24px', color: '#f0c040', align: 'center' }).setOrigin(0.5).setScrollFactor(0).setDepth(101).setVisible(false);
-    this.input.keyboard.on('keydown-P', () => {
+    this.pauseText = this.add.text(GAME_W / 2, GAME_H / 2 - 30, 'PAUSED', { fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: '28px', color: '#f0c040', letterSpacing: 4 }).setOrigin(0.5).setScrollFactor(0).setDepth(101).setVisible(false);
+
+    const SF = "'Special Elite', 'Courier New', monospace";
+    const resumeBtn = this.add.rectangle(GAME_W / 2, GAME_H / 2 + 20, 180, 36, 0xf0c040)
+      .setScrollFactor(0).setDepth(101).setVisible(false).setInteractive({ useHandCursor: true });
+    const resumeLabel = this.add.text(GAME_W / 2, GAME_H / 2 + 20, '[ RESUME ]', {
+      fontFamily: SF, fontSize: '13px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(102).setVisible(false);
+
+    const exitBtn = this.add.rectangle(GAME_W / 2, GAME_H / 2 + 64, 180, 36, 0x888888)
+      .setScrollFactor(0).setDepth(101).setVisible(false).setInteractive({ useHandCursor: true });
+    const exitLabel = this.add.text(GAME_W / 2, GAME_H / 2 + 64, '[ EXIT ]', {
+      fontFamily: SF, fontSize: '13px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(102).setVisible(false);
+
+    const pauseElements = [this.pauseOverlay, this.pauseText, resumeBtn, resumeLabel, exitBtn, exitLabel];
+
+    const togglePause = () => {
       this.isPaused = !this.isPaused;
-      this.pauseOverlay.setVisible(this.isPaused);
-      this.pauseText.setVisible(this.isPaused);
+      pauseElements.forEach(el => el.setVisible(this.isPaused));
       this.physics.world.isPaused = this.isPaused;
-    });
+    };
+
+    this.input.keyboard.on('keydown-P', togglePause);
+    pauseBtn.on('pointerdown', togglePause);
+    resumeBtn.on('pointerover', () => resumeBtn.setFillStyle(0xf8d868));
+    resumeBtn.on('pointerout', () => resumeBtn.setFillStyle(0xf0c040));
+    resumeBtn.on('pointerdown', togglePause);
+    exitBtn.on('pointerover', () => exitBtn.setFillStyle(0x999999));
+    exitBtn.on('pointerout', () => exitBtn.setFillStyle(0x888888));
+    exitBtn.on('pointerdown', () => { SFX.stopMusic(); this.scene.start('Splash'); });
 
     const hudMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
       .setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true }).setScale(1.2);
@@ -2034,7 +2082,7 @@ class ResultScene extends Phaser.Scene {
 
     this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x0e0e1a);
 
-    const panelW = 580, panelH = 420;
+    const panelW = 580, panelH = 490;
     this.add.rectangle(cx, cy, panelW + 6, panelH + 6, 0xf0c040, 0.35);
     this.add.rectangle(cx, cy, panelW, panelH, 0x0c0c18);
     this.add.rectangle(cx, cy - panelH / 2 + 1.5, panelW, 3, 0xf0c040);
@@ -2110,8 +2158,8 @@ class ResultScene extends Phaser.Scene {
       { id: 3, text: 'Finished with 90%+ energy' },
     ];
 
-    const starRowY = starLabelY + 30;
-    const starSpacing = 28;
+    const starRowY = starLabelY + 32;
+    const starSpacing = 32;
 
     starDescs.forEach((s, i) => {
       const earned = d.stars.includes(s.id);
