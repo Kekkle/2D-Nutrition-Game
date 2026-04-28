@@ -47,15 +47,15 @@ All copy has been checked against `.cursor/rules/content-guardrails.mdc`.
 │                                              │
 │                                              │
 │  "Protein is your body's building material.  │
-│   Every tissue — muscle, skin, organs,       │
+│   Every tissue — muscle, skin, organs —      │
 │   is built and repaired with protein."       │
 │                                              │
 │  YOUR MISSION: Collect all proteins.         │
-│  Pair plant proteins together (like rice +   │
-│  beans) for a combo bonus.                   │
+│  Pair plant proteins with a carb (like       │
+│   rice + beans) for a combo bonus.           │
 │                                              │
-│  WATCH OUT: Stress Sprites move in erratic   │
-│  clusters. Stay alert!                       │
+│  WATCH OUT: Stress Sprites are fast and      │
+│    appear suddenly. Stay alert!              │
 │                                              │
 │              [ START ]                       │
 └──────────────────────────────────────────────┘

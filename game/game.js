@@ -63,6 +63,21 @@ const FOOD_DEFS = {
   fries:        { name: 'Fries',        type: 'fun',     w: 28, h: 32 },
   cookie:       { name: 'Cookie',       type: 'fun',     w: 30, h: 30 },
   donut:        { name: 'Donut',        type: 'fun',     w: 34, h: 32 },
+  // L2 Protein — Complete
+  salmon:       { name: 'Salmon',       type: 'neutral', w: 36, h: 20 },
+  steak:        { name: 'Beef Steak',   type: 'neutral', w: 32, h: 24 },
+  tofu:         { name: 'Tofu',         type: 'neutral', w: 28, h: 26 },
+  yogurt:       { name: 'Yogurt',       type: 'neutral', w: 26, h: 32 },
+  quinoa:       { name: 'Quinoa',       type: 'neutral', w: 32, h: 24 },
+  // L2 Protein — Incomplete
+  black_beans:  { name: 'Black Beans',  type: 'neutral', w: 32, h: 24 },
+  lentils:      { name: 'Lentils',      type: 'neutral', w: 30, h: 24 },
+  chickpeas:    { name: 'Chickpeas',    type: 'neutral', w: 30, h: 24 },
+  peanuts:      { name: 'Peanuts',      type: 'neutral', w: 30, h: 18 },
+  kidney_beans: { name: 'Kidney Beans', type: 'neutral', w: 26, h: 22 },
+  // L3 Fats preview
+  avocado:      { name: 'Avocado',      type: 'neutral', w: 26, h: 32 },
+  olive_oil:    { name: 'Olive Oil',    type: 'neutral', w: 20, h: 38 },
 };
 
 const RARE_ITEMS = [
@@ -165,6 +180,147 @@ const FIBRE_IDS = [
 ];
 
 // =================================================================
+// Level 2: Protein — Constants & Layout
+// =================================================================
+
+const L2_LEVEL_W = 9200;
+const ENERGY_PROTEIN = 8;
+const ENERGY_COMBO_BONUS = 7;
+const COMBO_TIMEOUT = 10000;
+const SPRITE_SPEED = 65;
+const SPRITE_DMG = 8;
+const L2_PHANTOM_SPEED = 70;
+const PROTEINS_NEEDED = 10;
+
+const COMBO_PAIRS = {
+  black_beans:  ['white_rice', 'white_bread', 'tortilla'],
+  lentils:      ['white_rice', 'white_bread'],
+  chickpeas:    ['pita', 'white_bread', 'tortilla'],
+  peanuts:      ['white_bread'],
+  kidney_beans: ['white_rice'],
+};
+
+const L2_PROTEIN_IDS = [
+  'chicken','egg','salmon','steak','tofu','yogurt','quinoa',
+  'black_beans','lentils','chickpeas','peanuts','kidney_beans',
+];
+
+const L2 = {
+  platforms: [
+    { x: 300,  y: 340, w: 120 },
+    { x: 650,  y: 280, w: 100 },
+    { x: 1000, y: 320, w: 140 },
+    { x: 1350, y: 230, w: 120 },
+    { x: 1700, y: 300, w: 100 },
+    { x: 2050, y: 340, w: 120 },
+    { x: 2450, y: 280, w: 120 },
+    { x: 2800, y: 210, w: 100 },
+    { x: 3150, y: 330, w: 140 },
+    { x: 3500, y: 260, w: 100 },
+    { x: 3800, y: 180, w: 120 },
+    { x: 4150, y: 310, w: 120 },
+    { x: 4500, y: 250, w: 100 },
+    { x: 4800, y: 340, w: 120 },
+    { x: 5200, y: 280, w: 140 },
+    { x: 5550, y: 200, w: 100 },
+    { x: 5850, y: 330, w: 120 },
+    { x: 6200, y: 260, w: 100 },
+    { x: 6500, y: 180, w: 120 },
+    { x: 6850, y: 310, w: 140 },
+    { x: 7200, y: 250, w: 100 },
+    { x: 7550, y: 340, w: 120 },
+    { x: 7900, y: 270, w: 100 },
+    { x: 8200, y: 190, w: 120 },
+    { x: 8550, y: 320, w: 140 },
+    { x: 8900, y: 340, w: 100 },
+  ],
+  ladders: [
+    { x: 1390, topY: 230, botY: GROUND_Y },
+    { x: 2830, topY: 210, botY: 280 },
+    { x: 3830, topY: 180, botY: 260 },
+    { x: 5580, topY: 200, botY: GROUND_Y },
+    { x: 6530, topY: 180, botY: 260 },
+    { x: 8230, topY: 190, botY: GROUND_Y },
+  ],
+  foods: [
+    // Complete Proteins — ground
+    { id: 'chicken',     x: 420,  onGround: true, l2type: 'complete' },
+    { id: 'egg',         x: 1100, onGround: true, l2type: 'complete' },
+    { id: 'steak',       x: 2600, onGround: true, l2type: 'complete' },
+    { id: 'quinoa',      x: 4900, onGround: true, l2type: 'complete' },
+    { id: 'yogurt',      x: 6950, onGround: true, l2type: 'complete' },
+    { id: 'salmon',      x: 8650, onGround: true, l2type: 'complete' },
+    // Complete Proteins — platforms
+    { id: 'tofu',        x: 1390, platIdx: 3,  l2type: 'complete' },
+    { id: 'egg',         x: 3540, platIdx: 9,  l2type: 'complete' },
+    { id: 'chicken',     x: 5890, platIdx: 16, l2type: 'complete' },
+    { id: 'salmon',      x: 8240, platIdx: 23, l2type: 'complete' },
+    // Incomplete Proteins + combo partners (placed near each other)
+    { id: 'black_beans', x: 1550, onGround: true, l2type: 'incomplete' },
+    { id: 'white_rice',  x: 1750, onGround: true, l2type: 'combo_partner' },
+    { id: 'lentils',     x: 3000, onGround: true, l2type: 'incomplete' },
+    { id: 'white_bread', x: 3200, onGround: true, l2type: 'combo_partner' },
+    { id: 'chickpeas',   x: 4540, platIdx: 12, l2type: 'incomplete' },
+    { id: 'pita',        x: 4700, onGround: true, l2type: 'combo_partner' },
+    { id: 'peanuts',     x: 5750, onGround: true, l2type: 'incomplete' },
+    { id: 'white_bread', x: 5950, onGround: true, l2type: 'combo_partner' },
+    { id: 'kidney_beans',x: 7240, platIdx: 20, l2type: 'incomplete' },
+    { id: 'white_rice',  x: 7450, onGround: true, l2type: 'combo_partner' },
+    { id: 'black_beans', x: 8100, onGround: true, l2type: 'incomplete' },
+    { id: 'tortilla',    x: 8300, onGround: true, l2type: 'combo_partner' },
+    { id: 'chickpeas',   x: 6240, platIdx: 17, l2type: 'incomplete' },
+    { id: 'white_bread', x: 6450, onGround: true, l2type: 'combo_partner' },
+    { id: 'lentils',     x: 8950, onGround: true, l2type: 'incomplete' },
+    { id: 'white_rice',  x: 9050, onGround: true, l2type: 'combo_partner' },
+    // Neutral items
+    { id: 'banana',      x: 750,  onGround: true, l2type: 'neutral' },
+    { id: 'pasta',       x: 2200, onGround: true, l2type: 'neutral' },
+    { id: 'avocado',     x: 3840, platIdx: 10, l2type: 'neutral' },
+    { id: 'olive_oil',   x: 5300, onGround: true, l2type: 'neutral' },
+    { id: 'banana',      x: 6700, onGround: true, l2type: 'neutral' },
+    { id: 'pasta',       x: 7800, onGround: true, l2type: 'neutral' },
+    // Fun foods
+    { id: 'cookie',      x: 1400, onGround: true, l2type: 'fun' },
+    { id: 'fries',       x: 4250, onGround: true, l2type: 'fun' },
+    { id: 'donut',       x: 7650, onGround: true, l2type: 'fun' },
+  ],
+  energyCells: [
+    440, 900, 1300, 1700, 2150, 2550, 2950, 3350,
+    3750, 4100, 4500, 4900, 5350, 5750, 6150, 6550,
+    6950, 7350,
+  ],
+  cellsOnPlats: [
+    { x: 690,  pi: 1 },
+    { x: 1390, pi: 3 },
+    { x: 2490, pi: 6 },
+    { x: 2840, pi: 7 },
+    { x: 3840, pi: 10 },
+    { x: 5590, pi: 15 },
+    { x: 6540, pi: 18 },
+    { x: 8240, pi: 23 },
+  ],
+  phantoms: [
+    { x: 2900 }, { x: 4600 }, { x: 6400 }, { x: 8500 },
+  ],
+  stressSprites: [
+    { x: 3450, y: 310 }, { x: 3600, y: 290 },
+    { x: 5450, y: 300 }, { x: 5600, y: 280 },
+    { x: 7900, y: 270 }, { x: 8050, y: 250 },
+  ],
+  crashPits: [
+    { x: 1850, w: 200 },
+    { x: 2300, w: 200 },
+  ],
+  fogBanks: [
+    { x: 5050, w: 500 },
+    { x: 6350, w: 400 },
+    { x: 7700, w: 400 },
+  ],
+  hiddenPath: { x: 6500, y: 120, w: 100 },
+  finishX: 9000,
+};
+
+// =================================================================
 // SFX — Procedural sound effects via Web Audio API
 // =================================================================
 
@@ -174,12 +330,17 @@ const SFX = {
   musicMuted: false,
   musicGain: null,
   musicPlaying: false,
+  finishAudio: null,
   init() {
     if (this.ctx) return;
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     this.musicGain = this.ctx.createGain();
     this.musicGain.gain.value = 0.06;
     this.musicGain.connect(this.ctx.destination);
+    const a = new Audio('assets/level-complete.wav');
+    a.preload = 'auto';
+    a.volume = 0.4;
+    a.addEventListener('canplaythrough', () => { this.finishAudio = a; }, { once: true });
   },
   resume() {
     if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
@@ -266,21 +427,38 @@ const SFX = {
     setTimeout(() => this._tone(150, 0.5, 'sine', 0.1, 60), 300);
   },
   finish() {
-    const fanfare = [
-      { f: 523, t: 0,   dur: 0.12, vol: 0.13 },   // ta  (C5)
-      { f: 659, t: 130, dur: 0.12, vol: 0.13 },   // ta  (E5)
-      { f: 784, t: 260, dur: 0.12, vol: 0.14 },   // ta  (G5)
-      { f: 1047, t: 480, dur: 0.45, vol: 0.16 },  // DA! (C6 — held longer after a pause)
-      { f: 1319, t: 500, dur: 0.35, vol: 0.07 },  // harmonic shimmer (E6)
-      { f: 1568, t: 520, dur: 0.28, vol: 0.04 },  // upper sparkle (G6)
-    ];
-    fanfare.forEach(n => {
-      setTimeout(() => this._tone(n.f, n.dur, 'sine', n.vol), n.t);
+    if (this.finishAudio && !this.sfxMuted) {
+      this.finishAudio.currentTime = 0;
+      this.finishAudio.volume = this.sfxMuted ? 0 : 0.4;
+      this.finishAudio.play().catch(() => {});
+      return;
+    }
+    [523, 659, 784, 1047].forEach((f, i) => {
+      setTimeout(() => this._tone(f, 0.2, 'sine', 0.12), i * 120);
     });
   },
   starEarned() {
     this._tone(880, 0.1, 'sine', 0.1);
     setTimeout(() => this._tone(1100, 0.15, 'sine', 0.1), 80);
+  },
+  collectProtein() {
+    this._tone(440, 0.1, 'square', 0.12);
+    setTimeout(() => this._tone(587, 0.1, 'square', 0.12), 60);
+    setTimeout(() => this._tone(660, 0.08, 'square', 0.1), 120);
+  },
+  collectIncomplete() {
+    this._tone(330, 0.12, 'triangle', 0.12);
+    setTimeout(() => this._tone(440, 0.08, 'triangle', 0.1), 70);
+  },
+  comboTrigger() {
+    this._tone(523, 0.1, 'sine', 0.14);
+    setTimeout(() => this._tone(659, 0.1, 'sine', 0.14), 80);
+    setTimeout(() => this._tone(784, 0.1, 'sine', 0.14), 160);
+    setTimeout(() => this._tone(1047, 0.2, 'sine', 0.12), 260);
+  },
+  stressBuzz() {
+    this._tone(150, 0.15, 'sawtooth', 0.08, 300);
+    setTimeout(() => this._tone(200, 0.1, 'sawtooth', 0.06, 100), 80);
   },
 
   // Background music — gentle classical minuet style
@@ -372,8 +550,12 @@ class BootScene extends Phaser.Scene {
     this.generateRareItems();
     this.generateStar();
     this.generateFinishFlag();
+    this.generateL2Foods();
+    this.generateStressSprite();
+    this.generateProteinTag();
+    this.generateComboTag();
     document.fonts.load('16px "Special Elite"').then(() => {
-      this.scene.start('Splash');
+      this.scene.start('LevelSelect');
     });
   }
 
@@ -1015,6 +1197,274 @@ class BootScene extends Phaser.Scene {
     }
     g.generateTexture('finish_flag', 36, 80);
     g.destroy();
+  }
+
+  generateL2Foods() {
+    const g = this.make.graphics({ add: false });
+    const P = 2;
+
+    // Salmon — #e88060
+    g.clear(); g.fillStyle(0xe88060); g.fillRoundedRect(P, P, 32, 16, 4);
+    g.lineStyle(2, 0xb05838); g.strokeRoundedRect(P, P, 32, 16, 4);
+    g.fillStyle(0xc86848);
+    for (let i = 0; i < 6; i++) g.fillRect(P + 4 + i * 5, P + 2, 2, 8);
+    g.generateTexture('food_salmon', 36, 20);
+
+    // Beef Steak — #a04030
+    g.clear(); g.fillStyle(0xa04030); g.fillRoundedRect(P, P, 28, 20, 4);
+    g.fillStyle(0xe8c8b0); g.fillRoundedRect(P + 21, P, 7, 20, { tl: 0, tr: 4, bl: 0, br: 4 });
+    g.lineStyle(2, 0x702820); g.strokeRoundedRect(P, P, 28, 20, 4);
+    g.fillStyle(0xc06050);
+    g.fillRect(P + 3, P + 4, 5, 2); g.fillRect(P + 9, P + 8, 5, 2); g.fillRect(P + 5, P + 12, 5, 2);
+    g.generateTexture('food_steak', 32, 24);
+
+    // Tofu — #f0e8d0
+    g.clear(); g.fillStyle(0xf0e8d0); g.fillRoundedRect(P, P, 24, 22, 3);
+    g.lineStyle(2, 0xc8b898); g.strokeRoundedRect(P, P, 24, 22, 3);
+    g.lineStyle(1, 0xc8b898); g.strokeRoundedRect(P + 3, P + 3, 18, 16, 2);
+    g.generateTexture('food_tofu', 28, 26);
+
+    // Yogurt — #f0e8e0 with #7878bb lid
+    g.clear();
+    g.fillStyle(0x7878bb); g.fillRoundedRect(P, P, 22, 5, 2);
+    g.lineStyle(2, 0x5858aa); g.strokeRoundedRect(P, P, 22, 5, 2);
+    g.fillStyle(0xf0e8e0); g.fillRoundedRect(P, P + 4, 22, 24, { tl: 3, tr: 3, bl: 8, br: 8 });
+    g.lineStyle(2, 0xc8b898); g.strokeRoundedRect(P, P + 4, 22, 24, { tl: 3, tr: 3, bl: 8, br: 8 });
+    g.generateTexture('food_yogurt', 26, 32);
+
+    // Quinoa — #f0e0c0
+    g.clear(); g.fillStyle(0xf0e0c0); g.fillRoundedRect(P, P + 4, 28, 16, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.lineStyle(2, 0xb8a878); g.strokeRoundedRect(P, P + 4, 28, 16, { tl: 4, tr: 4, bl: 12, br: 12 });
+    g.fillStyle(0xc8a870);
+    const qp = [[5,6],[8,7],[11,6],[14,7],[17,6],[20,7],[23,6],[6,10],[9,11],[12,10],[15,11],[18,10],[21,11],[7,14],[10,13],[13,14],[16,13],[19,14]];
+    for (const [qx, qy] of qp) g.fillCircle(P + qx, P + qy, 1);
+    g.generateTexture('food_quinoa', 32, 24);
+
+    // Black Beans — #884430
+    g.clear(); g.fillStyle(0x884430); g.fillEllipse(P + 14, P + 10, 28, 20);
+    g.lineStyle(2, 0x5a2a18); g.strokeEllipse(P + 14, P + 10, 28, 20);
+    g.fillStyle(0x6a3320);
+    g.fillCircle(P + 5, P + 5, 2.5); g.fillCircle(P + 12, P + 5, 2.5);
+    g.fillCircle(P + 19, P + 6, 2.5); g.fillCircle(P + 8, P + 11, 2.5);
+    g.fillCircle(P + 15, P + 11, 2.5);
+    g.generateTexture('food_black_beans', 32, 24);
+
+    // Lentils — #5a8a30
+    g.clear(); g.fillStyle(0x5a8a30); g.fillEllipse(P + 13, P + 10, 26, 20);
+    g.lineStyle(2, 0x3a6a18); g.strokeEllipse(P + 13, P + 10, 26, 20);
+    g.fillStyle(0x4a7a20);
+    g.fillCircle(P + 5, P + 5, 2); g.fillCircle(P + 12, P + 6, 2);
+    g.fillCircle(P + 19, P + 5, 2); g.fillCircle(P + 8, P + 11, 2);
+    g.fillCircle(P + 15, P + 11, 2);
+    g.generateTexture('food_lentils', 30, 24);
+
+    // Chickpeas — #d8c090
+    g.clear(); g.fillStyle(0xd8c090); g.fillEllipse(P + 13, P + 10, 26, 20);
+    g.lineStyle(2, 0xa8905a); g.strokeEllipse(P + 13, P + 10, 26, 20);
+    g.fillStyle(0xc0a870);
+    g.fillCircle(P + 5, P + 5, 2); g.fillCircle(P + 11, P + 6, 2);
+    g.fillCircle(P + 17, P + 5, 2); g.fillCircle(P + 8, P + 11, 2);
+    g.fillCircle(P + 14, P + 11, 2);
+    g.generateTexture('food_chickpeas', 30, 24);
+
+    // Peanuts — #c8a060
+    g.clear(); g.fillStyle(0xc8a060); g.fillEllipse(P + 7, P + 7, 15, 14);
+    g.fillEllipse(P + 19, P + 7, 15, 14);
+    g.lineStyle(2, 0x907038);
+    g.strokeEllipse(P + 7, P + 7, 15, 14);
+    g.strokeEllipse(P + 19, P + 7, 15, 14);
+    g.generateTexture('food_peanuts', 30, 18);
+
+    // Kidney Beans — #882020
+    g.clear(); g.fillStyle(0x882020);
+    g.fillRoundedRect(P, P, 22, 18, { tl: 11, tr: 5, bl: 5, br: 11 });
+    g.lineStyle(2, 0x601010);
+    g.strokeRoundedRect(P, P, 22, 18, { tl: 11, tr: 5, bl: 5, br: 11 });
+    g.fillStyle(0x661818); g.fillRect(P + 2, P + 8, 6, 2);
+    g.generateTexture('food_kidney_beans', 26, 22);
+
+    // Avocado — #5a8a30
+    g.clear(); g.fillStyle(0x5a8a30);
+    g.fillRoundedRect(P, P, 22, 28, { tl: 11, tr: 11, bl: 9, br: 9 });
+    g.lineStyle(2, 0x3a6a18);
+    g.strokeRoundedRect(P, P, 22, 28, { tl: 11, tr: 11, bl: 9, br: 9 });
+    g.fillStyle(0x6a4020); g.fillCircle(P + 11, P + 21, 5);
+    g.lineStyle(1, 0x5a3018); g.strokeCircle(P + 11, P + 21, 5);
+    g.generateTexture('food_avocado', 26, 32);
+
+    // Olive Oil — #c8b840
+    g.clear();
+    g.fillStyle(0x888888); g.fillRoundedRect(P + 5, P, 6, 6, { tl: 2, tr: 2, bl: 0, br: 0 });
+    g.lineStyle(2, 0x666666); g.strokeRoundedRect(P + 5, P, 6, 6, { tl: 2, tr: 2, bl: 0, br: 0 });
+    g.fillStyle(0xc8b840); g.fillRoundedRect(P, P + 6, 16, 28, { tl: 3, tr: 3, bl: 4, br: 4 });
+    g.lineStyle(2, 0x908828); g.strokeRoundedRect(P, P + 6, 16, 28, { tl: 3, tr: 3, bl: 4, br: 4 });
+    g.fillStyle(0xffffff, 0.2); g.fillRoundedRect(P + 2, P + 9, 4, 10, 2);
+    g.generateTexture('food_olive_oil', 20, 38);
+
+    g.destroy();
+  }
+
+  generateStressSprite() {
+    const g = this.make.graphics({ add: false });
+    const P = 2;
+
+    // Body — solid blue circle with bold outline (sa-sprite)
+    g.fillStyle(0x44aaee);
+    g.fillCircle(P + 16, P + 18, 16);
+    g.lineStyle(3, 0x1a6090);
+    g.strokeCircle(P + 16, P + 18, 16);
+
+    // Glow ring
+    g.lineStyle(2, 0x44aaee, 0.3);
+    g.strokeCircle(P + 16, P + 18, 19);
+
+    // Eyes
+    g.fillStyle(0xffffff);
+    g.fillEllipse(P + 10, P + 16, 7, 8);
+    g.fillEllipse(P + 22, P + 16, 7, 8);
+    g.lineStyle(2, 0x1a6090);
+    g.strokeEllipse(P + 10, P + 16, 7, 8);
+    g.strokeEllipse(P + 22, P + 16, 7, 8);
+
+    // Pupils
+    g.fillStyle(0x1a6090);
+    g.fillCircle(P + 11, P + 17, 2);
+    g.fillCircle(P + 23, P + 17, 2);
+
+    // Lightning zaps
+    g.fillStyle(0xffffff);
+    g.beginPath(); g.moveTo(P + 12, P); g.lineTo(P + 15, P + 5); g.lineTo(P + 12, P + 5); g.lineTo(P + 16, P + 10); g.lineTo(P + 10, P + 4); g.lineTo(P + 13, P + 4); g.closePath(); g.fillPath();
+    g.beginPath(); g.moveTo(P + 28, P + 6); g.lineTo(P + 31, P + 11); g.lineTo(P + 28, P + 11); g.lineTo(P + 32, P + 16); g.lineTo(P + 26, P + 10); g.lineTo(P + 29, P + 10); g.closePath(); g.fillPath();
+    g.beginPath(); g.moveTo(P + 24, P + 28); g.lineTo(P + 27, P + 32); g.lineTo(P + 24, P + 32); g.lineTo(P + 28, P + 36); g.lineTo(P + 22, P + 31); g.lineTo(P + 25, P + 31); g.closePath(); g.fillPath();
+
+    g.generateTexture('stress_sprite', 36, 40);
+
+    // Telegraph crackling field
+    g.clear();
+    g.fillStyle(0x44aaee, 0.12);
+    g.fillCircle(24, 24, 24);
+    g.lineStyle(1, 0x44aaee, 0.2);
+    g.strokeCircle(24, 24, 16);
+    g.generateTexture('sprite_telegraph', 48, 48);
+
+    g.destroy();
+  }
+
+  generateProteinTag() {
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0xcc4444);
+    g.beginPath();
+    g.moveTo(5, 0); g.lineTo(10, 5); g.lineTo(5, 10); g.lineTo(0, 5);
+    g.closePath(); g.fillPath();
+    g.fillStyle(0xff8888, 0.6);
+    g.beginPath();
+    g.moveTo(5, 1); g.lineTo(8, 5); g.lineTo(5, 9); g.lineTo(2, 5);
+    g.closePath(); g.fillPath();
+    g.fillStyle(0xffffff, 0.4);
+    g.fillCircle(4, 4, 1.5);
+    g.generateTexture('protein_tag', 10, 10);
+    g.destroy();
+  }
+
+  generateComboTag() {
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0xff8800);
+    g.beginPath();
+    g.moveTo(6, 0); g.lineTo(12, 6); g.lineTo(6, 12); g.lineTo(0, 6);
+    g.closePath(); g.fillPath();
+    g.fillStyle(0xffcc66, 0.7);
+    g.beginPath();
+    g.moveTo(6, 1); g.lineTo(10, 6); g.lineTo(6, 11); g.lineTo(2, 6);
+    g.closePath(); g.fillPath();
+    g.lineStyle(2, 0xffffff, 0.6);
+    g.lineBetween(4, 4, 8, 8);
+    g.lineBetween(4, 8, 8, 4);
+    g.generateTexture('combo_tag', 12, 12);
+    g.destroy();
+  }
+}
+
+// =================================================================
+// LEVEL SELECT SCENE
+// =================================================================
+
+class LevelSelectScene extends Phaser.Scene {
+  constructor() { super('LevelSelect'); }
+
+  create() {
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x1a1a2e, 0x1a1a2e, 0x2a2a4e, 0x2a2a4e, 1);
+    bg.fillRect(0, 0, GAME_W, GAME_H);
+
+    const starCount = 40;
+    const starGfx = this.add.graphics();
+    for (let i = 0; i < starCount; i++) {
+      const sx = Math.random() * GAME_W;
+      const sy = Math.random() * (GAME_H * 0.6);
+      const sr = 0.5 + Math.random() * 1.5;
+      starGfx.fillStyle(0xffffff, 0.4 + Math.random() * 0.6);
+      starGfx.fillCircle(sx, sy, sr);
+    }
+
+    this.add.text(cx, 50, 'NutriRun', {
+      fontFamily: '"Special Elite", "Courier New", monospace',
+      fontSize: '36px', color: '#f0c040', fontStyle: 'bold',
+      stroke: '#1a1a2e', strokeThickness: 4
+    }).setOrigin(0.5);
+
+    this.add.text(cx, 90, 'Choose a Level', {
+      fontFamily: '"Special Elite", "Courier New", monospace',
+      fontSize: '16px', color: '#aabbcc'
+    }).setOrigin(0.5);
+
+    const levels = [
+      { label: 'Level 1', sub: 'Carbohydrates', scene: 'Splash', color: 0x4a8c5c, icon: '🍞' },
+      { label: 'Level 2', sub: 'Protein',       scene: 'Splash2', color: 0xcc4444, icon: '🥩' },
+    ];
+
+    const btnW = 200, btnH = 80, gap = 30;
+    const totalW = levels.length * btnW + (levels.length - 1) * gap;
+    const startX = cx - totalW / 2 + btnW / 2;
+
+    levels.forEach((lv, i) => {
+      const bx = startX + i * (btnW + gap);
+      const by = cy + 10;
+
+      const card = this.add.graphics();
+      card.fillStyle(0x222244, 1);
+      card.fillRoundedRect(bx - btnW / 2, by - btnH / 2, btnW, btnH, 10);
+      card.lineStyle(2, lv.color, 1);
+      card.strokeRoundedRect(bx - btnW / 2, by - btnH / 2, btnW, btnH, 10);
+
+      this.add.text(bx, by - 18, lv.icon + ' ' + lv.label, {
+        fontFamily: '"Special Elite", "Courier New", monospace',
+        fontSize: '18px', color: '#ffffff', fontStyle: 'bold'
+      }).setOrigin(0.5);
+
+      this.add.text(bx, by + 10, lv.sub, {
+        fontFamily: '"Special Elite", "Courier New", monospace',
+        fontSize: '12px', color: '#aaaacc'
+      }).setOrigin(0.5);
+
+      const hitArea = this.add.rectangle(bx, by, btnW, btnH, 0x000000, 0)
+        .setInteractive({ useHandCursor: true });
+
+      const hoverGfx = this.add.graphics();
+      hoverGfx.fillStyle(lv.color, 0.15);
+      hoverGfx.fillRoundedRect(bx - btnW / 2, by - btnH / 2, btnW, btnH, 10);
+      hoverGfx.setVisible(false);
+
+      hitArea.on('pointerover', () => hoverGfx.setVisible(true));
+      hitArea.on('pointerout', () => hoverGfx.setVisible(false));
+      hitArea.on('pointerdown', () => this.scene.start(lv.scene));
+    });
+
+    this.add.text(cx, GAME_H - 30, '© 2026 KekkleMePink', {
+      fontFamily: '"Courier New", monospace',
+      fontSize: '10px', color: '#555555'
+    }).setOrigin(0.5);
   }
 }
 
@@ -1889,7 +2339,7 @@ class GameScene extends Phaser.Scene {
     resumeBtn.on('pointerdown', togglePause);
     exitBtn.on('pointerover', () => exitBtn.setFillStyle(0x999999));
     exitBtn.on('pointerout', () => exitBtn.setFillStyle(0x888888));
-    exitBtn.on('pointerdown', () => { SFX.stopMusic(); this.scene.start('Splash'); });
+    exitBtn.on('pointerdown', () => { SFX.stopMusic(); this.scene.start('LevelSelect'); });
 
     const hudMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
       .setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true }).setScale(1.2);
@@ -2102,11 +2552,12 @@ class ResultScene extends Phaser.Scene {
       bg.on('pointerdown', () => this.scene.start(scene));
     };
 
-    makeBtn(cx - 100, '[ REPLAY ]', 0x888888, 'Game');
+    makeBtn(cx - 140, '[ REPLAY ]', 0x888888, 'Game');
+    makeBtn(cx, '[ MENU ]', 0x6688aa, 'LevelSelect');
     if (d.success) {
-      makeBtn(cx + 100, '[ NEXT LEVEL ]', 0xf0c040, 'Splash');
+      makeBtn(cx + 140, '[ NEXT LEVEL ]', 0xf0c040, 'Splash2');
     } else {
-      makeBtn(cx + 100, '[ TRY AGAIN ]', 0xf0c040, 'Game');
+      makeBtn(cx + 140, '[ TRY AGAIN ]', 0xf0c040, 'Game');
     }
 
     const rMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
@@ -2255,6 +2706,1361 @@ class ResultScene extends Phaser.Scene {
 }
 
 // =================================================================
+// SPLASH 2 SCENE — Instruction splash for L2 (Protein)
+// =================================================================
+
+class Splash2Scene extends Phaser.Scene {
+  constructor() { super('Splash2'); }
+
+  create() {
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+
+    // Indoor marketplace background
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x2a1a0e, 0x2a1a0e, 0x3d2b1a, 0x3d2b1a, 1);
+    bg.fillRect(0, 0, GAME_W, GAME_H);
+
+    // Brick wall pattern
+    const bricks = this.add.graphics();
+    bricks.fillStyle(0x4a3020, 0.3);
+    for (let r = 0; r < 12; r++) for (let c = 0; c < 20; c++) {
+      const ox = (r % 2) * 25;
+      bricks.fillRect(ox + c * 50, r * 45, 46, 40);
+    }
+
+    // Shelves
+    const shelves = this.add.graphics();
+    shelves.fillStyle(0x6d5410, 0.3);
+    shelves.fillRect(0, 120, GAME_W, 6);
+    shelves.fillRect(0, 300, GAME_W, 6);
+
+    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.58);
+
+    const panelW = 580, panelH = 360;
+    const panelX = cx, panelY = cy;
+    this.add.rectangle(panelX, panelY, panelW + 3, panelH + 3, 0xcc4444, 0.35);
+    this.add.rectangle(panelX, panelY, panelW, panelH, 0x0c0c18);
+    this.add.rectangle(panelX, panelY - panelH / 2 + 1.5, panelW, 3, 0xcc4444);
+
+    const SF = "'Special Elite', 'Courier New', monospace";
+
+    const headerY = panelY - panelH / 2 + 36;
+    this.add.text(panelX, headerY, 'Level Two', {
+      fontFamily: SF, fontSize: '13px', color: '#666666', letterSpacing: 4,
+    }).setOrigin(0.5);
+    this.add.text(panelX, headerY + 26, 'PROTEIN', {
+      fontFamily: SF, fontSize: '30px', color: '#cc4444', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.rectangle(panelX, headerY + 48, 80, 2, 0xcc4444, 0.27);
+
+    this.add.text(panelX, headerY + 78, 'Protein is your body\'s building material.\nEvery tissue — muscle, skin, organs —\nis built and repaired with protein.', {
+      fontFamily: SF, fontSize: '17px', color: '#d8d0c0', align: 'center', lineSpacing: 8,
+    }).setOrigin(0.5);
+
+    this.add.rectangle(panelX, headerY + 120, panelW - 72, 1, 0xffffff, 0.04);
+
+    const sectY = headerY + 138;
+    const missionLabel = this.add.text(panelX - panelW / 2 + 40, sectY, 'YOUR MISSION', {
+      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
+    }).setAlpha(0);
+    const missionBar = this.add.rectangle(panelX - panelW / 2 + 42, sectY + 19, 2, 0, 0xffffff, 0.04).setOrigin(0, 0);
+    const missionText = this.add.text(panelX - panelW / 2 + 56, sectY + 20, '', {
+      fontFamily: SF, fontSize: '15px', color: '#999999', lineSpacing: 6, wordWrap: { width: panelW - 120 },
+    });
+
+    const hazardY = sectY + 84;
+    const hazardLabel = this.add.text(panelX - panelW / 2 + 40, hazardY, 'WATCH OUT', {
+      fontFamily: SF, fontSize: '12px', color: '#cc6655', letterSpacing: 3,
+    }).setAlpha(0);
+    const hazardBar = this.add.rectangle(panelX - panelW / 2 + 42, hazardY + 19, 2, 0, 0xffffff, 0.04).setOrigin(0, 0);
+    const hazardText = this.add.text(panelX - panelW / 2 + 56, hazardY + 20, '', {
+      fontFamily: SF, fontSize: '15px', color: '#997777', lineSpacing: 6, wordWrap: { width: panelW - 180 },
+    });
+
+    const spriteImg = this.add.image(panelX + panelW / 2 - 60, hazardY + 32, 'stress_sprite').setAlpha(0).setScale(0.9);
+
+    const promptText = this.add.text(panelX, panelY + panelH / 2 - 24, 'PRESS ANY KEY TO START', {
+      fontFamily: SF, fontSize: '14px', color: '#cc4444', letterSpacing: 4,
+    }).setOrigin(0.5).setAlpha(0);
+
+    const TYPE_SPEED = 40;
+    const missionStr = 'Collect all proteins. Pair plant proteins together (like rice + beans) for a combo bonus!';
+    const hazardStr = 'Stress Sprites move in erratic clusters. Stay alert!';
+
+    this.startEnabled = false;
+    this.animComplete = false;
+    this.typingStarted = false;
+    this.activeTimers = [];
+
+    const beginPrompt = this.add.text(panelX, panelY + panelH / 2 - 24, 'CLICK OR PRESS ANY KEY', {
+      fontFamily: SF, fontSize: '14px', color: '#cc4444', letterSpacing: 4,
+    }).setOrigin(0.5).setAlpha(1);
+    this.tweens.add({
+      targets: beginPrompt, alpha: 0.35, duration: 600,
+      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    });
+
+    const showComplete = () => {
+      if (this.animComplete) return;
+      this.animComplete = true;
+      this.activeTimers.forEach(t => t.remove && t.remove());
+      this.activeTimers = [];
+      missionLabel.setAlpha(1); missionBar.setSize(2, 44);
+      missionText.setText(missionStr);
+      hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
+      hazardText.setText(hazardStr);
+      spriteImg.setAlpha(1).setScale(1);
+      promptText.setAlpha(1);
+      this.tweens.add({
+        targets: promptText, alpha: 0.35, duration: 600,
+        yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+      });
+      this.startEnabled = true;
+    };
+
+    const typeText = (textObj, str, speed, cb) => {
+      let i = 0;
+      const timer = this.time.addEvent({
+        delay: speed, repeat: str.length - 1,
+        callback: () => {
+          if (this.animComplete) return;
+          i++;
+          textObj.setText(str.slice(0, i));
+          if (str[i - 1] !== ' ') SFX.typeClick();
+          if (i >= str.length && cb) cb();
+        },
+      });
+      this.activeTimers.push(timer);
+      return timer;
+    };
+
+    const startTypewriter = () => {
+      beginPrompt.destroy();
+      const d1 = this.time.delayedCall(300, () => {
+        missionLabel.setAlpha(1); missionBar.setSize(2, 44);
+        const d2 = this.time.delayedCall(400, () => {
+          typeText(missionText, missionStr, TYPE_SPEED, () => {
+            const d3 = this.time.delayedCall(350, () => {
+              hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
+              const d4 = this.time.delayedCall(400, () => {
+                typeText(hazardText, hazardStr, TYPE_SPEED, () => {
+                  this.tweens.add({ targets: spriteImg, alpha: 1, scale: 1, duration: 400 });
+                  const d5 = this.time.delayedCall(500, () => {
+                    promptText.setAlpha(1);
+                    this.tweens.add({
+                      targets: promptText, alpha: 0.35, duration: 600,
+                      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+                    });
+                    this.startEnabled = true;
+                    this.animComplete = true;
+                  });
+                  this.activeTimers.push(d5);
+                });
+              });
+              this.activeTimers.push(d4);
+            });
+            this.activeTimers.push(d3);
+          });
+        });
+        this.activeTimers.push(d2);
+      });
+      this.activeTimers.push(d1);
+    };
+
+    const handleInput = () => {
+      SFX.init(); SFX.resume();
+      if (this.startEnabled) { this.scene.start('Game2'); return; }
+      if (!this.typingStarted) { this.typingStarted = true; startTypewriter(); return; }
+      if (!this.animComplete) showComplete();
+    };
+
+    this.input.keyboard.on('keydown', handleInput);
+    this.input.on('pointerdown', handleInput);
+
+    const musicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    musicIcon.on('pointerdown', (p, lx, ly, e) => {
+      e.stopPropagation(); SFX.init(); SFX.resume();
+      const m = SFX.toggleMusic(); musicIcon.setTexture(m ? 'music_off' : 'music_on');
+    });
+    const sfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    sfxIcon.on('pointerdown', (p, lx, ly, e) => {
+      e.stopPropagation(); SFX.init(); SFX.resume();
+      const m = SFX.toggleSfx(); sfxIcon.setTexture(m ? 'sfx_off' : 'sfx_on');
+    });
+  }
+}
+
+// =================================================================
+// GAME 2 SCENE — Main L2: Protein gameplay
+// =================================================================
+
+class Game2Scene extends Phaser.Scene {
+  constructor() { super('Game2'); }
+
+  create() {
+    this.physics.world.setBounds(0, 0, L2_LEVEL_W, GAME_H);
+    this.cameras.main.setBounds(0, 0, L2_LEVEL_W, GAME_H);
+
+    this.energy = ENERGY_START;
+    this.proteinsCollected = 0;
+    this.combosTriggered = 0;
+    this.neutralCollected = 0;
+    this.funCollected = 0;
+    this.rareCollected = 0;
+    this.cellsCollected = 0;
+    this.totalProteinItems = 0;
+    this.dmgTaken = false;
+    this.isInvincible = false;
+    this.levelComplete = false;
+    this.levelFailed = false;
+    this.isPaused = false;
+    this.hasStartedMoving = false;
+    this.foundHiddenPath = false;
+    this.proteinItemsFound = [];
+    this.startTime = this.time.now;
+    this.activeCombo = null;
+    this.comboUIElements = [];
+    this.onLadder = false;
+
+    this.drawBackground();
+    this.createGround();
+    this.createPlatforms();
+    this.createLadders();
+    this.createPlayer();
+    this.createFoods();
+    this.createEnergyCells();
+    this.createPhantoms();
+    this.createStressSprites();
+    this.createCrashPits();
+    this.createFogBanks();
+    this.createHiddenPath();
+    this.createFinish();
+    this.createHUD();
+    this.createEnergyBalls();
+
+    this.cameras.main.startFollow(this.player, true, 0.08, 0);
+    this.cameras.main.setDeadzone(100, GAME_H);
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+    this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+
+    this.input.on('pointerdown', (pointer, targets) => {
+      if (this.levelComplete || this.levelFailed || this.isPaused) return;
+      if (targets.length > 0) return;
+      this.fireEnergyBall(pointer);
+    });
+    this.keyF.on('down', () => {
+      if (this.levelComplete || this.levelFailed || this.isPaused) return;
+      this.fireEnergyBall({ x: this.input.activePointer.x, y: this.input.activePointer.y });
+    });
+
+    this.createTutorialOverlay();
+    this.startL2Music();
+  }
+
+  startL2Music() {
+    SFX.stopMusic();
+    if (!SFX.ctx) return;
+    SFX.musicPlaying = true;
+    const bpm = 120;
+    const q = 60 / bpm;
+
+    const melodyNotes = [
+      [440, 0, 0.5], [523, 0.5, 0.5], [587, 1, 1], [659, 2, 0.5], [587, 2.5, 0.5],
+      [523, 3, 0.5], [440, 3.5, 0.5], [494, 4, 1], [523, 5, 0.5], [587, 5.5, 0.5],
+      [659, 6, 1], [784, 7, 0.5], [740, 7.5, 0.5],
+      [659, 8, 0.5], [587, 8.5, 0.5], [523, 9, 1], [587, 10, 0.5], [659, 10.5, 0.5],
+      [523, 11, 0.5], [494, 11.5, 0.5], [440, 12, 1], [523, 13, 0.5], [587, 13.5, 0.5],
+      [659, 14, 1], [523, 15, 1],
+    ];
+
+    const bassNotes = [
+      [110, 0, 1], [147, 1, 0.5], [147, 1.5, 0.5],
+      [131, 2, 1], [165, 3, 0.5], [165, 3.5, 0.5],
+      [147, 4, 1], [165, 5, 0.5], [165, 5.5, 0.5],
+      [131, 6, 1], [165, 7, 0.5], [165, 7.5, 0.5],
+      [110, 8, 1], [147, 9, 0.5], [147, 9.5, 0.5],
+      [131, 10, 1], [165, 11, 0.5], [165, 11.5, 0.5],
+      [110, 12, 1], [131, 13, 0.5], [131, 13.5, 0.5],
+      [147, 14, 1], [131, 15, 1],
+    ];
+
+    const percBeats = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    const loopBeats = 16;
+
+    const playLoop = () => {
+      if (!SFX.musicPlaying) return;
+      const now = SFX.ctx.currentTime + 0.05;
+      melodyNotes.forEach(([f, b, d]) => {
+        SFX._playNote(f, now + b * q, d * q, 'square', 0.25);
+      });
+      bassNotes.forEach(([f, b, d]) => {
+        SFX._playNote(f, now + b * q, d * q, 'triangle', 0.35);
+      });
+      percBeats.forEach(b => {
+        const t = now + b * q;
+        if (SFX.ctx) {
+          const buf = SFX.ctx.createBuffer(1, SFX.ctx.sampleRate * 0.03, SFX.ctx.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (b % 2 === 0 ? 0.4 : 0.15);
+          const src = SFX.ctx.createBufferSource(); src.buffer = buf;
+          const g = SFX.ctx.createGain();
+          g.gain.setValueAtTime(b % 2 === 0 ? 0.06 : 0.03, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+          src.connect(g); g.connect(SFX.musicGain);
+          src.start(t); src.stop(t + 0.05);
+        }
+      });
+      SFX._musicTimer = setTimeout(() => playLoop(), loopBeats * q * 1000 - 100);
+    };
+    playLoop();
+  }
+
+  createTutorialOverlay() {
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+    const SF = "'Special Elite', 'Courier New', monospace";
+    this.tutorialGroup = this.add.group();
+    const pW = 520, pH = 280;
+    const dim = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setScrollFactor(0).setDepth(200);
+    const panel = this.add.rectangle(cx, cy, pW, pH, 0x0c0c18, 0.95).setScrollFactor(0).setDepth(201);
+    const border = this.add.rectangle(cx, cy, pW, pH).setStrokeStyle(2, 0xcc4444, 0.5).setScrollFactor(0).setDepth(201);
+    const title = this.add.text(cx, cy - pH / 2 + 24, 'CONTROLS', {
+      fontFamily: SF, fontSize: '18px', color: '#cc4444', letterSpacing: 4,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
+    const lines = [
+      { key: 'A / D  or  ← →', action: 'Move left / right' },
+      { key: 'W  or  SPACE', action: 'Jump' },
+      { key: 'W / S on ladder', action: 'Climb up / down' },
+      { key: 'F  or  CLICK', action: 'Shoot energy ball' },
+      { key: 'P', action: 'Pause' },
+    ];
+    const leftX = cx - pW / 2 + 30;
+    const rightX = cx + 10;
+    const lineObjs = lines.map((l, i) => {
+      const y = cy - 50 + i * 30;
+      const k = this.add.text(leftX, y, l.key, { fontFamily: SF, fontSize: '13px', color: '#cc4444' }).setScrollFactor(0).setDepth(202);
+      const v = this.add.text(rightX, y, l.action, { fontFamily: SF, fontSize: '13px', color: '#999999' }).setScrollFactor(0).setDepth(202);
+      return [k, v];
+    });
+    const hint = this.add.text(cx, cy + pH / 2 - 22, 'Press any key to begin', {
+      fontFamily: SF, fontSize: '12px', color: '#cc4444', letterSpacing: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
+    this.tweens.add({ targets: hint, alpha: 0.35, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    const allObjs = [dim, panel, border, title, hint, ...lineObjs.flat()];
+    allObjs.forEach(o => this.tutorialGroup.add(o));
+    this.isPaused = true;
+    this.physics.world.isPaused = true;
+    const dismiss = () => {
+      allObjs.forEach(o => o.destroy());
+      this.isPaused = false;
+      this.physics.world.isPaused = false;
+      this.input.keyboard.off('keydown', dismiss);
+      this.input.off('pointerdown', dismiss);
+    };
+    this.input.keyboard.on('keydown', dismiss);
+    this.input.on('pointerdown', dismiss);
+  }
+
+  drawBackground() {
+    // Indoor marketplace — warm brick tones
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x3d2b1a, 0x3d2b1a, 0x4a3828, 0x4a3828, 1);
+    bg.fillRect(0, 0, L2_LEVEL_W, GAME_H);
+    bg.setScrollFactor(0.1);
+
+    // Brick wall pattern
+    const bricks = this.add.graphics();
+    bricks.setScrollFactor(0.15);
+    for (let r = 0; r < 10; r++) for (let c = 0; c < 25; c++) {
+      const ox = (r % 2) * 24;
+      const shade = (r + c) % 3 === 0 ? 0x5a4030 : (r + c) % 3 === 1 ? 0x4a3020 : 0x553828;
+      bricks.fillStyle(shade, 0.25);
+      bricks.fillRect(ox + c * 48, 60 + r * 42, 44, 38);
+    }
+
+    // Warm lighting
+    const light = this.add.graphics();
+    light.fillStyle(0xf0a040, 0.04);
+    light.fillCircle(200, 30, 120);
+    light.fillCircle(600, 25, 100);
+    light.fillCircle(1000, 35, 110);
+    light.setScrollFactor(0.1);
+
+    // Shelves in background
+    const shelves = this.add.graphics();
+    shelves.setScrollFactor(0.2);
+    shelves.fillStyle(0x6d5410, 0.3);
+    for (let x = 0; x < L2_LEVEL_W; x += 350) {
+      shelves.fillRect(x, 100, 200, 5);
+      shelves.fillRect(x + 50, 200, 180, 5);
+    }
+
+    // Ground decorations
+    for (let x = 20; x < L2_LEVEL_W; x += 80 + Math.random() * 60) {
+      this.add.triangle(x, GROUND_Y - 3, 0, 8, 4, 0, 8, 8, 0x3a6a20, 0.4);
+    }
+  }
+
+  createGround() {
+    const gg = this.add.graphics();
+    gg.fillStyle(0x4a3828); gg.fillRect(0, GROUND_Y, L2_LEVEL_W, GROUND_H);
+    gg.fillStyle(0x3d2b1a); gg.fillRect(0, GROUND_Y, L2_LEVEL_W, 6);
+    gg.fillStyle(0x6d5410); gg.fillRect(0, GROUND_Y + GROUND_H - 40, L2_LEVEL_W, 40);
+    gg.fillStyle(0x5a4410); gg.fillRect(0, GROUND_Y + GROUND_H - 40, L2_LEVEL_W, 4);
+    this.ground = this.physics.add.staticGroup();
+    const gb = this.add.rectangle(L2_LEVEL_W / 2, GROUND_Y + 12, L2_LEVEL_W, 24, 0x000000, 0);
+    this.ground.add(gb); gb.body.updateFromGameObject();
+  }
+
+  createPlatforms() {
+    this.platforms = this.physics.add.staticGroup();
+    for (const p of L2.platforms) {
+      const pg = this.add.graphics();
+      // Brick/wooden plank look
+      for (let px = 0; px < p.w; px += 20) {
+        const shade = (Math.floor(px / 20)) % 2 === 0 ? 0x6d5410 : 0x5a4410;
+        pg.fillStyle(shade); pg.fillRect(px, 0, 20, 20);
+        pg.lineStyle(1, 0x4a3408, 0.5);
+        pg.strokeRect(px, 0, 20, 20);
+      }
+      pg.lineStyle(2, 0x3a2808);
+      pg.strokeRect(0, 0, p.w, 20);
+      pg.setPosition(p.x, p.y);
+      const pb = this.add.rectangle(p.x + p.w / 2, p.y + 10, p.w, 20, 0x000000, 0);
+      this.platforms.add(pb); pb.body.updateFromGameObject();
+    }
+  }
+
+  createLadders() {
+    this.ladderZones = [];
+    for (const l of L2.ladders) {
+      const height = l.botY - l.topY;
+      const lg = this.add.graphics();
+      lg.lineStyle(4, 0x8b6914);
+      lg.lineBetween(0, 0, 0, height);
+      lg.lineBetween(16, 0, 16, height);
+      for (let r = 10; r < height; r += 20) {
+        lg.lineStyle(3, 0x6d5410);
+        lg.lineBetween(0, r, 16, r);
+      }
+      lg.setPosition(l.x - 8, l.topY);
+
+      const zone = this.add.zone(l.x, l.topY + height / 2, 28, height);
+      this.physics.add.existing(zone, true);
+      this.ladderZones.push({ zone, topY: l.topY, botY: l.botY });
+    }
+  }
+
+  createPlayer() {
+    this.player = this.physics.add.sprite(80, GROUND_Y - 40, 'nibble');
+    this.player.setCollideWorldBounds(true);
+    this.player.body.setSize(32, 44); this.player.body.setOffset(8, 7);
+    this.player.setDepth(10);
+    this.physics.add.collider(this.player, this.ground);
+    this.physics.add.collider(this.player, this.platforms);
+  }
+
+  createFoods() {
+    this.foodGroup = this.physics.add.group({ allowGravity: false });
+    this.fogHiddenFoods = [];
+    for (const f of L2.foods) {
+      const def = FOOD_DEFS[f.id];
+      let y;
+      if (f.onGround) {
+        y = GROUND_Y - def.h / 2 - 4;
+      } else {
+        const plat = L2.platforms[f.platIdx];
+        y = plat.y - def.h / 2 - 4;
+      }
+      const sprite = this.foodGroup.create(f.x, y, 'food_' + f.id);
+      sprite.setData('foodId', f.id);
+      sprite.setData('l2type', f.l2type);
+      sprite.setData('name', def.name);
+      sprite.body.setSize(def.w, def.h); sprite.setDepth(5);
+
+      const tweenTargets = [sprite];
+
+      if (f.l2type === 'complete') {
+        const tag = this.add.image(f.x + def.w / 2 + 4, y - def.h / 2 + 2, 'protein_tag').setDepth(6);
+        sprite.setData('tag', tag);
+        tweenTargets.push(tag);
+      }
+
+      this.tweens.add({
+        targets: tweenTargets, y: '-=4',
+        duration: 1200 + Math.random() * 400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+      });
+
+      if (f.l2type === 'complete' || f.l2type === 'incomplete') {
+        this.totalProteinItems++;
+      }
+
+      // Check if inside a fog bank — hide initially
+      let inFog = false;
+      for (const fb of L2.fogBanks) {
+        if (f.x >= fb.x && f.x <= fb.x + fb.w) { inFog = true; break; }
+      }
+      if (inFog) {
+        sprite.setAlpha(0);
+        if (sprite.getData('tag')) sprite.getData('tag').setAlpha(0);
+        this.fogHiddenFoods.push(sprite);
+      }
+    }
+    this.physics.add.overlap(this.player, this.foodGroup, this.collectFood, null, this);
+  }
+
+  collectFood(player, food) {
+    const l2type = food.getData('l2type');
+    const id = food.getData('foodId');
+    const name = food.getData('name');
+
+    if (l2type === 'complete') {
+      this.proteinsCollected++;
+      this.proteinItemsFound.push(id);
+      this.energy = Math.min(100, this.energy + ENERGY_PROTEIN);
+      this.showCollectFX(food.x, food.y, '#cc4444', name);
+      SFX.collectProtein();
+    } else if (l2type === 'incomplete') {
+      this.proteinsCollected++;
+      this.proteinItemsFound.push(id);
+      this.energy = Math.min(100, this.energy + ENERGY_PROTEIN);
+      this.showCollectFX(food.x, food.y, '#ff8800', name);
+      SFX.collectIncomplete();
+      // Start combo window
+      const partners = COMBO_PAIRS[id];
+      if (partners) {
+        this.activeCombo = { incompleteId: id, incompleteName: name, partners, timer: COMBO_TIMEOUT };
+        this.showComboSlot(id, partners);
+      }
+    } else if (l2type === 'combo_partner') {
+      if (this.activeCombo && this.activeCombo.partners.includes(id)) {
+        this.triggerCombo(this.activeCombo.incompleteName, name);
+      }
+      this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
+      this.showCollectFX(food.x, food.y, '#f0c040', name);
+      SFX.collectStarchy();
+    } else if (l2type === 'fun') {
+      this.funCollected++;
+      this.energy = Math.min(100, this.energy + ENERGY_FUN);
+      this.showCollectFX(food.x, food.y, '#ff9966', name);
+      SFX.collectFun();
+    } else {
+      this.neutralCollected++;
+      this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
+      this.showCollectFX(food.x, food.y, '#aaaaff', name);
+      SFX.collectStarchy();
+    }
+    const tag = food.getData('tag');
+    if (tag) tag.destroy();
+    food.destroy();
+    this.updateHUD();
+  }
+
+  showComboSlot(incompleteId, partnerIds) {
+    this.hideComboSlot();
+    const cx = GAME_W / 2;
+    const y = 66;
+    const panel = this.add.rectangle(cx, y, 220, 36, 0x000000, 0.8).setScrollFactor(0).setDepth(55);
+    const border = this.add.rectangle(cx, y, 220, 36).setStrokeStyle(2, 0xff8800, 0.6).setScrollFactor(0).setDepth(55);
+    const icon1 = this.add.image(cx - 80, y, 'food_' + incompleteId).setScrollFactor(0).setDepth(56).setScale(0.7);
+    const plus = this.add.text(cx - 45, y, '+', { fontFamily: 'Courier New', fontSize: '16px', color: '#ff8800' }).setOrigin(0.5).setScrollFactor(0).setDepth(56);
+    const icon2 = this.add.image(cx - 20, y, 'food_' + partnerIds[0]).setScrollFactor(0).setDepth(56).setScale(0.7).setAlpha(0.4);
+    const label = this.add.text(cx + 20, y - 6, 'COMBO!', { fontFamily: 'Courier New', fontSize: '9px', color: '#ff8800', letterSpacing: 2 }).setScrollFactor(0).setDepth(56);
+    const timerBg = this.add.rectangle(cx + 50, y + 6, 60, 5, 0x333333).setScrollFactor(0).setDepth(56);
+    const timerFill = this.add.rectangle(cx + 21, y + 6, 58, 3, 0xff8800).setOrigin(0, 0.5).setScrollFactor(0).setDepth(56);
+    this.comboUIElements = [panel, border, icon1, plus, icon2, label, timerBg, timerFill];
+    this.comboTimerFill = timerFill;
+  }
+
+  hideComboSlot() {
+    this.comboUIElements.forEach(el => el.destroy());
+    this.comboUIElements = [];
+    this.comboTimerFill = null;
+  }
+
+  triggerCombo(incompleteName, partnerName) {
+    this.combosTriggered++;
+    this.energy = Math.min(100, this.energy + ENERGY_COMBO_BONUS);
+    this.showCollectFX(this.player.x, this.player.y - 30, '#ff8800', '★ COMBO! ' + incompleteName + ' + ' + partnerName);
+    SFX.comboTrigger();
+    this.activeCombo = null;
+    this.hideComboSlot();
+    this.updateHUD();
+  }
+
+  showCollectFX(x, y, color, text) {
+    const fx = this.add.text(x, y - 10, text, {
+      fontFamily: 'Courier New', fontSize: '12px', color, stroke: '#000000', strokeThickness: 2,
+    }).setOrigin(0.5).setDepth(20);
+    this.tweens.add({ targets: fx, y: y - 45, alpha: 0, duration: 1400, ease: 'Power2', onComplete: () => fx.destroy() });
+  }
+
+  createEnergyCells() {
+    this.cellGroup = this.physics.add.group({ allowGravity: false });
+    for (const x of L2.energyCells) {
+      const cell = this.cellGroup.create(x, GROUND_Y - 20, 'energy_cell').setDepth(4);
+      this.tweens.add({ targets: cell, y: '-=3', duration: 800 + Math.random() * 300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
+    for (const cp of L2.cellsOnPlats) {
+      const plat = L2.platforms[cp.pi];
+      const cell = this.cellGroup.create(cp.x, plat.y - 16, 'energy_cell').setDepth(4);
+      this.tweens.add({ targets: cell, y: '-=3', duration: 800 + Math.random() * 300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
+    this.physics.add.overlap(this.player, this.cellGroup, this.collectCell, null, this);
+  }
+
+  collectCell(player, cell) {
+    this.cellsCollected++;
+    this.showCollectFX(cell.x, cell.y, '#f0d860', '+1');
+    SFX.collectCell();
+    cell.destroy();
+    this.updateHUD();
+  }
+
+  createPhantoms() {
+    this.phantomGroup = this.physics.add.group({ allowGravity: false });
+    this.phantomData = [];
+    for (const p of L2.phantoms) {
+      const telegraph = this.add.image(p.x, GROUND_Y - 35, 'phantom_telegraph').setAlpha(0).setDepth(3);
+      const phantom = this.phantomGroup.create(p.x, GROUND_Y - 35, 'phantom');
+      phantom.setAlpha(0).setDepth(6);
+      phantom.body.setSize(36, 40);
+      phantom.setData('active', false);
+      phantom.setData('telegraph', telegraph);
+      phantom.setData('originX', p.x);
+      phantom.setData('hp', 3);
+      this.phantomData.push(phantom);
+    }
+    this.physics.add.overlap(this.player, this.phantomGroup, this.phantomHit, null, this);
+  }
+
+  phantomHit(player, phantom) {
+    if (this.isInvincible || !phantom.getData('active') || this.levelComplete || this.levelFailed) return;
+    const playerBottom = player.body.y + player.body.height;
+    const phantomTop = phantom.body.y;
+    const isStomp = player.body.velocity.y > 0 && playerBottom < phantomTop + 16;
+    if (isStomp) {
+      player.setVelocityY(PLAYER_JUMP * 0.6);
+      SFX.stomp();
+      this.damageEnemy(phantom, 'Stomped!');
+      return;
+    }
+    this.energy = Math.max(0, this.energy - PHANTOM_DMG);
+    this.dmgTaken = true;
+    this.isInvincible = true;
+    this.showCollectFX(player.x, player.y - 20, '#cc4444', '-Energy!');
+    SFX.playerHurt();
+    this.tweens.add({
+      targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
+      onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
+    });
+    this.updateHUD();
+  }
+
+  createStressSprites() {
+    this.spriteGroup = this.physics.add.group({ allowGravity: false });
+    this.spriteData = [];
+    for (const s of L2.stressSprites) {
+      const telegraph = this.add.image(s.x, s.y, 'sprite_telegraph').setAlpha(0).setDepth(3);
+      const sprite = this.spriteGroup.create(s.x, s.y, 'stress_sprite');
+      sprite.setAlpha(0).setDepth(6);
+      sprite.body.setSize(28, 32);
+      sprite.setData('active', false);
+      sprite.setData('telegraph', telegraph);
+      sprite.setData('originX', s.x);
+      sprite.setData('originY', s.y);
+      sprite.setData('hp', 3);
+      sprite.setData('dx', (Math.random() - 0.5) * SPRITE_SPEED * 2);
+      sprite.setData('dy', (Math.random() - 0.5) * SPRITE_SPEED);
+      sprite.setData('changeTimer', 0.3 + Math.random() * 0.5);
+      this.spriteData.push(sprite);
+    }
+    this.physics.add.overlap(this.player, this.spriteGroup, this.spriteHit, null, this);
+  }
+
+  spriteHit(player, sprite) {
+    if (this.isInvincible || !sprite.getData('active') || this.levelComplete || this.levelFailed) return;
+    const playerBottom = player.body.y + player.body.height;
+    const spriteTop = sprite.body.y;
+    const isStomp = player.body.velocity.y > 0 && playerBottom < spriteTop + 12;
+    if (isStomp) {
+      player.setVelocityY(PLAYER_JUMP * 0.6);
+      SFX.stomp();
+      this.damageEnemy(sprite, 'Stomped!');
+      return;
+    }
+    this.energy = Math.max(0, this.energy - SPRITE_DMG);
+    this.dmgTaken = true;
+    this.isInvincible = true;
+    this.showCollectFX(player.x, player.y - 20, '#4488cc', '-Energy!');
+    SFX.stressBuzz();
+    this.tweens.add({
+      targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
+      onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
+    });
+    this.updateHUD();
+  }
+
+  damageEnemy(enemy, label) {
+    const hp = enemy.getData('hp') - 1;
+    enemy.setData('hp', hp);
+    if (hp <= 0) {
+      this.showCollectFX(enemy.x, enemy.y - 20, '#40e8a0', 'Defeated!');
+      SFX.defeatEnemy();
+      enemy.setData('active', false);
+      this.tweens.add({
+        targets: enemy, alpha: 0, scale: 0.3, duration: 400,
+        onComplete: () => enemy.destroy(),
+      });
+    } else {
+      this.showCollectFX(enemy.x, enemy.y - 20, '#80ccaa', label + ' ' + hp + '/3');
+      SFX.hitEnemy();
+      this.tweens.add({
+        targets: enemy, alpha: 0.3, duration: 80, yoyo: true, repeat: 2,
+        onComplete: () => enemy.setAlpha(1),
+      });
+    }
+  }
+
+  createCrashPits() {
+    this.crashPitZones = [];
+    for (const cp of L2.crashPits) {
+      const cpGfx = this.add.graphics();
+      for (let px = 0; px < cp.w; px += 5) {
+        cpGfx.fillStyle(Math.floor(px / 5) % 2 === 0 ? 0x8a6a30 : 0x6a5020);
+        cpGfx.fillRect(px, 0, 5, 14);
+      }
+      cpGfx.lineStyle(3, 0x3a2a10);
+      cpGfx.strokeRoundedRect(0, 0, cp.w, 14, 3);
+      cpGfx.setPosition(cp.x, GROUND_Y - 1); cpGfx.setDepth(2);
+      const waveTxt = '~ '.repeat(Math.max(3, Math.floor(cp.w / 16))).trim();
+      this.add.text(cp.x + cp.w / 2, GROUND_Y - 9, waveTxt, {
+        fontFamily: 'Courier New', fontSize: '10px', color: '#aa8840',
+      }).setOrigin(0.5, 0.5).setDepth(2);
+      const zone = this.add.zone(cp.x + cp.w / 2, GROUND_Y + 2, cp.w, 16);
+      this.physics.add.existing(zone, true);
+      this.crashPitZones.push(zone);
+    }
+  }
+
+  createFogBanks() {
+    this.fogBankData = [];
+    for (const fb of L2.fogBanks) {
+      const fog = this.add.graphics();
+      fog.fillStyle(0x8888aa, 0.35);
+      fog.fillRoundedRect(0, 0, fb.w, GAME_H - 56, 20);
+      // Puff details
+      fog.fillStyle(0xaaaacc, 0.15);
+      for (let i = 0; i < 6; i++) {
+        const px = Math.random() * (fb.w - 60);
+        const py = Math.random() * (GAME_H - 120);
+        fog.fillEllipse(px + 30, py + 30, 60 + Math.random() * 40, 30 + Math.random() * 20);
+      }
+      fog.setPosition(fb.x, 56);
+      fog.setDepth(15);
+      this.fogBankData.push({ x: fb.x, w: fb.w, gfx: fog, revealed: false });
+    }
+  }
+
+  createHiddenPath() {
+    const hp = L2.hiddenPath;
+    const ax = hp.x + hp.w / 2;
+    const ay = hp.y;
+
+    const alcGfx = this.add.graphics();
+    alcGfx.fillStyle(0x2a1a0e, 0.6);
+    alcGfx.fillRoundedRect(-5, -8, hp.w + 10, 30, 6);
+    alcGfx.fillStyle(0x1a1008, 0.4);
+    alcGfx.fillRoundedRect(0, -4, hp.w, 22, 4);
+    alcGfx.setPosition(ax - hp.w / 2, ay - 6).setDepth(1);
+
+    const platGfx = this.add.graphics();
+    for (let px = 0; px < hp.w; px += 20) {
+      const shade = (Math.floor(px / 20)) % 2 === 0 ? 0x6d5410 : 0x5a4410;
+      platGfx.fillStyle(shade); platGfx.fillRect(px, 0, 20, 14);
+    }
+    platGfx.lineStyle(2, 0x3a2808); platGfx.strokeRect(0, 0, hp.w, 14);
+    platGfx.setPosition(ax - hp.w / 2, ay).setDepth(4);
+
+    const platBody = this.add.rectangle(ax, ay + 7, hp.w, 14, 0x000000, 0);
+    this.platforms.add(platBody); platBody.body.updateFromGameObject();
+
+    for (let i = 0; i < 5; i++) {
+      const cell = this.cellGroup.create(ax - 32 + i * 16, ay - 12, 'energy_cell');
+      cell.body.allowGravity = false; cell.setDepth(5);
+    }
+
+    const starHint = this.add.image(ax, ay - 28, 'star_icon').setDepth(5).setAlpha(0.6).setScale(0.7);
+    this.tweens.add({ targets: starHint, y: ay - 32, alpha: 0.9, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+    const alcoveZone = this.add.zone(ax, ay - 10, hp.w + 20, 40);
+    this.physics.add.existing(alcoveZone, true);
+    this.physics.add.overlap(this.player, alcoveZone, () => {
+      if (this.foundHiddenPath) return;
+      this.foundHiddenPath = true;
+      this.showCollectFX(ax, ay - 20, '#f0c040', '★ Hidden Path Found!');
+      starHint.destroy();
+    }, null, this);
+  }
+
+  createFinish() {
+    this.finishFlag = this.add.image(L2.finishX, GROUND_Y, 'finish_flag').setOrigin(0.5, 1).setDepth(5);
+    this.add.text(L2.finishX, GROUND_Y - 90, 'FINISH', {
+      fontFamily: 'Courier New', fontSize: '14px', color: '#f0c040', stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(5);
+    const zoneW = L2_LEVEL_W - L2.finishX + 40;
+    this.finishZone = this.add.zone(L2.finishX - 20 + zoneW / 2, GAME_H / 2, zoneW, GAME_H);
+    this.physics.add.existing(this.finishZone, true);
+    this.physics.add.overlap(this.player, this.finishZone, this.reachFinish, null, this);
+  }
+
+  reachFinish() {
+    if (this.levelComplete || this.levelFailed) return;
+    this.levelComplete = true;
+    SFX.stopMusic();
+    SFX.finish();
+    const elapsed = (this.time.now - this.startTime) / 1000;
+    const stars = [];
+    if (this.combosTriggered >= 4) stars.push(1);
+    if (this.foundHiddenPath) stars.push(2);
+    if (this.proteinsCollected >= this.totalProteinItems) stars.push(3);
+    this.scene.start('Result2', {
+      success: true, proteinsCollected: this.proteinsCollected, totalProteins: this.totalProteinItems,
+      combosTriggered: this.combosTriggered,
+      energy: Math.round(this.energy), cells: this.cellsCollected, stars,
+      dmgTaken: this.dmgTaken, neutralCollected: this.neutralCollected,
+      funCollected: this.funCollected, elapsed,
+    });
+  }
+
+  createHUD() {
+    this.hudBar = this.add.graphics();
+    this.hudBar.fillStyle(0x000000, 0.75);
+    this.hudBar.fillRect(0, 0, GAME_W, 56);
+    this.hudBar.setScrollFactor(0).setDepth(50);
+
+    this.hudEnergyLabel = this.add.text(16, 8, 'ENERGY', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc4444', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
+    this.hudEnergyBg = this.add.rectangle(16 + 100, 30, 200, 14, 0x333333).setOrigin(0.5).setScrollFactor(0).setDepth(51);
+    this.hudEnergyBorder = this.add.rectangle(16 + 100, 30, 200, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
+    this.hudEnergyFill = this.add.rectangle(17, 24, 196 * 0.72, 10, 0x40cc60).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
+
+    this.hudProtLabel = this.add.text(240, 8, 'PROTEIN', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc4444', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
+    this.hudProtBg = this.add.rectangle(240 + 90, 30, 180, 14, 0x333333).setOrigin(0.5).setScrollFactor(0).setDepth(51);
+    this.hudProtBorder = this.add.rectangle(240 + 90, 30, 180, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
+    this.hudProtFill = this.add.rectangle(241, 24, 0, 10, 0xcc4444).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
+
+    this.hudComboLabel = this.add.text(240, 42, 'Combos:', { fontFamily: 'Courier New', fontSize: '8px', color: '#ff8800' }).setScrollFactor(0).setDepth(51);
+    this.hudComboCount = this.add.text(295, 42, '0', { fontFamily: 'Courier New', fontSize: '8px', color: '#ff8800' }).setScrollFactor(0).setDepth(51);
+
+    this.hudCellIcon = this.add.image(500, 14, 'energy_cell').setScrollFactor(0).setDepth(51).setScale(0.8);
+    this.hudCellText = this.add.text(512, 8, '× 0', { fontFamily: 'Courier New', fontSize: '14px', color: '#f0d860', fontStyle: 'bold' }).setScrollFactor(0).setDepth(51);
+
+    this.hudStars = [];
+    for (let i = 0; i < 3; i++) {
+      this.hudStars.push(this.add.text(500 + i * 18, 30, '★', { fontFamily: 'Courier New', fontSize: '14px', color: '#555555' }).setScrollFactor(0).setDepth(51));
+    }
+
+    this.hudLevelName = this.add.text(GAME_W - 16, 10, 'L2 — PROTEIN', { fontFamily: 'Courier New', fontSize: '10px', color: '#cc4444', letterSpacing: 2 }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
+
+    const pauseBtn = this.add.text(24, GAME_H - 24, '⏸', {
+      fontFamily: 'Courier New', fontSize: '18px', color: '#cc4444',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true });
+
+    this.pauseOverlay = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.6).setScrollFactor(0).setDepth(100).setVisible(false);
+    this.pauseText = this.add.text(GAME_W / 2, GAME_H / 2 - 30, 'PAUSED', { fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: '28px', color: '#cc4444', letterSpacing: 4 }).setOrigin(0.5).setScrollFactor(0).setDepth(101).setVisible(false);
+
+    const SF = "'Special Elite', 'Courier New', monospace";
+    const resumeBtn = this.add.rectangle(GAME_W / 2, GAME_H / 2 + 20, 180, 36, 0xcc4444)
+      .setScrollFactor(0).setDepth(101).setVisible(false).setInteractive({ useHandCursor: true });
+    const resumeLabel = this.add.text(GAME_W / 2, GAME_H / 2 + 20, '[ RESUME ]', {
+      fontFamily: SF, fontSize: '13px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(102).setVisible(false);
+    const exitBtn = this.add.rectangle(GAME_W / 2, GAME_H / 2 + 64, 180, 36, 0x888888)
+      .setScrollFactor(0).setDepth(101).setVisible(false).setInteractive({ useHandCursor: true });
+    const exitLabel = this.add.text(GAME_W / 2, GAME_H / 2 + 64, '[ EXIT ]', {
+      fontFamily: SF, fontSize: '13px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 2,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(102).setVisible(false);
+
+    const pauseElements = [this.pauseOverlay, this.pauseText, resumeBtn, resumeLabel, exitBtn, exitLabel];
+    const togglePause = () => {
+      this.isPaused = !this.isPaused;
+      pauseElements.forEach(el => el.setVisible(this.isPaused));
+      this.physics.world.isPaused = this.isPaused;
+    };
+    this.input.keyboard.on('keydown-P', togglePause);
+    pauseBtn.on('pointerdown', togglePause);
+    resumeBtn.on('pointerover', () => resumeBtn.setFillStyle(0xdd5555));
+    resumeBtn.on('pointerout', () => resumeBtn.setFillStyle(0xcc4444));
+    resumeBtn.on('pointerdown', togglePause);
+    exitBtn.on('pointerover', () => exitBtn.setFillStyle(0x999999));
+    exitBtn.on('pointerout', () => exitBtn.setFillStyle(0x888888));
+    exitBtn.on('pointerdown', () => { SFX.stopMusic(); this.scene.start('LevelSelect'); });
+
+    const hudMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
+      .setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true }).setScale(1.2);
+    hudMusicIcon.on('pointerdown', () => {
+      const m = SFX.toggleMusic(); hudMusicIcon.setTexture(m ? 'music_off' : 'music_on');
+    });
+    const hudSfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
+      .setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true }).setScale(1.2);
+    hudSfxIcon.on('pointerdown', () => {
+      const m = SFX.toggleSfx(); hudSfxIcon.setTexture(m ? 'sfx_off' : 'sfx_on');
+    });
+  }
+
+  updateHUD() {
+    const ePct = Math.max(0, this.energy / 100);
+    this.hudEnergyFill.setSize(196 * ePct, 10);
+    this.hudEnergyFill.setFillStyle(ePct > 0.5 ? 0x40cc60 : ePct > 0.25 ? 0xcccc40 : 0xcc4040);
+    this.hudProtFill.setSize(176 * Math.min(1, this.proteinsCollected / PROTEINS_NEEDED), 10);
+    this.hudComboCount.setText(String(this.combosTriggered));
+    this.hudCellText.setText('× ' + this.cellsCollected);
+  }
+
+  createEnergyBalls() {
+    this.ballGroup = this.physics.add.group({ allowGravity: false });
+    this.physics.add.overlap(this.ballGroup, this.phantomGroup, this.ballHitEnemy, null, this);
+    this.physics.add.overlap(this.ballGroup, this.spriteGroup, this.ballHitEnemy, null, this);
+  }
+
+  fireEnergyBall(pointer) {
+    const BALL_SPEED = 500;
+    if (this.cellsCollected < 1) return;
+    this.cellsCollected--;
+    this.updateHUD();
+    SFX.shootBall();
+    const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const ball = this.ballGroup.create(this.player.x, this.player.y - 10, 'energy_ball');
+    ball.setDepth(11); ball.body.setCircle(6);
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y - 10, worldPoint.x, worldPoint.y);
+    ball.body.setVelocity(Math.cos(angle) * BALL_SPEED, Math.sin(angle) * BALL_SPEED);
+    this.time.delayedCall(2000, () => { if (ball.active) ball.destroy(); });
+  }
+
+  ballHitEnemy(ball, enemy) {
+    if (!enemy.getData('active')) return;
+    this.damageEnemy(enemy, 'Hit!');
+    ball.destroy();
+  }
+
+  update(time, delta) {
+    if (this.levelComplete || this.levelFailed || this.isPaused) return;
+    const dt = delta / 1000;
+    const onGround = this.player.body.blocked.down || this.player.body.touching.down;
+
+    const speed = this.getPlayerSpeed();
+    const moveLeft = this.cursors.left.isDown || this.keyA.isDown;
+    const moveRight = this.cursors.right.isDown || this.keyD.isDown;
+    const jumpDown = this.cursors.up.isDown || this.spaceKey.isDown || this.keyW.isDown;
+    const downDown = this.cursors.down.isDown || this.keyS.isDown;
+    const isMoving = moveLeft || moveRight;
+    if (isMoving) this.hasStartedMoving = true;
+
+    // Ladder logic
+    this.onLadder = false;
+    for (const l of this.ladderZones) {
+      const pBounds = this.player.getBounds();
+      const lBounds = l.zone.getBounds();
+      if (Phaser.Geom.Rectangle.Overlaps(pBounds, lBounds)) {
+        if (jumpDown || downDown) {
+          this.onLadder = true;
+          this.player.body.allowGravity = false;
+          if (jumpDown) this.player.setVelocityY(-160);
+          else if (downDown) this.player.setVelocityY(160);
+          if (!isMoving) this.player.setVelocityX(0);
+          if (!this.hasStartedMoving) this.hasStartedMoving = true;
+          break;
+        }
+      }
+    }
+    if (!this.onLadder) this.player.body.allowGravity = true;
+
+    if (this.hasStartedMoving) {
+      const drain = (isMoving || this.onLadder) ? ENERGY_DRAIN : ENERGY_DRAIN_IDLE;
+      this.energy -= drain * dt;
+      if (this.energy <= 0) { this.energy = 0; this.triggerFail(); return; }
+    }
+
+    if (!this.onLadder) {
+      if (moveLeft) { this.player.setVelocityX(-speed); this.player.setFlipX(true); }
+      else if (moveRight) { this.player.setVelocityX(speed); this.player.setFlipX(false); }
+      else { this.player.setVelocityX(0); }
+
+      if (jumpDown && onGround) {
+        if (!this.hasStartedMoving) this.hasStartedMoving = true;
+        this.player.setVelocityY(this.getJumpPower());
+      }
+    } else {
+      if (moveLeft) { this.player.setVelocityX(-speed * 0.5); this.player.setFlipX(true); }
+      else if (moveRight) { this.player.setVelocityX(speed * 0.5); this.player.setFlipX(false); }
+    }
+
+    this.updatePlayerState();
+    const maxY = GROUND_Y - 22;
+    if (this.player.y > maxY && onGround) this.player.y = maxY;
+
+    this.checkCrashPits();
+    this.updatePhantoms(dt);
+    this.updateStressSprites(dt);
+    this.updateComboTimer(dt);
+    this.checkFogBanks();
+    this.updateHUD();
+  }
+
+  getPlayerSpeed() { return this.energy < 30 ? PLAYER_SPEED * 0.7 : PLAYER_SPEED; }
+  getJumpPower() { return this.energy < 30 ? PLAYER_JUMP * 0.8 : PLAYER_JUMP; }
+
+  updatePlayerState() {
+    if (this.isInvincible) return;
+    this.player.setTexture(this.energy > 80 ? 'nibble_energized' : this.energy < 30 ? 'nibble_tired' : 'nibble');
+  }
+
+  checkCrashPits() {
+    for (const cp of L2.crashPits) {
+      if (this.player.x > cp.x && this.player.x < cp.x + cp.w && this.player.y > GROUND_Y - 30) {
+        this.player.setVelocityX(this.player.body.velocity.x * 0.5);
+        if (!cp.drained) {
+          cp.drained = true;
+          const drain = this.energy * 0.33;
+          this.energy = Math.max(0, this.energy - drain);
+          this.showCollectFX(this.player.x, this.player.y - 20, '#cc6644', 'Energy Crash!');
+          SFX.crashPit();
+          this.updateHUD();
+          if (this.energy <= 0) { this.triggerFail(); return; }
+        }
+        return;
+      } else {
+        cp.drained = false;
+      }
+    }
+  }
+
+  updatePhantoms(dt) {
+    const px = this.player.x;
+    for (const phantom of this.phantomData) {
+      if (!phantom.active) continue;
+      const dist = Math.abs(px - phantom.x);
+      const telegraph = phantom.getData('telegraph');
+      const isActive = phantom.getData('active');
+      if (!isActive && dist < PHANTOM_DETECT + 100) {
+        if (telegraph.alpha < 0.6) {
+          telegraph.setAlpha(Math.min(0.6, telegraph.alpha + dt * 0.5));
+          telegraph.setPosition(phantom.getData('originX'), GROUND_Y - 35);
+        }
+        if (telegraph.alpha >= 0.5) {
+          phantom.setData('active', true); phantom.setAlpha(1);
+          this.tweens.add({ targets: telegraph, alpha: 0, duration: 500 });
+        }
+      }
+      if (isActive) {
+        const dir = px < phantom.x ? -1 : 1;
+        const originX = phantom.getData('originX');
+        if (dist < PHANTOM_DETECT) {
+          const newX = phantom.x + dir * L2_PHANTOM_SPEED * dt;
+          if (Math.abs(newX - originX) < 200) phantom.x = newX;
+        } else {
+          const toOrigin = originX - phantom.x;
+          if (Math.abs(toOrigin) > 2) phantom.x += Math.sign(toOrigin) * L2_PHANTOM_SPEED * 0.5 * dt;
+        }
+        phantom.y = GROUND_Y - 35 + Math.sin(this.time.now / 600 + phantom.getData('originX')) * 5;
+      }
+    }
+  }
+
+  updateStressSprites(dt) {
+    const px = this.player.x;
+    for (const sprite of this.spriteData) {
+      if (!sprite.active) continue;
+      const dist = Math.abs(px - sprite.getData('originX'));
+      const telegraph = sprite.getData('telegraph');
+      const isActive = sprite.getData('active');
+
+      if (!isActive && dist < 400) {
+        if (telegraph.alpha < 0.6) {
+          telegraph.setAlpha(Math.min(0.6, telegraph.alpha + dt * 0.8));
+          telegraph.setPosition(sprite.getData('originX'), sprite.getData('originY'));
+        }
+        if (telegraph.alpha >= 0.5) {
+          sprite.setData('active', true); sprite.setAlpha(1);
+          this.tweens.add({ targets: telegraph, alpha: 0, duration: 400 });
+        }
+      }
+
+      if (isActive) {
+        // Erratic zigzag movement
+        let changeTimer = sprite.getData('changeTimer') - dt;
+        if (changeTimer <= 0) {
+          sprite.setData('dx', (Math.random() - 0.5) * SPRITE_SPEED * 2);
+          sprite.setData('dy', (Math.random() - 0.5) * SPRITE_SPEED * 1.5);
+          sprite.setData('changeTimer', 0.2 + Math.random() * 0.4);
+        } else {
+          sprite.setData('changeTimer', changeTimer);
+        }
+
+        const originX = sprite.getData('originX');
+        const originY = sprite.getData('originY');
+        sprite.x += sprite.getData('dx') * dt;
+        sprite.y += sprite.getData('dy') * dt;
+
+        if (Math.abs(sprite.x - originX) > 80) sprite.setData('dx', -sprite.getData('dx'));
+        if (Math.abs(sprite.y - originY) > 50) sprite.setData('dy', -sprite.getData('dy'));
+        if (sprite.y < 60) sprite.setData('dy', Math.abs(sprite.getData('dy')));
+        if (sprite.y > GROUND_Y - 20) sprite.setData('dy', -Math.abs(sprite.getData('dy')));
+      }
+    }
+  }
+
+  updateComboTimer(dt) {
+    if (!this.activeCombo) return;
+    this.activeCombo.timer -= dt * 1000;
+    if (this.comboTimerFill) {
+      const pct = Math.max(0, this.activeCombo.timer / COMBO_TIMEOUT);
+      this.comboTimerFill.setSize(58 * pct, 3);
+    }
+    if (this.activeCombo.timer <= 0) {
+      this.activeCombo = null;
+      this.hideComboSlot();
+    }
+  }
+
+  checkFogBanks() {
+    const px = this.player.x;
+    for (const fb of this.fogBankData) {
+      if (!fb.revealed && px >= fb.x && px <= fb.x + fb.w) {
+        fb.revealed = true;
+        for (const food of this.fogHiddenFoods) {
+          if (food.active && food.x >= fb.x && food.x <= fb.x + fb.w) {
+            this.tweens.add({ targets: food, alpha: 1, duration: 400 });
+            const tag = food.getData('tag');
+            if (tag) this.tweens.add({ targets: tag, alpha: 1, duration: 400 });
+          }
+        }
+      }
+    }
+  }
+
+  triggerFail() {
+    if (this.levelFailed) return;
+    this.levelFailed = true;
+    SFX.stopMusic();
+    this.player.setVelocityX(0); this.player.setVelocityY(0);
+    const elapsed = (this.time.now - this.startTime) / 1000;
+    const progress = this.player.x / L2.finishX;
+    this.player.setTexture('nibble_tired');
+    this.player.body.allowGravity = false;
+    const baseX = this.player.x;
+    const baseY = GROUND_Y - this.player.displayHeight / 2;
+    this.player.y = baseY;
+
+    let shakeCount = 0;
+    this.time.addEvent({
+      delay: 50, repeat: 11,
+      callback: () => {
+        shakeCount++;
+        this.player.x = baseX + (shakeCount % 2 === 0 ? 3 : -3);
+        this.player.setAlpha(shakeCount % 2 === 0 ? 0.6 : 1);
+      },
+    });
+
+    this.time.delayedCall(650, () => {
+      this.player.x = baseX; this.player.setAlpha(1);
+      this.player.setTexture('nibble_fainted');
+      this.tweens.add({ targets: this.player, angle: 90, y: GROUND_Y - 14, duration: 300, ease: 'Bounce.easeOut' });
+      this.showCollectFX(baseX, baseY - 30, '#cc6666', 'Out of fuel!');
+      SFX.faint();
+    });
+
+    this.time.delayedCall(2000, () => {
+      this.scene.start('Result2', {
+        success: false, nearMiss: progress > 0.75,
+        proteinsCollected: this.proteinsCollected, totalProteins: this.totalProteinItems,
+        combosTriggered: this.combosTriggered,
+        energy: 0, cells: this.cellsCollected, stars: [],
+        dmgTaken: this.dmgTaken, neutralCollected: this.neutralCollected,
+        funCollected: this.funCollected, elapsed,
+      });
+    });
+  }
+}
+
+// =================================================================
+// RESULT 2 SCENE — End-of-level feedback for L2 Protein
+// =================================================================
+
+class Result2Scene extends Phaser.Scene {
+  constructor() { super('Result2'); }
+  init(data) { this.resultData = data; }
+
+  create() {
+    const d = this.resultData;
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+    const SF = "'Special Elite', 'Courier New', monospace";
+
+    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x0e0e1a);
+    const panelW = 580, panelH = 490;
+    this.add.rectangle(cx, cy, panelW + 6, panelH + 6, 0xcc4444, 0.35);
+    this.add.rectangle(cx, cy, panelW, panelH, 0x0c0c18);
+    this.add.rectangle(cx, cy - panelH / 2 + 1.5, panelW, 3, 0xcc4444);
+
+    if (d.success) this.showSuccess(cx, cy, d, SF, panelW, panelH);
+    else if (d.nearMiss) this.showNearMiss(cx, cy, d, SF, panelW, panelH);
+    else this.showFail(cx, cy, d, SF, panelW, panelH);
+
+    const btnY = cy + panelH / 2 - 35;
+    const makeBtn = (x, label, color, scene) => {
+      const bg = this.add.rectangle(x, btnY, 180, 36, color).setInteractive({ useHandCursor: true });
+      this.add.text(x, btnY, label, {
+        fontFamily: SF, fontSize: '13px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 2,
+      }).setOrigin(0.5);
+      bg.on('pointerover', () => bg.setFillStyle(Phaser.Display.Color.ValueToColor(color).lighten(15).color));
+      bg.on('pointerout', () => bg.setFillStyle(color));
+      bg.on('pointerdown', () => this.scene.start(scene));
+    };
+
+    makeBtn(cx - 140, '[ REPLAY ]', 0x888888, 'Game2');
+    makeBtn(cx, '[ MENU ]', 0x6688aa, 'LevelSelect');
+    if (d.success) {
+      makeBtn(cx + 140, '[ CONTINUE ]', 0xcc4444, 'Splash2');
+    } else {
+      makeBtn(cx + 140, '[ TRY AGAIN ]', 0xcc4444, 'Game2');
+    }
+
+    const rMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    rMusicIcon.on('pointerdown', function () {
+      const m = SFX.toggleMusic(); this.setTexture(m ? 'music_off' : 'music_on');
+    });
+    const rSfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
+      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
+    rSfxIcon.on('pointerdown', function () {
+      const m = SFX.toggleSfx(); this.setTexture(m ? 'sfx_off' : 'sfx_on');
+    });
+  }
+
+  showSuccess(cx, cy, d, SF, panelW, panelH) {
+    const headerY = cy - panelH / 2 + 40;
+    this.add.text(cx, headerY, 'Built Strong!', {
+      fontFamily: SF, fontSize: '30px', color: '#cc4444', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.rectangle(cx, headerY + 20, 80, 2, 0xcc4444, 0.27);
+
+    this.add.text(cx, headerY + 55, '"Excellent! You collected the protein your\nbody uses to build and repair tissue —\nmuscle, skin, immune cells, and more."', {
+      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
+    }).setOrigin(0.5);
+
+    const statY = headerY + 110;
+    const stats = [
+      `Protein items collected: ${d.proteinsCollected} / ${d.totalProteins}`,
+      `Combos triggered: ${d.combosTriggered}`,
+      `Energy at finish: ${d.energy}%`,
+      `Energy Cells: ${d.cells}`,
+      `Time: ${d.elapsed.toFixed(1)}s`,
+    ];
+    stats.forEach((s, i) => this.add.text(cx, statY + i * 20, s, {
+      fontFamily: SF, fontSize: '13px', color: '#aaaaaa',
+    }).setOrigin(0.5));
+
+    if (d.combosTriggered > 0) {
+      const comboY = statY + stats.length * 20 + 8;
+      this.add.text(cx, comboY, '"You paired plant proteins for complete combos!\nPlant proteins can team up to give your body\neverything it needs."', {
+        fontFamily: SF, fontSize: '12px', color: '#ff8800', align: 'center', lineSpacing: 4,
+      }).setOrigin(0.5);
+    }
+
+    const starLabelY = statY + stats.length * 20 + (d.combosTriggered > 0 ? 58 : 14);
+    this.add.text(cx, starLabelY, 'KNOWLEDGE STARS', {
+      fontFamily: SF, fontSize: '11px', color: '#cc4444', letterSpacing: 3,
+    }).setOrigin(0.5);
+
+    const starDescs = [
+      { id: 1, text: 'Triggered 4+ protein combos' },
+      { id: 2, text: 'Found the hidden path behind the Fog Bank' },
+      { id: 3, text: 'Collected every protein item (100%)' },
+    ];
+
+    const starRowY = starLabelY + 32;
+    starDescs.forEach((s, i) => {
+      const earned = d.stars.includes(s.id);
+      const rowY = starRowY + i * 32;
+      const starImg = this.add.image(cx - 150, rowY, earned ? 'result_star_earned' : 'result_star_empty')
+        .setOrigin(0.5).setScale(0).setAlpha(0);
+      const label = this.add.text(cx - 126, rowY, s.text, {
+        fontFamily: SF, fontSize: '13px', color: earned ? '#cc4444' : '#555555',
+      }).setOrigin(0, 0.5).setAlpha(0);
+      const delay = 400 + i * 500;
+      this.time.delayedCall(delay, () => {
+        label.setAlpha(1);
+        this.tweens.add({ targets: starImg, scale: earned ? 1 : 0.75, alpha: 1, duration: 400, ease: 'Back.easeOut' });
+        if (earned) {
+          SFX.starEarned();
+          this.tweens.add({ targets: starImg, scale: 1.15, duration: 150, delay: 400, yoyo: true, ease: 'Sine.easeInOut' });
+        }
+      });
+    });
+
+    if (!d.dmgTaken) {
+      const bonusY = starRowY + starDescs.length * 32 + 8;
+      const bonusText = this.add.text(cx, bonusY, 'No damage taken! +5 bonus cells', {
+        fontFamily: SF, fontSize: '12px', color: '#80ffcc',
+      }).setOrigin(0.5).setAlpha(0);
+      this.time.delayedCall(400 + starDescs.length * 500 + 300, () => {
+        this.tweens.add({ targets: bonusText, alpha: 1, duration: 400 });
+      });
+    }
+  }
+
+  showNearMiss(cx, cy, d, SF, panelW, panelH) {
+    const headerY = cy - panelH / 2 + 40;
+    this.add.image(cx, headerY - 5, 'nibble_fainted').setScale(0.8);
+    this.add.text(cx, headerY + 30, 'So Close!', {
+      fontFamily: SF, fontSize: '28px', color: '#e8b84c', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.rectangle(cx, headerY + 50, 80, 2, 0xcc4444, 0.27);
+    this.add.text(cx, headerY + 80, '"You almost had it! Your energy ran\nlow right near the end. Collecting protein\ncombos gives a bigger energy boost —\nlook for the pairing hints!"', {
+      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
+    }).setOrigin(0.5);
+    this.add.text(cx, headerY + 155, 'TIP', {
+      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.text(cx, headerY + 177, '"When you collect an incomplete protein,\na faded icon shows what it pairs with.\nGrab the partner within a few seconds!"', {
+      fontFamily: SF, fontSize: '13px', color: '#aaaaaa', align: 'center', lineSpacing: 5,
+    }).setOrigin(0.5);
+    this.showBasicStats(cx, headerY + 240, d, SF);
+  }
+
+  showFail(cx, cy, d, SF, panelW, panelH) {
+    const headerY = cy - panelH / 2 + 40;
+    this.add.image(cx, headerY - 5, 'nibble_fainted').setScale(0.8);
+    this.add.text(cx, headerY + 30, 'Time to Rebuild', {
+      fontFamily: SF, fontSize: '28px', color: '#cc6666', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.rectangle(cx, headerY + 50, 80, 2, 0xcc4444, 0.27);
+    this.add.text(cx, headerY + 80, '"Your energy gave out — but every attempt\nmakes you stronger, just like protein\nbuilds tissue! Try collecting more\nitems early in the level."', {
+      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
+    }).setOrigin(0.5);
+    this.add.text(cx, headerY + 155, 'TIP', {
+      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
+    }).setOrigin(0.5);
+    this.add.text(cx, headerY + 177, '"Stress Sprites move in clusters but don\'t\nchase you. Watch their pattern,\nthen move through when there\'s a gap."', {
+      fontFamily: SF, fontSize: '13px', color: '#aaaaaa', align: 'center', lineSpacing: 5,
+    }).setOrigin(0.5);
+    this.showBasicStats(cx, headerY + 240, d, SF);
+  }
+
+  showBasicStats(cx, y, d, SF) {
+    [`Proteins collected: ${d.proteinsCollected} / ${d.totalProteins}`, `Combos: ${d.combosTriggered}`, `Energy Cells: ${d.cells}`].forEach((s, i) => {
+      this.add.text(cx, y + i * 20, s, { fontFamily: SF, fontSize: '13px', color: '#888888' }).setOrigin(0.5);
+    });
+  }
+}
+
+// =================================================================
 // PHASER CONFIG & LAUNCH
 // =================================================================
 
@@ -2269,7 +4075,7 @@ const config = {
     default: 'arcade',
     arcade: { gravity: { y: 900 }, debug: false },
   },
-  scene: [BootScene, SplashScene, GameScene, ResultScene],
+  scene: [BootScene, LevelSelectScene, SplashScene, GameScene, ResultScene, Splash2Scene, Game2Scene, Result2Scene],
 };
 
 const game = new Phaser.Game(config);

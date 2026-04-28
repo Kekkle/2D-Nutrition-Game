@@ -69,7 +69,7 @@ SVG approach was just as ugly. the agent then worked wit the png that i created.
 
 I showed my daughter and she said "make it more blocky, more pixels, like the old mario game.' I thot, aha, that's was the original idea which had actually started morphing into something else. So we went that way to see what would happen. 
  My kids played the game and one of my dauthers friends played it and it took her a little while to get through it,. Overlal, seems sufficient for a first level. 
- 
+ - removed labels of food items on icons. have the word appear when the food is collected. little green icon for fibre containing carbs,. different sound effect for different foods. 
 Overall I'm not very happy with the food, how the collectibles look. everything is just a bit too simplistic and unclear. BUT I am happy with how the game is functioning, the sound effects, and after just a few more adjustmnets I'll move on to the next level. 
 
 tried adding music, but the boop-boop-beep looping tune was really rather anoyning. 
@@ -87,4 +87,9 @@ tried adding music, but the boop-boop-beep looping tune was really rather anoyni
 add to the game plan the idea of having "rarity items"--treasure chests that will show up rarely and randomly through the levels (maybe one chest every 2-3 levels) with one rare food item (rare food items are already created in food-items-inventory-thin.html.) When the player collects this food item, something will happen but that is yet to be decided. essentially rare food items only appear in a treasure box, not as the normal food items appear. 
 
 
-
+-protein notes:
+change the behaviour of stress sprites. Instead, these appear suddenly--on the level the avatar is at--and move quickly in a straight line towards the avatar. The avatar has to jump, duck (we need to work on this feature) or shoot the sprite. Once the stress sprite shoots across the screen, it disappears, until another one shows up. Unlike the fantoms that stay the whole time. 
+- Change the fog.  A sound will come on before fog apperas. it needs to be more more dense (less transparent) sot hat it is harder for the user to see the foods behind. 
+-follow the rules set for placemment of food items and energy orbs--not overlapping, consistent spacing. 
+- we need to change the game idea of complete vs non complete proteins. This is outdated and plant proteins do not need to be paired with a carb. lets remove that feature from the game. Maybe instead we can introduce the game feature of dropping off items into a spot. (which will come in fibre) (reference: https://zoe.com/learn/how-much-protein?srsltid=AfmBOopw-2gvhEqKWNMqLze7bbrEb8rE96WuDTLea02zFgfXm9YaIMA4   st.philips).
+-maybe there can be two baskets (or several throughout as the user walks along) and the user needs to drop all animal proteins into one basket (blue?) and plant proteins (Green or brown?) into the other. Dropping other food items (carbs etc) gives an error sound (berp) and it falls to the ground instead. which keyboard button should be used to drop food items into the basket? Perhasp the user can collect up to three foods to drop in a bsket? THis is just an idea. Ananlyze it and tell me if this could work in the game. 
