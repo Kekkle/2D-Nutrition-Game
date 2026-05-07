@@ -20,7 +20,7 @@ const ENERGY_DRAIN = 0.85;
 const ENERGY_DRAIN_IDLE = 0.2;
 const ENERGY_CARB = 7;
 const ENERGY_FIBRE = 9;
-const ENERGY_NEUTRAL = 3;
+const ENERGY_NEUTRAL = 6;
 const ENERGY_FUN = 12;
 const ENERGY_RARE = 15;
 const PHANTOM_DMG = 10;
@@ -55,26 +55,26 @@ const FOOD_DEFS = {
   cucumber:     { name: 'Cucumber',     type: 'fibre',   w: 18, h: 30 },
   sweetpotato:  { name: 'Sweet Potato', type: 'fibre',   w: 32, h: 22 },
   chia:         { name: 'Chia Seeds',   type: 'fibre',   w: 28, h: 28 },
-  // L2 Protein (neutral in L1)
-  egg:          { name: 'Egg',          type: 'neutral', w: 26, h: 30 },
-  chicken:      { name: 'Chicken',      type: 'neutral', w: 50, h: 22 },
-  cheese:       { name: 'Cheese',       type: 'neutral', w: 30, h: 26 },
+  // L2 Protein — Animal sources (neutral in L1)
+  egg:          { name: 'Egg',          type: 'neutral', w: 26, h: 30, pSrc: 'animal' },
+  chicken:      { name: 'Chicken',      type: 'neutral', w: 50, h: 22, pSrc: 'animal' },
+  cheese:       { name: 'Cheese',       type: 'neutral', w: 30, h: 26, pSrc: 'animal' },
+  salmon:       { name: 'Salmon',       type: 'neutral', w: 36, h: 20, pSrc: 'animal' },
+  steak:        { name: 'Beef Steak',   type: 'neutral', w: 32, h: 24, pSrc: 'animal' },
+  yogurt:       { name: 'Yogurt',       type: 'neutral', w: 26, h: 32, pSrc: 'animal' },
+  // L2 Protein — Plant sources
+  tofu:         { name: 'Tofu',         type: 'neutral', w: 28, h: 26, pSrc: 'plant' },
+  quinoa:       { name: 'Quinoa',       type: 'neutral', w: 32, h: 24, pSrc: 'plant' },
+  black_beans:  { name: 'Black Beans',  type: 'neutral', w: 32, h: 24, pSrc: 'plant' },
+  lentils:      { name: 'Lentils',      type: 'neutral', w: 30, h: 24, pSrc: 'plant' },
+  chickpeas:    { name: 'Chickpeas',    type: 'neutral', w: 30, h: 24, pSrc: 'plant' },
+  peanuts:      { name: 'Peanuts',      type: 'neutral', w: 30, h: 18, pSrc: 'plant' },
+  kidney_beans: { name: 'Kidney Beans', type: 'neutral', w: 26, h: 22, pSrc: 'plant' },
   // Fun foods — quick energy
   fries:        { name: 'Fries',        type: 'fun',     w: 28, h: 32 },
   cookie:       { name: 'Cookie',       type: 'fun',     w: 30, h: 30 },
   donut:        { name: 'Donut',        type: 'fun',     w: 34, h: 32 },
-  // L2 Protein — Complete
-  salmon:       { name: 'Salmon',       type: 'neutral', w: 36, h: 20 },
-  steak:        { name: 'Beef Steak',   type: 'neutral', w: 32, h: 24 },
-  tofu:         { name: 'Tofu',         type: 'neutral', w: 28, h: 26 },
-  yogurt:       { name: 'Yogurt',       type: 'neutral', w: 26, h: 32 },
-  quinoa:       { name: 'Quinoa',       type: 'neutral', w: 32, h: 24 },
-  // L2 Protein — Incomplete
-  black_beans:  { name: 'Black Beans',  type: 'neutral', w: 32, h: 24 },
-  lentils:      { name: 'Lentils',      type: 'neutral', w: 30, h: 24 },
-  chickpeas:    { name: 'Chickpeas',    type: 'neutral', w: 30, h: 24 },
-  peanuts:      { name: 'Peanuts',      type: 'neutral', w: 30, h: 18 },
-  kidney_beans: { name: 'Kidney Beans', type: 'neutral', w: 26, h: 22 },
+  croissant:    { name: 'Croissant',    type: 'fun',     w: 30, h: 28 },
   // L3 Fats preview
   avocado:      { name: 'Avocado',      type: 'neutral', w: 26, h: 32 },
   olive_oil:    { name: 'Olive Oil',    type: 'neutral', w: 20, h: 38 },
@@ -185,136 +185,135 @@ const FIBRE_IDS = [
 
 const L2_LEVEL_W = 9200;
 const ENERGY_PROTEIN = 8;
-const ENERGY_COMBO_BONUS = 7;
-const COMBO_TIMEOUT = 10000;
-const SPRITE_SPEED = 65;
+const SPRITE_SPEED = 420;
 const SPRITE_DMG = 8;
 const L2_PHANTOM_SPEED = 70;
 const PROTEINS_NEEDED = 10;
+const INV_SLOTS = 3;
+const SPRITE_WARN_TIME = 500;
+const SPRITE_INTERVAL_MIN = 12000;
+const SPRITE_INTERVAL_MAX = 20000;
+const FOG_FADE_IN = 1500;
+const FOG_HOLD = 3000;
+const FOG_FADE_OUT = 1500;
 
-const COMBO_PAIRS = {
-  black_beans:  ['white_rice', 'white_bread', 'tortilla'],
-  lentils:      ['white_rice', 'white_bread'],
-  chickpeas:    ['pita', 'white_bread', 'tortilla'],
-  peanuts:      ['white_bread'],
-  kidney_beans: ['white_rice'],
-};
-
-const L2_PROTEIN_IDS = [
-  'chicken','egg','salmon','steak','tofu','yogurt','quinoa',
-  'black_beans','lentils','chickpeas','peanuts','kidney_beans',
-];
+const L2_ANIMAL_IDS = ['chicken','egg','salmon','steak','yogurt','cheese'];
+const L2_PLANT_IDS = ['tofu','quinoa','black_beans','lentils','chickpeas','peanuts','kidney_beans'];
+const L2_PROTEIN_IDS = [...L2_ANIMAL_IDS, ...L2_PLANT_IDS];
 
 const L2 = {
   platforms: [
     { x: 300,  y: 340, w: 120 },
-    { x: 650,  y: 280, w: 100 },
-    { x: 1000, y: 320, w: 140 },
-    { x: 1350, y: 230, w: 120 },
-    { x: 1700, y: 300, w: 100 },
-    { x: 2050, y: 340, w: 120 },
-    { x: 2450, y: 280, w: 120 },
-    { x: 2800, y: 210, w: 100 },
-    { x: 3150, y: 330, w: 140 },
-    { x: 3500, y: 260, w: 100 },
-    { x: 3800, y: 180, w: 120 },
-    { x: 4150, y: 310, w: 120 },
-    { x: 4500, y: 250, w: 100 },
-    { x: 4800, y: 340, w: 120 },
-    { x: 5200, y: 280, w: 140 },
-    { x: 5550, y: 200, w: 100 },
-    { x: 5850, y: 330, w: 120 },
-    { x: 6200, y: 260, w: 100 },
-    { x: 6500, y: 180, w: 120 },
-    { x: 6850, y: 310, w: 140 },
-    { x: 7200, y: 250, w: 100 },
-    { x: 7550, y: 340, w: 120 },
-    { x: 7900, y: 270, w: 100 },
-    { x: 8200, y: 190, w: 120 },
-    { x: 8550, y: 320, w: 140 },
-    { x: 8900, y: 340, w: 100 },
+    { x: 600,  y: 280, w: 100 },
+    { x: 950,  y: 320, w: 130 },
+    { x: 1250, y: 240, w: 120 },
+    { x: 1250, y: 340, w: 100 },
+    { x: 1600, y: 300, w: 110 },
+    { x: 1950, y: 250, w: 120 },
+    { x: 2300, y: 340, w: 130 },
+    { x: 2650, y: 280, w: 110 },
+    { x: 2650, y: 180, w: 100 },
+    { x: 3000, y: 330, w: 140 },
+    { x: 3350, y: 260, w: 110 },
+    { x: 3700, y: 190, w: 120 },
+    { x: 4050, y: 310, w: 120 },
+    { x: 4400, y: 250, w: 110 },
+    { x: 4700, y: 340, w: 130 },
+    { x: 5050, y: 280, w: 120 },
+    { x: 5400, y: 200, w: 110 },
+    { x: 5750, y: 330, w: 120 },
+    { x: 6100, y: 260, w: 110 },
+    { x: 6450, y: 180, w: 120 },
+    { x: 6800, y: 310, w: 140 },
+    { x: 7150, y: 250, w: 110 },
+    { x: 7500, y: 340, w: 120 },
+    { x: 7850, y: 270, w: 110 },
+    { x: 8150, y: 190, w: 120 },
+    { x: 8500, y: 320, w: 140 },
+    { x: 8850, y: 340, w: 100 },
   ],
   ladders: [
-    { x: 1390, topY: 230, botY: GROUND_Y },
-    { x: 2830, topY: 210, botY: 280 },
-    { x: 3830, topY: 180, botY: 260 },
-    { x: 5580, topY: 200, botY: GROUND_Y },
-    { x: 6530, topY: 180, botY: 260 },
-    { x: 8230, topY: 190, botY: GROUND_Y },
+    { x: 1290, topY: 240, botY: GROUND_Y },
+    { x: 2690, topY: 180, botY: 280 },
+    { x: 3740, topY: 190, botY: GROUND_Y },
+    { x: 5440, topY: 200, botY: GROUND_Y },
+    { x: 6490, topY: 180, botY: 260 },
+    { x: 8190, topY: 190, botY: GROUND_Y },
+  ],
+  baskets: [
+    { x: 4500, type: 'animal' },
+    { x: 6200, type: 'plant' },
   ],
   foods: [
-    // Complete Proteins — ground
-    { id: 'chicken',     x: 420,  onGround: true, l2type: 'complete' },
-    { id: 'egg',         x: 1100, onGround: true, l2type: 'complete' },
-    { id: 'steak',       x: 2600, onGround: true, l2type: 'complete' },
-    { id: 'quinoa',      x: 4900, onGround: true, l2type: 'complete' },
-    { id: 'yogurt',      x: 6950, onGround: true, l2type: 'complete' },
-    { id: 'salmon',      x: 8650, onGround: true, l2type: 'complete' },
-    // Complete Proteins — platforms
-    { id: 'tofu',        x: 1390, platIdx: 3,  l2type: 'complete' },
-    { id: 'egg',         x: 3540, platIdx: 9,  l2type: 'complete' },
-    { id: 'chicken',     x: 5890, platIdx: 16, l2type: 'complete' },
-    { id: 'salmon',      x: 8240, platIdx: 23, l2type: 'complete' },
-    // Incomplete Proteins + combo partners (placed near each other)
-    { id: 'black_beans', x: 1550, onGround: true, l2type: 'incomplete' },
-    { id: 'white_rice',  x: 1750, onGround: true, l2type: 'combo_partner' },
-    { id: 'lentils',     x: 3000, onGround: true, l2type: 'incomplete' },
-    { id: 'white_bread', x: 3200, onGround: true, l2type: 'combo_partner' },
-    { id: 'chickpeas',   x: 4540, platIdx: 12, l2type: 'incomplete' },
-    { id: 'pita',        x: 4700, onGround: true, l2type: 'combo_partner' },
-    { id: 'peanuts',     x: 5750, onGround: true, l2type: 'incomplete' },
-    { id: 'white_bread', x: 5950, onGround: true, l2type: 'combo_partner' },
-    { id: 'kidney_beans',x: 7240, platIdx: 20, l2type: 'incomplete' },
-    { id: 'white_rice',  x: 7450, onGround: true, l2type: 'combo_partner' },
-    { id: 'black_beans', x: 8100, onGround: true, l2type: 'incomplete' },
-    { id: 'tortilla',    x: 8300, onGround: true, l2type: 'combo_partner' },
-    { id: 'chickpeas',   x: 6240, platIdx: 17, l2type: 'incomplete' },
-    { id: 'white_bread', x: 6450, onGround: true, l2type: 'combo_partner' },
-    { id: 'lentils',     x: 8950, onGround: true, l2type: 'incomplete' },
-    { id: 'white_rice',  x: 9050, onGround: true, l2type: 'combo_partner' },
-    // Neutral items
-    { id: 'banana',      x: 750,  onGround: true, l2type: 'neutral' },
-    { id: 'pasta',       x: 2200, onGround: true, l2type: 'neutral' },
-    { id: 'avocado',     x: 3840, platIdx: 10, l2type: 'neutral' },
-    { id: 'olive_oil',   x: 5300, onGround: true, l2type: 'neutral' },
-    { id: 'banana',      x: 6700, onGround: true, l2type: 'neutral' },
-    { id: 'pasta',       x: 7800, onGround: true, l2type: 'neutral' },
-    // Fun foods
-    { id: 'cookie',      x: 1400, onGround: true, l2type: 'fun' },
-    { id: 'fries',       x: 4250, onGround: true, l2type: 'fun' },
-    { id: 'donut',       x: 7650, onGround: true, l2type: 'fun' },
+    // Animal proteins — ground
+    { id: 'chicken',     x: 420,  onGround: true, l2type: 'protein' },
+    { id: 'egg',         x: 1100, onGround: true, l2type: 'protein' },
+    { id: 'steak',       x: 2550, onGround: true, l2type: 'protein' },
+    { id: 'cheese',      x: 4150, onGround: true, l2type: 'protein' },
+    { id: 'yogurt',      x: 5800, onGround: true, l2type: 'protein' },
+    { id: 'salmon',      x: 8600, onGround: true, l2type: 'protein' },
+    // Animal proteins — platforms
+    { id: 'salmon',      x: 640,  platIdx: 1,  l2type: 'protein' },
+    { id: 'cheese',      x: 7190, platIdx: 22, l2type: 'protein' },
+    // Plant proteins — ground
+    { id: 'black_beans', x: 1550, onGround: true, l2type: 'protein' },
+    { id: 'lentils',     x: 2950, onGround: true, l2type: 'protein' },
+    { id: 'peanuts',     x: 4650, onGround: true, l2type: 'protein' },
+    { id: 'kidney_beans',x: 6750, onGround: true, l2type: 'protein' },
+    { id: 'chickpeas',   x: 8100, onGround: true, l2type: 'protein' },
+    // Plant proteins — platforms
+    { id: 'tofu',        x: 1290, platIdx: 3,  l2type: 'protein' },
+    { id: 'quinoa',      x: 3390, platIdx: 11, l2type: 'protein' },
+    { id: 'chickpeas',   x: 5090, platIdx: 16, l2type: 'protein' },
+    { id: 'lentils',     x: 6140, platIdx: 19, l2type: 'protein' },
+    { id: 'black_beans', x: 8540, platIdx: 26, l2type: 'protein' },
+    // Neutral items (non-protein, auto-consumed)
+    { id: 'banana',      x: 350,  onGround: true, l2type: 'neutral' },
+    { id: 'potato',      x: 1040, onGround: true, l2type: 'neutral' },
+    { id: 'pasta',       x: 1780, onGround: true, l2type: 'neutral' },
+    { id: 'apple',       x: 2200, onGround: true, l2type: 'neutral' },
+    { id: 'orange',      x: 2830, onGround: true, l2type: 'neutral' },
+    { id: 'avocado',     x: 3710, platIdx: 12, l2type: 'neutral' },
+    { id: 'brown_rice',  x: 4010, onGround: true, l2type: 'neutral' },
+    { id: 'oats',        x: 4750, onGround: true, l2type: 'neutral' },
+    { id: 'olive_oil',   x: 5350, onGround: true, l2type: 'neutral' },
+    { id: 'sweetpotato', x: 6020, onGround: true, l2type: 'neutral' },
+    { id: 'white_rice',  x: 6500, onGround: true, l2type: 'neutral' },
+    { id: 'tortilla',    x: 7180, onGround: true, l2type: 'neutral' },
+    { id: 'white_bread', x: 7800, onGround: true, l2type: 'neutral' },
+    { id: 'banana',      x: 8350, onGround: true, l2type: 'neutral' },
+    // Fun foods (auto-consumed)
+    { id: 'cookie',      x: 3250, onGround: true, l2type: 'fun' },
+    { id: 'croissant',   x: 6850, onGround: true, l2type: 'fun' },
   ],
   energyCells: [
-    440, 900, 1300, 1700, 2150, 2550, 2950, 3350,
-    3750, 4100, 4500, 4900, 5350, 5750, 6150, 6550,
-    6950, 7350,
+    520, 960, 1380, 1700, 2340, 2750, 3150, 3520,
+    3920, 4290, 4520, 4960, 5530, 5930, 6310, 6680,
+    7060, 7600,
   ],
   cellsOnPlats: [
-    { x: 690,  pi: 1 },
-    { x: 1390, pi: 3 },
-    { x: 2490, pi: 6 },
-    { x: 2840, pi: 7 },
-    { x: 3840, pi: 10 },
-    { x: 5590, pi: 15 },
-    { x: 6540, pi: 18 },
-    { x: 8240, pi: 23 },
+    { x: 720,  pi: 1 },
+    { x: 1370, pi: 3 },
+    { x: 2720, pi: 8 },
+    { x: 2720, pi: 9 },
+    { x: 3780, pi: 12 },
+    { x: 5160, pi: 16 },
+    { x: 5480, pi: 17 },
+    { x: 6530, pi: 20 },
+    { x: 8260, pi: 25 },
   ],
   phantoms: [
     { x: 2900 }, { x: 4600 }, { x: 6400 }, { x: 8500 },
   ],
-  stressSprites: [
-    { x: 3450, y: 310 }, { x: 3600, y: 290 },
-    { x: 5450, y: 300 }, { x: 5600, y: 280 },
-    { x: 7900, y: 270 }, { x: 8050, y: 250 },
-  ],
+  spriteTriggerX: 2000,
   crashPits: [
     { x: 1850, w: 200 },
-    { x: 2300, w: 200 },
+    { x: 2350, w: 200 },
   ],
   fogBanks: [
-    { x: 5050, w: 500 },
-    { x: 6350, w: 400 },
-    { x: 7700, w: 400 },
+    { x: 4300, w: 400 },
+    { x: 6300, w: 450 },
+    { x: 7600, w: 400 },
   ],
   hiddenPath: { x: 6500, y: 120, w: 100 },
   finishX: 9000,
@@ -365,6 +364,7 @@ const SFX = {
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
     o.connect(g); g.connect(this.ctx.destination);
     o.start(t); o.stop(t + dur);
+    o.onended = () => { o.disconnect(); g.disconnect(); };
   },
   collectStarchy() {
     this._tone(520, 0.12, 'square', 0.15);
@@ -399,6 +399,7 @@ const SFX = {
     f.type = 'bandpass'; f.frequency.value = 3000 + Math.random() * 1000; f.Q.value = 2;
     src.connect(f); f.connect(g); g.connect(this.ctx.destination);
     src.start(t); src.stop(t + 0.03);
+    src.onended = () => { src.disconnect(); f.disconnect(); g.disconnect(); };
   },
   shootBall() {
     this._tone(300, 0.15, 'sawtooth', 0.08, 800);
@@ -446,19 +447,47 @@ const SFX = {
     setTimeout(() => this._tone(587, 0.1, 'square', 0.12), 60);
     setTimeout(() => this._tone(660, 0.08, 'square', 0.1), 120);
   },
-  collectIncomplete() {
-    this._tone(330, 0.12, 'triangle', 0.12);
-    setTimeout(() => this._tone(440, 0.08, 'triangle', 0.1), 70);
-  },
-  comboTrigger() {
+  depositCorrect() {
     this._tone(523, 0.1, 'sine', 0.14);
     setTimeout(() => this._tone(659, 0.1, 'sine', 0.14), 80);
-    setTimeout(() => this._tone(784, 0.1, 'sine', 0.14), 160);
-    setTimeout(() => this._tone(1047, 0.2, 'sine', 0.12), 260);
+    setTimeout(() => this._tone(784, 0.15, 'sine', 0.12), 160);
+  },
+  depositWrong() {
+    this._tone(200, 0.15, 'square', 0.1);
+    setTimeout(() => this._tone(160, 0.2, 'square', 0.08), 100);
+  },
+  depositBerp() {
+    this._tone(120, 0.12, 'sawtooth', 0.08);
+    setTimeout(() => this._tone(90, 0.18, 'sawtooth', 0.06), 80);
+  },
+  inventoryFull() {
+    this._tone(300, 0.06, 'triangle', 0.08);
+    setTimeout(() => this._tone(250, 0.06, 'triangle', 0.06), 60);
   },
   stressBuzz() {
     this._tone(150, 0.15, 'sawtooth', 0.08, 300);
     setTimeout(() => this._tone(200, 0.1, 'sawtooth', 0.06, 100), 80);
+  },
+  stressWarn() {
+    this._tone(800, 0.05, 'sawtooth', 0.06);
+    setTimeout(() => this._tone(1200, 0.08, 'sawtooth', 0.05), 40);
+    setTimeout(() => this._tone(600, 0.05, 'sawtooth', 0.04), 100);
+  },
+  fogWind() {
+    if (!this.ctx || this.sfxMuted) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(120, t);
+    o.frequency.linearRampToValueAtTime(180, t + 1);
+    o.frequency.linearRampToValueAtTime(100, t + 2);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.04, t + 0.5);
+    g.gain.linearRampToValueAtTime(0.03, t + 1.5);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 2.5);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t); o.stop(t + 2.5);
+    o.onended = () => { o.disconnect(); g.disconnect(); };
   },
 
   // Background music — gentle classical minuet style
@@ -474,32 +503,28 @@ const SFX = {
     g.gain.exponentialRampToValueAtTime(0.001, start + dur);
     o.connect(g); g.connect(this.musicGain);
     o.start(start); o.stop(start + dur + 0.01);
+    o.onended = () => { o.disconnect(); g.disconnect(); };
   },
   startMusic() {
     if (!this.ctx || this.musicPlaying) return;
     this.musicPlaying = true;
     const bpm = 100;
     const q = 60 / bpm;
+    const loopBeats = 32;
+    const loopDur = loopBeats * q;
+    const sr = this.ctx.sampleRate;
 
-    // Gentle waltz in C major — melody (sine) + bass (triangle)
-    // Each entry: [freq, startBeat, durationBeats]
     const melodyNotes = [
-      // Phrase 1 — ascending, hopeful
       [523, 0, 1], [587, 1, 1], [659, 2, 1.5], [587, 3.5, 0.5],
       [523, 4, 1], [494, 5, 0.5], [523, 5.5, 0.5], [587, 6, 2],
-      // Phrase 2 — gentle descent
       [659, 8, 1], [784, 9, 1], [740, 10, 1.5], [659, 11.5, 0.5],
       [587, 12, 1], [523, 13, 1], [494, 14, 0.5], [523, 14.5, 1.5],
-      // Phrase 3 — lilting middle section
       [440, 16, 1], [523, 17, 0.5], [587, 17.5, 0.5], [659, 18, 1.5], [587, 19.5, 0.5],
       [523, 20, 1], [440, 21, 1], [392, 22, 1], [440, 23, 1],
-      // Phrase 4 — resolution
       [523, 24, 1], [587, 25, 1], [659, 26, 0.5], [587, 26.5, 0.5],
       [523, 27, 0.5], [494, 27.5, 0.5], [440, 28, 1], [494, 29, 1], [523, 30, 2],
     ];
-
     const bassNotes = [
-      // Waltz bass — root on beat 1, chord on beats 2-3
       [131, 0, 1.5], [196, 1.5, 0.5], [196, 2, 0.5],
       [131, 4, 1.5], [165, 5.5, 0.5], [165, 6, 0.5],
       [165, 8, 1.5], [196, 9.5, 0.5], [196, 10, 0.5],
@@ -510,24 +535,45 @@ const SFX = {
       [110, 28, 1.5], [131, 29.5, 0.5], [131, 30, 2],
     ];
 
-    const loopBeats = 32;
+    const offline = new OfflineAudioContext(1, Math.ceil(sr * loopDur), sr);
+    const master = offline.createGain();
+    master.gain.setValueAtTime(1, 0);
+    master.connect(offline.destination);
 
-    const playLoop = () => {
-      if (!this.musicPlaying) return;
-      const now = this.ctx.currentTime + 0.05;
-      melodyNotes.forEach(([f, b, d]) => {
-        this._playNote(f, now + b * q, d * q, 'sine', 0.5);
-      });
-      bassNotes.forEach(([f, b, d]) => {
-        this._playNote(f, now + b * q, d * q, 'triangle', 0.35);
-      });
-      this._musicTimer = setTimeout(() => playLoop(), loopBeats * q * 1000 - 100);
+    const renderNote = (freq, start, dur, type, vol) => {
+      const o = offline.createOscillator();
+      const g = offline.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, start);
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(vol, start + 0.02);
+      g.gain.setValueAtTime(vol * 0.7, start + dur * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      o.connect(g); g.connect(master);
+      o.start(start); o.stop(start + dur + 0.01);
     };
-    playLoop();
+
+    melodyNotes.forEach(([f, b, d]) => renderNote(f, b * q, d * q, 'sine', 0.5));
+    bassNotes.forEach(([f, b, d]) => renderNote(f, b * q, d * q, 'triangle', 0.35));
+
+    offline.startRendering().then(buffer => {
+      if (!this.musicPlaying) return;
+      const src = this.ctx.createBufferSource();
+      src.buffer = buffer;
+      src.loop = true;
+      src.connect(this.musicGain);
+      src.start();
+      this._musicSource = src;
+    });
   },
   stopMusic() {
     this.musicPlaying = false;
     if (this._musicTimer) { clearTimeout(this._musicTimer); this._musicTimer = null; }
+    if (this._musicSource) {
+      try { this._musicSource.stop(); } catch (_) {}
+      this._musicSource.disconnect();
+      this._musicSource = null;
+    }
   },
 };
 
@@ -552,8 +598,7 @@ class BootScene extends Phaser.Scene {
     this.generateFinishFlag();
     this.generateL2Foods();
     this.generateStressSprite();
-    this.generateProteinTag();
-    this.generateComboTag();
+    this.generateBaskets();
     document.fonts.load('16px "Special Elite"').then(() => {
       this.scene.start('LevelSelect');
     });
@@ -920,6 +965,14 @@ class BootScene extends Phaser.Scene {
     g.lineStyle(2, 0xb86888); g.strokeRoundedRect(P, P, 30, 15, { tl: 14, tr: 14, bl: 0, br: 0 });
     g.lineStyle(2, 0xb06828); g.strokeCircle(P+15, P+15, 3);
     g.generateTexture('food_donut', 34, 32);
+
+    // Croissant — layered crescent
+    g.clear();
+    g.fillStyle(0xe8b060); g.fillEllipse(P + 15, P + 14, 28, 22);
+    g.lineStyle(2, 0xb07830); g.strokeEllipse(P + 15, P + 14, 28, 22);
+    g.lineStyle(1, 0xd8c080); g.beginPath();
+    g.arc(P + 15, P + 14, 18, 2.2, 4.5); g.strokePath();
+    g.generateTexture('food_croissant', 30, 28);
 
     g.destroy();
   }
@@ -1301,6 +1354,16 @@ class BootScene extends Phaser.Scene {
     g.fillStyle(0xffffff, 0.2); g.fillRoundedRect(P + 2, P + 9, 4, 10, 2);
     g.generateTexture('food_olive_oil', 20, 38);
 
+    // Cheese — #f0c840
+    g.clear();
+    g.fillStyle(0xf0c840); g.fillRoundedRect(P, P, 26, 22, 3);
+    g.lineStyle(2, 0xd0a828); g.strokeRoundedRect(P, P, 26, 22, 3);
+    g.fillStyle(0xd8a830);
+    g.fillCircle(P + 8, P + 8, 2.5);
+    g.fillCircle(P + 16, P + 14, 2);
+    g.fillCircle(P + 10, P + 17, 1.5);
+    g.generateTexture('food_cheese', 30, 26);
+
     g.destroy();
   }
 
@@ -1350,36 +1413,40 @@ class BootScene extends Phaser.Scene {
     g.destroy();
   }
 
-  generateProteinTag() {
+  generateBaskets() {
     const g = this.make.graphics({ add: false });
-    g.fillStyle(0xcc4444);
-    g.beginPath();
-    g.moveTo(5, 0); g.lineTo(10, 5); g.lineTo(5, 10); g.lineTo(0, 5);
-    g.closePath(); g.fillPath();
-    g.fillStyle(0xff8888, 0.6);
-    g.beginPath();
-    g.moveTo(5, 1); g.lineTo(8, 5); g.lineTo(5, 9); g.lineTo(2, 5);
-    g.closePath(); g.fillPath();
-    g.fillStyle(0xffffff, 0.4);
-    g.fillCircle(4, 4, 1.5);
-    g.generateTexture('protein_tag', 10, 10);
-    g.destroy();
-  }
+    const bw = 48, bh = 40;
 
-  generateComboTag() {
-    const g = this.make.graphics({ add: false });
-    g.fillStyle(0xff8800);
+    // Animal basket — blue crate
+    g.clear();
+    g.fillStyle(0x3366aa); g.fillRoundedRect(0, 8, bw, bh - 8, 4);
+    g.lineStyle(3, 0x224488); g.strokeRoundedRect(0, 8, bw, bh - 8, 4);
+    g.fillStyle(0x4488cc); g.fillRoundedRect(2, 0, bw - 4, 10, { tl: 4, tr: 4, bl: 0, br: 0 });
+    g.lineStyle(2, 0x224488); g.strokeRoundedRect(2, 0, bw - 4, 10, { tl: 4, tr: 4, bl: 0, br: 0 });
+    g.fillStyle(0xffffff, 0.6);
+    g.fillCircle(bw / 2, 22, 6);
+    g.fillStyle(0x224488);
+    g.fillCircle(bw / 2, 22, 4);
+    g.fillStyle(0xffffff, 0.8);
+    g.fillCircle(bw / 2, 21, 2);
+    g.generateTexture('basket_animal', bw, bh);
+
+    // Plant basket — green crate
+    g.clear();
+    g.fillStyle(0x338844); g.fillRoundedRect(0, 8, bw, bh - 8, 4);
+    g.lineStyle(3, 0x226633); g.strokeRoundedRect(0, 8, bw, bh - 8, 4);
+    g.fillStyle(0x44aa66); g.fillRoundedRect(2, 0, bw - 4, 10, { tl: 4, tr: 4, bl: 0, br: 0 });
+    g.lineStyle(2, 0x226633); g.strokeRoundedRect(2, 0, bw - 4, 10, { tl: 4, tr: 4, bl: 0, br: 0 });
+    g.fillStyle(0xffffff, 0.6);
     g.beginPath();
-    g.moveTo(6, 0); g.lineTo(12, 6); g.lineTo(6, 12); g.lineTo(0, 6);
+    g.moveTo(bw / 2, 16); g.lineTo(bw / 2 + 5, 28); g.lineTo(bw / 2 - 5, 28);
     g.closePath(); g.fillPath();
-    g.fillStyle(0xffcc66, 0.7);
+    g.fillStyle(0x226633);
     g.beginPath();
-    g.moveTo(6, 1); g.lineTo(10, 6); g.lineTo(6, 11); g.lineTo(2, 6);
+    g.moveTo(bw / 2, 18); g.lineTo(bw / 2 + 3, 26); g.lineTo(bw / 2 - 3, 26);
     g.closePath(); g.fillPath();
-    g.lineStyle(2, 0xffffff, 0.6);
-    g.lineBetween(4, 4, 8, 8);
-    g.lineBetween(4, 8, 8, 4);
-    g.generateTexture('combo_tag', 12, 12);
+    g.generateTexture('basket_plant', bw, bh);
+
     g.destroy();
   }
 }
@@ -1884,7 +1951,9 @@ class GameScene extends Phaser.Scene {
     this.player.body.setSize(32, 44); this.player.body.setOffset(8, 7);
     this.player.setDepth(10);
     this.physics.add.collider(this.player, this.ground);
-    this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(this.player, this.platforms, null, (player, plat) => {
+      return player.body.velocity.y >= 0 && player.body.y + player.body.height - 4 <= plat.body.y;
+    }, this);
   }
 
   createFoods() {
@@ -2706,187 +2775,149 @@ class ResultScene extends Phaser.Scene {
 }
 
 // =================================================================
-// SPLASH 2 SCENE — Instruction splash for L2 (Protein)
+// SPLASH 2 SCENE — Instruction splash for L2 (Protein – Basket Sort)
 // =================================================================
 
 class Splash2Scene extends Phaser.Scene {
   constructor() { super('Splash2'); }
+  // MARKER_SPLASH2_START
 
   create() {
+    const SF = '"Special Elite", "Courier New", monospace';
     const cx = GAME_W / 2, cy = GAME_H / 2;
 
-    // Indoor marketplace background
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x2a1a0e, 0x2a1a0e, 0x3d2b1a, 0x3d2b1a, 1);
-    bg.fillRect(0, 0, GAME_W, GAME_H);
-
-    // Brick wall pattern
-    const bricks = this.add.graphics();
-    bricks.fillStyle(0x4a3020, 0.3);
-    for (let r = 0; r < 12; r++) for (let c = 0; c < 20; c++) {
-      const ox = (r % 2) * 25;
-      bricks.fillRect(ox + c * 50, r * 45, 46, 40);
+    const sky = this.add.graphics();
+    const stops = [
+      { y: 0,    c: 0x1a1040 },
+      { y: 0.15, c: 0x4a2060 },
+      { y: 0.35, c: 0xcc5544 },
+      { y: 0.55, c: 0xee8844 },
+      { y: 0.70, c: 0xf0c060 },
+      { y: 1.0,  c: 0xf0c060 },
+    ];
+    for (let i = 0; i < stops.length - 1; i++) {
+      const y0 = Math.floor(stops[i].y * GAME_H);
+      const y1 = Math.floor(stops[i + 1].y * GAME_H);
+      const h = y1 - y0;
+      if (h <= 0) continue;
+      sky.fillGradientStyle(stops[i].c, stops[i].c, stops[i + 1].c, stops[i + 1].c, 1);
+      sky.fillRect(0, y0, GAME_W, h);
     }
+    for (let k = 0; k < 7; k++) {
+      sky.fillStyle(0xffccaa, 1);
+      const ctx = 60 + k * 150;
+      const cty = 28 + (k % 4) * 18;
+      sky.fillEllipse(ctx, cty, 110 + k * 5, 40);
+      sky.fillEllipse(ctx + 40, cty + 8, 80, 32);
+    }
+    sky.setDepth(0);
 
-    // Shelves
-    const shelves = this.add.graphics();
-    shelves.fillStyle(0x6d5410, 0.3);
-    shelves.fillRect(0, 120, GAME_W, 6);
-    shelves.fillRect(0, 300, GAME_W, 6);
+    const awning = this.add.graphics();
+    awning.fillStyle(0x884444, 1);
+    for (let ax = -40; ax < GAME_W + 40; ax += 140) {
+      awning.fillTriangle(ax, 120, ax + 70, 120, ax + 35, 148);
+      awning.fillStyle(0x663344, 1);
+      awning.fillTriangle(ax + 72, 120, ax + 140, 120, ax + 106, 148);
+      awning.fillStyle(0x884444, 1);
+    }
+    awning.setDepth(1);
 
-    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.58);
+    this.add.rectangle(cx, cy, GAME_W + 20, GAME_H + 20, 0x0a0812, 0.25).setDepth(2);
 
-    const panelW = 580, panelH = 360;
-    const panelX = cx, panelY = cy;
-    this.add.rectangle(panelX, panelY, panelW + 3, panelH + 3, 0xcc4444, 0.35);
-    this.add.rectangle(panelX, panelY, panelW, panelH, 0x0c0c18);
-    this.add.rectangle(panelX, panelY - panelH / 2 + 1.5, panelW, 3, 0xcc4444);
+    const panelW = 600, panelH = 400;
+    const px = cx, py = cy;
+    this.add.rectangle(px, py, panelW + 8, panelH + 8, 0x221018, 0.88).setDepth(3);
+    this.add.rectangle(px, py, panelW, panelH, 0x12080c, 0.93).setDepth(3).setStrokeStyle(3, 0xcc7755);
 
-    const SF = "'Special Elite', 'Courier New', monospace";
+    const title = this.add.text(px, py - panelH / 2 + 36, 'LEVEL 2: PROTEIN', {
+      fontFamily: SF, fontSize: '26px', color: '#f0c060', letterSpacing: 4,
+    }).setOrigin(0.5).setDepth(5);
 
-    const headerY = panelY - panelH / 2 + 36;
-    this.add.text(panelX, headerY, 'Level Two', {
-      fontFamily: SF, fontSize: '13px', color: '#666666', letterSpacing: 4,
-    }).setOrigin(0.5);
-    this.add.text(panelX, headerY + 26, 'PROTEIN', {
-      fontFamily: SF, fontSize: '30px', color: '#cc4444', letterSpacing: 3,
-    }).setOrigin(0.5);
-    this.add.rectangle(panelX, headerY + 48, 80, 2, 0xcc4444, 0.27);
+    const factStr = 'Protein is your body\'s building material. Every tissue — muscle, skin, organs — is built and repaired with protein.';
+    const missionStr = 'Collect protein foods. Sort them into the right basket: blue for animal, green for plant. Press E near a basket to deposit.';
+    const hazardStr = 'Stress Sprites shoot across the screen without warning. Jump, duck, or shoot them!';
 
-    this.add.text(panelX, headerY + 78, 'Protein is your body\'s building material.\nEvery tissue — muscle, skin, organs —\nis built and repaired with protein.', {
-      fontFamily: SF, fontSize: '17px', color: '#d8d0c0', align: 'center', lineSpacing: 8,
-    }).setOrigin(0.5);
+    const factText = this.add.text(px - panelW / 2 + 36, py - panelH / 2 + 72, '', {
+      fontFamily: SF, fontSize: '14px', color: '#dcd0c8', lineSpacing: 6, wordWrap: { width: panelW - 72 },
+    }).setDepth(5);
+    const missionText = this.add.text(px - panelW / 2 + 36, py - panelH / 2 + 138, '', {
+      fontFamily: SF, fontSize: '13px', color: '#a8b0c0', lineSpacing: 5, wordWrap: { width: panelW - 160 },
+    }).setDepth(5);
+    const hazardText = this.add.text(px - panelW / 2 + 36, py - panelH / 2 + 248, '', {
+      fontFamily: SF, fontSize: '13px', color: '#b09090', lineSpacing: 5, wordWrap: { width: panelW - 160 },
+    }).setDepth(5);
 
-    this.add.rectangle(panelX, headerY + 120, panelW - 72, 1, 0xffffff, 0.04);
+    this.add.text(px - panelW / 2 + 36, py - panelH / 2 + 122, 'MISSION', { fontFamily: SF, fontSize: '11px', color: '#88cc88', letterSpacing: 3 }).setDepth(5);
+    this.add.text(px - panelW / 2 + 36, py - panelH / 2 + 232, 'HAZARDS', { fontFamily: SF, fontSize: '11px', color: '#cc8888', letterSpacing: 3 }).setDepth(5);
 
-    const sectY = headerY + 138;
-    const missionLabel = this.add.text(panelX - panelW / 2 + 40, sectY, 'YOUR MISSION', {
-      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
-    }).setAlpha(0);
-    const missionBar = this.add.rectangle(panelX - panelW / 2 + 42, sectY + 19, 2, 0, 0xffffff, 0.04).setOrigin(0, 0);
-    const missionText = this.add.text(panelX - panelW / 2 + 56, sectY + 20, '', {
-      fontFamily: SF, fontSize: '15px', color: '#999999', lineSpacing: 6, wordWrap: { width: panelW - 120 },
-    });
+    const bx = px + panelW / 2 - 100;
+    const by = py - 10;
+    this.add.image(bx - 44, by, 'basket_animal').setScale(0.85).setDepth(5);
+    this.add.image(bx + 44, by, 'basket_plant').setScale(0.85).setDepth(5);
+    this.add.text(bx - 44, by + 44, 'animal', { fontFamily: SF, fontSize: '10px', color: '#6688cc' }).setOrigin(0.5).setDepth(5);
+    this.add.text(bx + 44, by + 44, 'plant', { fontFamily: SF, fontSize: '10px', color: '#66aa66' }).setOrigin(0.5).setDepth(5);
 
-    const hazardY = sectY + 84;
-    const hazardLabel = this.add.text(panelX - panelW / 2 + 40, hazardY, 'WATCH OUT', {
-      fontFamily: SF, fontSize: '12px', color: '#cc6655', letterSpacing: 3,
-    }).setAlpha(0);
-    const hazardBar = this.add.rectangle(panelX - panelW / 2 + 42, hazardY + 19, 2, 0, 0xffffff, 0.04).setOrigin(0, 0);
-    const hazardText = this.add.text(panelX - panelW / 2 + 56, hazardY + 20, '', {
-      fontFamily: SF, fontSize: '15px', color: '#997777', lineSpacing: 6, wordWrap: { width: panelW - 180 },
-    });
+    const startBtn = this.add.rectangle(px, py + panelH / 2 - 36, 200, 40, 0xcc5544)
+      .setInteractive({ useHandCursor: true }).setDepth(6);
+    const startLabel = this.add.text(px, py + panelH / 2 - 36, 'START', {
+      fontFamily: SF, fontSize: '16px', color: '#1a1020', fontStyle: 'bold', letterSpacing: 4,
+    }).setOrigin(0.5).setDepth(7);
 
-    const spriteImg = this.add.image(panelX + panelW / 2 - 60, hazardY + 32, 'stress_sprite').setAlpha(0).setScale(0.9);
-
-    const promptText = this.add.text(panelX, panelY + panelH / 2 - 24, 'PRESS ANY KEY TO START', {
-      fontFamily: SF, fontSize: '14px', color: '#cc4444', letterSpacing: 4,
-    }).setOrigin(0.5).setAlpha(0);
-
-    const TYPE_SPEED = 40;
-    const missionStr = 'Collect all proteins. Pair plant proteins together (like rice + beans) for a combo bonus!';
-    const hazardStr = 'Stress Sprites move in erratic clusters. Stay alert!';
-
-    this.startEnabled = false;
-    this.animComplete = false;
-    this.typingStarted = false;
-    this.activeTimers = [];
-
-    const beginPrompt = this.add.text(panelX, panelY + panelH / 2 - 24, 'CLICK OR PRESS ANY KEY', {
-      fontFamily: SF, fontSize: '14px', color: '#cc4444', letterSpacing: 4,
-    }).setOrigin(0.5).setAlpha(1);
-    this.tweens.add({
-      targets: beginPrompt, alpha: 0.35, duration: 600,
-      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-    });
-
-    const showComplete = () => {
-      if (this.animComplete) return;
-      this.animComplete = true;
-      this.activeTimers.forEach(t => t.remove && t.remove());
-      this.activeTimers = [];
-      missionLabel.setAlpha(1); missionBar.setSize(2, 44);
-      missionText.setText(missionStr);
-      hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
-      hazardText.setText(hazardStr);
-      spriteImg.setAlpha(1).setScale(1);
-      promptText.setAlpha(1);
-      this.tweens.add({
-        targets: promptText, alpha: 0.35, duration: 600,
-        yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-      });
-      this.startEnabled = true;
-    };
-
-    const typeText = (textObj, str, speed, cb) => {
+    this.typeComplete = false;
+    const typeLine = (obj, str, speed, done) => {
       let i = 0;
-      const timer = this.time.addEvent({
+      const ev = this.time.addEvent({
         delay: speed, repeat: str.length - 1,
         callback: () => {
-          if (this.animComplete) return;
           i++;
-          textObj.setText(str.slice(0, i));
+          obj.setText(str.slice(0, i));
           if (str[i - 1] !== ' ') SFX.typeClick();
-          if (i >= str.length && cb) cb();
+          if (i >= str.length && done) done();
         },
       });
-      this.activeTimers.push(timer);
-      return timer;
+      return ev;
     };
 
-    const startTypewriter = () => {
-      beginPrompt.destroy();
-      const d1 = this.time.delayedCall(300, () => {
-        missionLabel.setAlpha(1); missionBar.setSize(2, 44);
-        const d2 = this.time.delayedCall(400, () => {
-          typeText(missionText, missionStr, TYPE_SPEED, () => {
-            const d3 = this.time.delayedCall(350, () => {
-              hazardLabel.setAlpha(1); hazardBar.setSize(2, 34);
-              const d4 = this.time.delayedCall(400, () => {
-                typeText(hazardText, hazardStr, TYPE_SPEED, () => {
-                  this.tweens.add({ targets: spriteImg, alpha: 1, scale: 1, duration: 400 });
-                  const d5 = this.time.delayedCall(500, () => {
-                    promptText.setAlpha(1);
-                    this.tweens.add({
-                      targets: promptText, alpha: 0.35, duration: 600,
-                      yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-                    });
-                    this.startEnabled = true;
-                    this.animComplete = true;
-                  });
-                  this.activeTimers.push(d5);
+    this.time.delayedCall(200, () => {
+      typeLine(factText, factStr, 28, () => {
+        this.time.delayedCall(250, () => {
+          typeLine(missionText, missionStr, 22, () => {
+            this.time.delayedCall(200, () => {
+              typeLine(hazardText, hazardStr, 22, () => {
+                this.typeComplete = true;
+                this.tweens.add({
+                  targets: [title], scale: { from: 0.97, to: 1 }, duration: 600, ease: 'Sine.easeInOut', yoyo: true,
                 });
               });
-              this.activeTimers.push(d4);
             });
-            this.activeTimers.push(d3);
           });
         });
-        this.activeTimers.push(d2);
       });
-      this.activeTimers.push(d1);
-    };
+    });
 
-    const handleInput = () => {
+    const goGame = () => {
       SFX.init(); SFX.resume();
-      if (this.startEnabled) { this.scene.start('Game2'); return; }
-      if (!this.typingStarted) { this.typingStarted = true; startTypewriter(); return; }
-      if (!this.animComplete) showComplete();
+      this.scene.start('Game2');
     };
+    startBtn.on('pointerover', () => startBtn.setFillStyle(0xdd6655));
+    startBtn.on('pointerout', () => startBtn.setFillStyle(0xcc5544));
+    startBtn.on('pointerdown', () => goGame());
 
-    this.input.keyboard.on('keydown', handleInput);
-    this.input.on('pointerdown', handleInput);
+    this.input.keyboard.on('keydown', () => {
+      SFX.init(); SFX.resume();
+      if (this.typeComplete) goGame();
+    });
 
     const musicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
       .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
-    musicIcon.on('pointerdown', (p, lx, ly, e) => {
-      e.stopPropagation(); SFX.init(); SFX.resume();
+    musicIcon.on('pointerdown', (pointer, lx, ly, ev) => {
+      ev.stopPropagation(); SFX.init(); SFX.resume();
       const m = SFX.toggleMusic(); musicIcon.setTexture(m ? 'music_off' : 'music_on');
     });
     const sfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
       .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
-    sfxIcon.on('pointerdown', (p, lx, ly, e) => {
-      e.stopPropagation(); SFX.init(); SFX.resume();
+    sfxIcon.on('pointerdown', (pointer, lx, ly, ev) => {
+      ev.stopPropagation(); SFX.init(); SFX.resume();
       const m = SFX.toggleSfx(); sfxIcon.setTexture(m ? 'sfx_off' : 'sfx_on');
     });
   }
@@ -2903,12 +2934,16 @@ class Game2Scene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, L2_LEVEL_W, GAME_H);
     this.cameras.main.setBounds(0, 0, L2_LEVEL_W, GAME_H);
 
-    this.energy = ENERGY_START;
-    this.proteinsCollected = 0;
-    this.combosTriggered = 0;
+    this.L2_DRAIN = 1.5;
+    this.L2_IDLE = 0.35;
+    this.energy = 100;
+    this.ENERGY_MAX = 100;
+    this.proteinsDeposited = 0;
+    this.proteinsPickupCount = 0;
+    this.wrongBasketAttempts = 0;
+    this.sortingCorrectTotal = 0;
     this.neutralCollected = 0;
     this.funCollected = 0;
-    this.rareCollected = 0;
     this.cellsCollected = 0;
     this.totalProteinItems = 0;
     this.dmgTaken = false;
@@ -2918,27 +2953,36 @@ class Game2Scene extends Phaser.Scene {
     this.isPaused = false;
     this.hasStartedMoving = false;
     this.foundHiddenPath = false;
-    this.proteinItemsFound = [];
-    this.startTime = this.time.now;
-    this.activeCombo = null;
-    this.comboUIElements = [];
     this.onLadder = false;
+    this._ladderJumpLock = false;
+    this.isDucking = false;
+    this.inCrashPit = false;
+    this.spriteStressFromLeft = true;
+    this.spriteScheduleActive = false;
+    this.inventory = [null, null, null];
+
+    this.startTime = this.time.now;
+    this.fogHudBlock = null;
 
     this.drawBackground();
     this.createGround();
     this.createPlatforms();
     this.createLadders();
+    this.initFogBanks();
     this.createPlayer();
+    this.createBaskets();
     this.createFoods();
     this.createEnergyCells();
     this.createPhantoms();
-    this.createStressSprites();
+    this.createStressProjectileGroup();
     this.createCrashPits();
-    this.createFogBanks();
-    this.createHiddenPath();
+    this.createHiddenPathExtras();
     this.createFinish();
     this.createHUD();
-    this.createEnergyBalls();
+
+    this.ballGroup = this.physics.add.group({ allowGravity: false });
+    this.physics.add.overlap(this.ballGroup, this.phantomGroup, this.ballHitPhantom, null, this);
+    this.physics.add.overlap(this.ballGroup, this.stressProjGroup, this.ballHitStress, null, this);
 
     this.cameras.main.startFollow(this.player, true, 0.08, 0);
     this.cameras.main.setDeadzone(100, GAME_H);
@@ -2948,20 +2992,23 @@ class Game2Scene extends Phaser.Scene {
     this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-    this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+    this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
     this.input.on('pointerdown', (pointer, targets) => {
       if (this.levelComplete || this.levelFailed || this.isPaused) return;
       if (targets.length > 0) return;
       this.fireEnergyBall(pointer);
     });
-    this.keyF.on('down', () => {
-      if (this.levelComplete || this.levelFailed || this.isPaused) return;
-      this.fireEnergyBall({ x: this.input.activePointer.x, y: this.input.activePointer.y });
-    });
 
     this.createTutorialOverlay();
     this.startL2Music();
+
+    if (this.player.x <= L2.spriteTriggerX) {
+      this.spriteUnlockPending = true;
+    } else {
+      this.spriteUnlockPending = false;
+      this.scheduleNextStressEvent();
+    }
   }
 
   startL2Music() {
@@ -2970,6 +3017,9 @@ class Game2Scene extends Phaser.Scene {
     SFX.musicPlaying = true;
     const bpm = 120;
     const q = 60 / bpm;
+    const loopBeats = 16;
+    const loopDur = loopBeats * q;
+    const sr = SFX.ctx.sampleRate;
 
     const melodyNotes = [
       [440, 0, 0.5], [523, 0.5, 0.5], [587, 1, 1], [659, 2, 0.5], [587, 2.5, 0.5],
@@ -2979,7 +3029,6 @@ class Game2Scene extends Phaser.Scene {
       [523, 11, 0.5], [494, 11.5, 0.5], [440, 12, 1], [523, 13, 0.5], [587, 13.5, 0.5],
       [659, 14, 1], [523, 15, 1],
     ];
-
     const bassNotes = [
       [110, 0, 1], [147, 1, 0.5], [147, 1.5, 0.5],
       [131, 2, 1], [165, 3, 0.5], [165, 3.5, 0.5],
@@ -2991,61 +3040,82 @@ class Game2Scene extends Phaser.Scene {
       [147, 14, 1], [131, 15, 1],
     ];
 
-    const percBeats = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-    const loopBeats = 16;
+    const offline = new OfflineAudioContext(1, Math.ceil(sr * loopDur), sr);
+    const master = offline.createGain();
+    master.gain.setValueAtTime(1, 0);
+    master.connect(offline.destination);
 
-    const playLoop = () => {
-      if (!SFX.musicPlaying) return;
-      const now = SFX.ctx.currentTime + 0.05;
-      melodyNotes.forEach(([f, b, d]) => {
-        SFX._playNote(f, now + b * q, d * q, 'square', 0.25);
-      });
-      bassNotes.forEach(([f, b, d]) => {
-        SFX._playNote(f, now + b * q, d * q, 'triangle', 0.35);
-      });
-      percBeats.forEach(b => {
-        const t = now + b * q;
-        if (SFX.ctx) {
-          const buf = SFX.ctx.createBuffer(1, SFX.ctx.sampleRate * 0.03, SFX.ctx.sampleRate);
-          const data = buf.getChannelData(0);
-          for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (b % 2 === 0 ? 0.4 : 0.15);
-          const src = SFX.ctx.createBufferSource(); src.buffer = buf;
-          const g = SFX.ctx.createGain();
-          g.gain.setValueAtTime(b % 2 === 0 ? 0.06 : 0.03, t);
-          g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-          src.connect(g); g.connect(SFX.musicGain);
-          src.start(t); src.stop(t + 0.05);
-        }
-      });
-      SFX._musicTimer = setTimeout(() => playLoop(), loopBeats * q * 1000 - 100);
+    const renderNote = (freq, start, dur, type, vol) => {
+      const o = offline.createOscillator();
+      const g = offline.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, start);
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(vol, start + 0.02);
+      g.gain.setValueAtTime(vol * 0.7, start + dur * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      o.connect(g); g.connect(master);
+      o.start(start); o.stop(start + dur + 0.01);
     };
-    playLoop();
+
+    melodyNotes.forEach(([f, b, d]) => renderNote(f, b * q, d * q, 'square', 0.25));
+    bassNotes.forEach(([f, b, d]) => renderNote(f, b * q, d * q, 'triangle', 0.35));
+
+    const percBufHi = offline.createBuffer(1, Math.ceil(sr * 0.03), sr);
+    const dHi = percBufHi.getChannelData(0);
+    for (let i = 0; i < dHi.length; i++) dHi[i] = (Math.random() * 2 - 1) * 0.4;
+    const percBufLo = offline.createBuffer(1, Math.ceil(sr * 0.03), sr);
+    const dLo = percBufLo.getChannelData(0);
+    for (let i = 0; i < dLo.length; i++) dLo[i] = (Math.random() * 2 - 1) * 0.15;
+
+    for (let b = 0; b < 16; b++) {
+      const t = b * q;
+      const isStrong = b % 2 === 0;
+      const src = offline.createBufferSource();
+      src.buffer = isStrong ? percBufHi : percBufLo;
+      const g = offline.createGain();
+      g.gain.setValueAtTime(isStrong ? 0.06 : 0.03, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+      src.connect(g); g.connect(master);
+      src.start(t); src.stop(t + 0.05);
+    }
+
+    offline.startRendering().then(buffer => {
+      if (!SFX.musicPlaying) return;
+      const src = SFX.ctx.createBufferSource();
+      src.buffer = buffer;
+      src.loop = true;
+      src.connect(SFX.musicGain);
+      src.start();
+      SFX._musicSource = src;
+    });
   }
 
   createTutorialOverlay() {
     const cx = GAME_W / 2, cy = GAME_H / 2;
-    const SF = "'Special Elite', 'Courier New', monospace";
-    this.tutorialGroup = this.add.group();
-    const pW = 520, pH = 280;
+    const SF = '"Special Elite", "Courier New", monospace';
+    const pW = 520, pH = 300;
     const dim = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setScrollFactor(0).setDepth(200);
     const panel = this.add.rectangle(cx, cy, pW, pH, 0x0c0c18, 0.95).setScrollFactor(0).setDepth(201);
-    const border = this.add.rectangle(cx, cy, pW, pH).setStrokeStyle(2, 0xcc4444, 0.5).setScrollFactor(0).setDepth(201);
+    const border = this.add.rectangle(cx, cy, pW, pH).setStrokeStyle(2, 0xcc5544, 0.5).setScrollFactor(0).setDepth(201);
     const title = this.add.text(cx, cy - pH / 2 + 24, 'CONTROLS', {
       fontFamily: SF, fontSize: '18px', color: '#cc4444', letterSpacing: 4,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
     const lines = [
       { key: 'A / D  or  ← →', action: 'Move left / right' },
       { key: 'W  or  SPACE', action: 'Jump' },
+      { key: 'S / ↓ (ground)', action: 'Duck' },
       { key: 'W / S on ladder', action: 'Climb up / down' },
-      { key: 'F  or  CLICK', action: 'Shoot energy ball' },
-      { key: 'P', action: 'Pause' },
+      { key: 'E', action: 'Deposit at basket' },
+      { key: 'CLICK', action: 'Energy ball (costs 1 cell)' },
+      { key: 'ESC', action: 'Pause' },
     ];
     const leftX = cx - pW / 2 + 30;
     const rightX = cx + 10;
     const lineObjs = lines.map((l, i) => {
-      const y = cy - 50 + i * 30;
-      const k = this.add.text(leftX, y, l.key, { fontFamily: SF, fontSize: '13px', color: '#cc4444' }).setScrollFactor(0).setDepth(202);
-      const v = this.add.text(rightX, y, l.action, { fontFamily: SF, fontSize: '13px', color: '#999999' }).setScrollFactor(0).setDepth(202);
+      const y = cy - 56 + i * 28;
+      const k = this.add.text(leftX, y, l.key, { fontFamily: SF, fontSize: '12px', color: '#cc4444' }).setScrollFactor(0).setDepth(202);
+      const v = this.add.text(rightX, y, l.action, { fontFamily: SF, fontSize: '12px', color: '#999999' }).setScrollFactor(0).setDepth(202);
       return [k, v];
     });
     const hint = this.add.text(cx, cy + pH / 2 - 22, 'Press any key to begin', {
@@ -3053,7 +3123,6 @@ class Game2Scene extends Phaser.Scene {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(202);
     this.tweens.add({ targets: hint, alpha: 0.35, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     const allObjs = [dim, panel, border, title, hint, ...lineObjs.flat()];
-    allObjs.forEach(o => this.tutorialGroup.add(o));
     this.isPaused = true;
     this.physics.world.isPaused = true;
     const dismiss = () => {
@@ -3068,51 +3137,46 @@ class Game2Scene extends Phaser.Scene {
   }
 
   drawBackground() {
-    // Indoor marketplace — warm brick tones
     const bg = this.add.graphics();
-    bg.fillGradientStyle(0x3d2b1a, 0x3d2b1a, 0x4a3828, 0x4a3828, 1);
-    bg.fillRect(0, 0, L2_LEVEL_W, GAME_H);
-    bg.setScrollFactor(0.1);
-
-    // Brick wall pattern
-    const bricks = this.add.graphics();
-    bricks.setScrollFactor(0.15);
-    for (let r = 0; r < 10; r++) for (let c = 0; c < 25; c++) {
-      const ox = (r % 2) * 24;
-      const shade = (r + c) % 3 === 0 ? 0x5a4030 : (r + c) % 3 === 1 ? 0x4a3020 : 0x553828;
-      bricks.fillStyle(shade, 0.25);
-      bricks.fillRect(ox + c * 48, 60 + r * 42, 44, 38);
+    const stops = [
+      { y: 0,    c: 0x1a1040 },
+      { y: 0.15, c: 0x4a2060 },
+      { y: 0.35, c: 0xcc5544 },
+      { y: 0.55, c: 0xee8844 },
+      { y: 0.70, c: 0xf0c060 },
+      { y: 1.0,  c: 0xf0c060 },
+    ];
+    for (let i = 0; i < stops.length - 1; i++) {
+      const y0 = Math.floor(stops[i].y * GAME_H);
+      const y1 = Math.floor(stops[i + 1].y * GAME_H);
+      const h = y1 - y0;
+      if (h <= 0) continue;
+      bg.fillGradientStyle(stops[i].c, stops[i].c, stops[i + 1].c, stops[i + 1].c, 1);
+      bg.fillRect(0, y0, L2_LEVEL_W, h);
     }
-
-    // Warm lighting
-    const light = this.add.graphics();
-    light.fillStyle(0xf0a040, 0.04);
-    light.fillCircle(200, 30, 120);
-    light.fillCircle(600, 25, 100);
-    light.fillCircle(1000, 35, 110);
-    light.setScrollFactor(0.1);
-
-    // Shelves in background
-    const shelves = this.add.graphics();
-    shelves.setScrollFactor(0.2);
-    shelves.fillStyle(0x6d5410, 0.3);
-    for (let x = 0; x < L2_LEVEL_W; x += 350) {
-      shelves.fillRect(x, 100, 200, 5);
-      shelves.fillRect(x + 50, 200, 180, 5);
+    const aw = this.add.graphics();
+    aw.setScrollFactor(0.12);
+    for (let x = -60; x < L2_LEVEL_W; x += 160) {
+      aw.fillStyle(0x804040, 0.45);
+      aw.fillTriangle(x, 100, x + 80, 100, x + 40, 128);
+      aw.fillStyle(0x602838, 0.5);
+      aw.fillTriangle(x + 82, 100, x + 160, 100, x + 120, 128);
     }
-
-    // Ground decorations
-    for (let x = 20; x < L2_LEVEL_W; x += 80 + Math.random() * 60) {
-      this.add.triangle(x, GROUND_Y - 3, 0, 8, 4, 0, 8, 8, 0x3a6a20, 0.4);
+    for (let k = 0; k < 12; k++) {
+      const cx = 80 + k * 780;
+      const cy = 30 + (k % 4) * 15;
+      bg.fillStyle(0xffccaa, 1);
+      bg.fillEllipse(cx, cy, 110, 38);
+      bg.fillEllipse(cx + 35, cy + 5, 70, 28);
     }
   }
 
   createGround() {
     const gg = this.add.graphics();
-    gg.fillStyle(0x4a3828); gg.fillRect(0, GROUND_Y, L2_LEVEL_W, GROUND_H);
-    gg.fillStyle(0x3d2b1a); gg.fillRect(0, GROUND_Y, L2_LEVEL_W, 6);
-    gg.fillStyle(0x6d5410); gg.fillRect(0, GROUND_Y + GROUND_H - 40, L2_LEVEL_W, 40);
-    gg.fillStyle(0x5a4410); gg.fillRect(0, GROUND_Y + GROUND_H - 40, L2_LEVEL_W, 4);
+    gg.fillStyle(0x6a5040);
+    gg.fillRect(0, GROUND_Y, L2_LEVEL_W, GROUND_H);
+    gg.lineStyle(4, 0x8a7060);
+    gg.lineBetween(0, GROUND_Y, L2_LEVEL_W, GROUND_Y);
     this.ground = this.physics.add.staticGroup();
     const gb = this.add.rectangle(L2_LEVEL_W / 2, GROUND_Y + 12, L2_LEVEL_W, 24, 0x000000, 0);
     this.ground.add(gb); gb.body.updateFromGameObject();
@@ -3122,39 +3186,73 @@ class Game2Scene extends Phaser.Scene {
     this.platforms = this.physics.add.staticGroup();
     for (const p of L2.platforms) {
       const pg = this.add.graphics();
-      // Brick/wooden plank look
-      for (let px = 0; px < p.w; px += 20) {
-        const shade = (Math.floor(px / 20)) % 2 === 0 ? 0x6d5410 : 0x5a4410;
-        pg.fillStyle(shade); pg.fillRect(px, 0, 20, 20);
-        pg.lineStyle(1, 0x4a3408, 0.5);
-        pg.strokeRect(px, 0, 20, 20);
-      }
-      pg.lineStyle(2, 0x3a2808);
+      pg.fillStyle(0x5a4838);
+      pg.fillRect(0, 10, p.w, 10);
+      pg.fillStyle(0x7a6050);
+      pg.fillRect(0, 0, p.w, 10);
+      pg.fillStyle(0x8a7868);
+      pg.fillRect(0, 0, p.w, 3);
+      pg.lineStyle(2, 0x4a3830);
       pg.strokeRect(0, 0, p.w, 20);
       pg.setPosition(p.x, p.y);
-      const pb = this.add.rectangle(p.x + p.w / 2, p.y + 10, p.w, 20, 0x000000, 0);
-      this.platforms.add(pb); pb.body.updateFromGameObject();
+      pg.setDepth(3);
+      const pb = this.add.rectangle(p.x + p.w / 2, p.y + 4, p.w, 8, 0x000000, 0);
+      this.platforms.add(pb);
+      pb.body.updateFromGameObject();
     }
   }
 
   createLadders() {
     this.ladderZones = [];
+    const laneW = 44;
+    const railW = 6;
+    const rungSpacing = 24;
     for (const l of L2.ladders) {
       const height = l.botY - l.topY;
       const lg = this.add.graphics();
-      lg.lineStyle(4, 0x8b6914);
-      lg.lineBetween(0, 0, 0, height);
-      lg.lineBetween(16, 0, 16, height);
-      for (let r = 10; r < height; r += 20) {
-        lg.lineStyle(3, 0x6d5410);
-        lg.lineBetween(0, r, 16, r);
-      }
-      lg.setPosition(l.x - 8, l.topY);
 
-      const zone = this.add.zone(l.x, l.topY + height / 2, 28, height);
+      lg.fillStyle(0x6b4226);
+      lg.fillRect(-laneW / 2, 0, railW, height);
+      lg.fillRect(laneW / 2 - railW, 0, railW, height);
+
+      lg.lineStyle(1, 0x8b6340);
+      lg.lineBetween(-laneW / 2 + 1, 0, -laneW / 2 + 1, height);
+      lg.lineBetween(laneW / 2 - 2, 0, laneW / 2 - 2, height);
+
+      lg.lineStyle(1, 0x4a2e14);
+      lg.lineBetween(-laneW / 2 + railW, 0, -laneW / 2 + railW, height);
+      lg.lineBetween(laneW / 2 - railW - 1, 0, laneW / 2 - railW - 1, height);
+
+      const rungInset = railW;
+      const rungLeft = -laneW / 2 + rungInset;
+      const rungRight = laneW / 2 - rungInset;
+      for (let r = rungSpacing / 2; r < height; r += rungSpacing) {
+        lg.fillStyle(0x7d5a3a);
+        lg.fillRect(rungLeft, r - 2, rungRight - rungLeft, 5);
+        lg.lineStyle(1, 0x9a7a56);
+        lg.lineBetween(rungLeft, r - 2, rungRight, r - 2);
+        lg.lineStyle(1, 0x4a2e14);
+        lg.lineBetween(rungLeft, r + 3, rungRight, r + 3);
+      }
+
+      lg.lineStyle(2, 0x4a2e14);
+      lg.lineBetween(-laneW / 2, 0, -laneW / 2, height);
+      lg.lineBetween(laneW / 2, 0, laneW / 2, height);
+
+      lg.setPosition(l.x, l.topY);
+      lg.setDepth(8);
+
+      const zone = this.add.zone(l.x, l.topY + height / 2, laneW + 8, height + 12);
       this.physics.add.existing(zone, true);
-      this.ladderZones.push({ zone, topY: l.topY, botY: l.botY });
+      const bounds = zone.getBounds();
+      this.ladderZones.push({ zone, topY: l.topY, botY: l.botY, bounds, _mounted: false });
     }
+  }
+
+  initFogBanks() {
+    this.fogBankState = L2.fogBanks.map(fb => ({
+      cx: fb.x + fb.w / 2, w: fb.w, triggered: false, running: false, container: null,
+    }));
   }
 
   createPlayer() {
@@ -3163,14 +3261,41 @@ class Game2Scene extends Phaser.Scene {
     this.player.body.setSize(32, 44); this.player.body.setOffset(8, 7);
     this.player.setDepth(10);
     this.physics.add.collider(this.player, this.ground);
-    this.physics.add.collider(this.player, this.platforms);
+    this.platCollider = this.physics.add.collider(this.player, this.platforms, null, (player, plat) => {
+      if (this.onLadder) return false;
+      return player.body.velocity.y >= 0 && player.body.y + player.body.height - 4 <= plat.body.y;
+    }, this);
+  }
+
+  createBaskets() {
+    this.basketObjs = [];
+    this.basketGroup = this.physics.add.staticGroup();
+    for (const b of L2.baskets) {
+      const key = b.type === 'animal' ? 'basket_animal' : 'basket_plant';
+      const spr = this.basketGroup.create(b.x, GROUND_Y, key).setOrigin(0.5, 1).setDepth(6);
+      spr.body.updateFromGameObject();
+      const label = this.add.text(b.x, GROUND_Y - 48, b.type === 'animal' ? 'ANIMAL' : 'PLANT', {
+        fontFamily: 'Courier New', fontSize: '9px', fontStyle: 'bold',
+        color: b.type === 'animal' ? '#aaccff' : '#88dd88',
+        stroke: '#000', strokeThickness: 2,
+      }).setOrigin(0.5).setDepth(7);
+      const glow = this.add.rectangle(b.x, GROUND_Y - 20, 56, 44, 0xaaccff, 0)
+        .setStrokeStyle(2, 0xffffff, 0).setDepth(5);
+      const prompt = this.add.text(b.x, GROUND_Y - 62, '', {
+        fontFamily: 'Courier New', fontSize: '11px', color: '#f0e0c0', stroke: '#000', strokeThickness: 3,
+      }).setOrigin(0.5).setDepth(25).setVisible(false);
+      this.basketObjs.push({ x: b.x, type: b.type, spr, glow, prompt, label });
+    }
+    this.physics.add.collider(this.player, this.basketGroup, null, (player, basket) => {
+      return player.body.velocity.y >= 0 && player.body.y + player.body.height - 4 <= basket.body.y;
+    }, this);
   }
 
   createFoods() {
     this.foodGroup = this.physics.add.group({ allowGravity: false });
-    this.fogHiddenFoods = [];
     for (const f of L2.foods) {
       const def = FOOD_DEFS[f.id];
+      if (!def) continue;
       let y;
       if (f.onGround) {
         y = GROUND_Y - def.h / 2 - 4;
@@ -3183,122 +3308,13 @@ class Game2Scene extends Phaser.Scene {
       sprite.setData('l2type', f.l2type);
       sprite.setData('name', def.name);
       sprite.body.setSize(def.w, def.h); sprite.setDepth(5);
-
-      const tweenTargets = [sprite];
-
-      if (f.l2type === 'complete') {
-        const tag = this.add.image(f.x + def.w / 2 + 4, y - def.h / 2 + 2, 'protein_tag').setDepth(6);
-        sprite.setData('tag', tag);
-        tweenTargets.push(tag);
-      }
-
       this.tweens.add({
-        targets: tweenTargets, y: '-=4',
+        targets: sprite, y: '-=4',
         duration: 1200 + Math.random() * 400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
       });
-
-      if (f.l2type === 'complete' || f.l2type === 'incomplete') {
-        this.totalProteinItems++;
-      }
-
-      // Check if inside a fog bank — hide initially
-      let inFog = false;
-      for (const fb of L2.fogBanks) {
-        if (f.x >= fb.x && f.x <= fb.x + fb.w) { inFog = true; break; }
-      }
-      if (inFog) {
-        sprite.setAlpha(0);
-        if (sprite.getData('tag')) sprite.getData('tag').setAlpha(0);
-        this.fogHiddenFoods.push(sprite);
-      }
+      if (f.l2type === 'protein') this.totalProteinItems++;
     }
     this.physics.add.overlap(this.player, this.foodGroup, this.collectFood, null, this);
-  }
-
-  collectFood(player, food) {
-    const l2type = food.getData('l2type');
-    const id = food.getData('foodId');
-    const name = food.getData('name');
-
-    if (l2type === 'complete') {
-      this.proteinsCollected++;
-      this.proteinItemsFound.push(id);
-      this.energy = Math.min(100, this.energy + ENERGY_PROTEIN);
-      this.showCollectFX(food.x, food.y, '#cc4444', name);
-      SFX.collectProtein();
-    } else if (l2type === 'incomplete') {
-      this.proteinsCollected++;
-      this.proteinItemsFound.push(id);
-      this.energy = Math.min(100, this.energy + ENERGY_PROTEIN);
-      this.showCollectFX(food.x, food.y, '#ff8800', name);
-      SFX.collectIncomplete();
-      // Start combo window
-      const partners = COMBO_PAIRS[id];
-      if (partners) {
-        this.activeCombo = { incompleteId: id, incompleteName: name, partners, timer: COMBO_TIMEOUT };
-        this.showComboSlot(id, partners);
-      }
-    } else if (l2type === 'combo_partner') {
-      if (this.activeCombo && this.activeCombo.partners.includes(id)) {
-        this.triggerCombo(this.activeCombo.incompleteName, name);
-      }
-      this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
-      this.showCollectFX(food.x, food.y, '#f0c040', name);
-      SFX.collectStarchy();
-    } else if (l2type === 'fun') {
-      this.funCollected++;
-      this.energy = Math.min(100, this.energy + ENERGY_FUN);
-      this.showCollectFX(food.x, food.y, '#ff9966', name);
-      SFX.collectFun();
-    } else {
-      this.neutralCollected++;
-      this.energy = Math.min(100, this.energy + ENERGY_NEUTRAL);
-      this.showCollectFX(food.x, food.y, '#aaaaff', name);
-      SFX.collectStarchy();
-    }
-    const tag = food.getData('tag');
-    if (tag) tag.destroy();
-    food.destroy();
-    this.updateHUD();
-  }
-
-  showComboSlot(incompleteId, partnerIds) {
-    this.hideComboSlot();
-    const cx = GAME_W / 2;
-    const y = 66;
-    const panel = this.add.rectangle(cx, y, 220, 36, 0x000000, 0.8).setScrollFactor(0).setDepth(55);
-    const border = this.add.rectangle(cx, y, 220, 36).setStrokeStyle(2, 0xff8800, 0.6).setScrollFactor(0).setDepth(55);
-    const icon1 = this.add.image(cx - 80, y, 'food_' + incompleteId).setScrollFactor(0).setDepth(56).setScale(0.7);
-    const plus = this.add.text(cx - 45, y, '+', { fontFamily: 'Courier New', fontSize: '16px', color: '#ff8800' }).setOrigin(0.5).setScrollFactor(0).setDepth(56);
-    const icon2 = this.add.image(cx - 20, y, 'food_' + partnerIds[0]).setScrollFactor(0).setDepth(56).setScale(0.7).setAlpha(0.4);
-    const label = this.add.text(cx + 20, y - 6, 'COMBO!', { fontFamily: 'Courier New', fontSize: '9px', color: '#ff8800', letterSpacing: 2 }).setScrollFactor(0).setDepth(56);
-    const timerBg = this.add.rectangle(cx + 50, y + 6, 60, 5, 0x333333).setScrollFactor(0).setDepth(56);
-    const timerFill = this.add.rectangle(cx + 21, y + 6, 58, 3, 0xff8800).setOrigin(0, 0.5).setScrollFactor(0).setDepth(56);
-    this.comboUIElements = [panel, border, icon1, plus, icon2, label, timerBg, timerFill];
-    this.comboTimerFill = timerFill;
-  }
-
-  hideComboSlot() {
-    this.comboUIElements.forEach(el => el.destroy());
-    this.comboUIElements = [];
-    this.comboTimerFill = null;
-  }
-
-  triggerCombo(incompleteName, partnerName) {
-    this.combosTriggered++;
-    this.energy = Math.min(100, this.energy + ENERGY_COMBO_BONUS);
-    this.showCollectFX(this.player.x, this.player.y - 30, '#ff8800', '★ COMBO! ' + incompleteName + ' + ' + partnerName);
-    SFX.comboTrigger();
-    this.activeCombo = null;
-    this.hideComboSlot();
-    this.updateHUD();
-  }
-
-  showCollectFX(x, y, color, text) {
-    const fx = this.add.text(x, y - 10, text, {
-      fontFamily: 'Courier New', fontSize: '12px', color, stroke: '#000000', strokeThickness: 2,
-    }).setOrigin(0.5).setDepth(20);
-    this.tweens.add({ targets: fx, y: y - 45, alpha: 0, duration: 1400, ease: 'Power2', onComplete: () => fx.destroy() });
   }
 
   createEnergyCells() {
@@ -3315,14 +3331,6 @@ class Game2Scene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.cellGroup, this.collectCell, null, this);
   }
 
-  collectCell(player, cell) {
-    this.cellsCollected++;
-    this.showCollectFX(cell.x, cell.y, '#f0d860', '+1');
-    SFX.collectCell();
-    cell.destroy();
-    this.updateHUD();
-  }
-
   createPhantoms() {
     this.phantomGroup = this.physics.add.group({ allowGravity: false });
     this.phantomData = [];
@@ -3335,97 +3343,15 @@ class Game2Scene extends Phaser.Scene {
       phantom.setData('telegraph', telegraph);
       phantom.setData('originX', p.x);
       phantom.setData('hp', 3);
+      phantom.setData('kind', 'phantom');
       this.phantomData.push(phantom);
     }
     this.physics.add.overlap(this.player, this.phantomGroup, this.phantomHit, null, this);
   }
 
-  phantomHit(player, phantom) {
-    if (this.isInvincible || !phantom.getData('active') || this.levelComplete || this.levelFailed) return;
-    const playerBottom = player.body.y + player.body.height;
-    const phantomTop = phantom.body.y;
-    const isStomp = player.body.velocity.y > 0 && playerBottom < phantomTop + 16;
-    if (isStomp) {
-      player.setVelocityY(PLAYER_JUMP * 0.6);
-      SFX.stomp();
-      this.damageEnemy(phantom, 'Stomped!');
-      return;
-    }
-    this.energy = Math.max(0, this.energy - PHANTOM_DMG);
-    this.dmgTaken = true;
-    this.isInvincible = true;
-    this.showCollectFX(player.x, player.y - 20, '#cc4444', '-Energy!');
-    SFX.playerHurt();
-    this.tweens.add({
-      targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
-      onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
-    });
-    this.updateHUD();
-  }
-
-  createStressSprites() {
-    this.spriteGroup = this.physics.add.group({ allowGravity: false });
-    this.spriteData = [];
-    for (const s of L2.stressSprites) {
-      const telegraph = this.add.image(s.x, s.y, 'sprite_telegraph').setAlpha(0).setDepth(3);
-      const sprite = this.spriteGroup.create(s.x, s.y, 'stress_sprite');
-      sprite.setAlpha(0).setDepth(6);
-      sprite.body.setSize(28, 32);
-      sprite.setData('active', false);
-      sprite.setData('telegraph', telegraph);
-      sprite.setData('originX', s.x);
-      sprite.setData('originY', s.y);
-      sprite.setData('hp', 3);
-      sprite.setData('dx', (Math.random() - 0.5) * SPRITE_SPEED * 2);
-      sprite.setData('dy', (Math.random() - 0.5) * SPRITE_SPEED);
-      sprite.setData('changeTimer', 0.3 + Math.random() * 0.5);
-      this.spriteData.push(sprite);
-    }
-    this.physics.add.overlap(this.player, this.spriteGroup, this.spriteHit, null, this);
-  }
-
-  spriteHit(player, sprite) {
-    if (this.isInvincible || !sprite.getData('active') || this.levelComplete || this.levelFailed) return;
-    const playerBottom = player.body.y + player.body.height;
-    const spriteTop = sprite.body.y;
-    const isStomp = player.body.velocity.y > 0 && playerBottom < spriteTop + 12;
-    if (isStomp) {
-      player.setVelocityY(PLAYER_JUMP * 0.6);
-      SFX.stomp();
-      this.damageEnemy(sprite, 'Stomped!');
-      return;
-    }
-    this.energy = Math.max(0, this.energy - SPRITE_DMG);
-    this.dmgTaken = true;
-    this.isInvincible = true;
-    this.showCollectFX(player.x, player.y - 20, '#4488cc', '-Energy!');
-    SFX.stressBuzz();
-    this.tweens.add({
-      targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
-      onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
-    });
-    this.updateHUD();
-  }
-
-  damageEnemy(enemy, label) {
-    const hp = enemy.getData('hp') - 1;
-    enemy.setData('hp', hp);
-    if (hp <= 0) {
-      this.showCollectFX(enemy.x, enemy.y - 20, '#40e8a0', 'Defeated!');
-      SFX.defeatEnemy();
-      enemy.setData('active', false);
-      this.tweens.add({
-        targets: enemy, alpha: 0, scale: 0.3, duration: 400,
-        onComplete: () => enemy.destroy(),
-      });
-    } else {
-      this.showCollectFX(enemy.x, enemy.y - 20, '#80ccaa', label + ' ' + hp + '/3');
-      SFX.hitEnemy();
-      this.tweens.add({
-        targets: enemy, alpha: 0.3, duration: 80, yoyo: true, repeat: 2,
-        onComplete: () => enemy.setAlpha(1),
-      });
-    }
+  createStressProjectileGroup() {
+    this.stressProjGroup = this.physics.add.group({ allowGravity: false });
+    this.physics.add.overlap(this.player, this.stressProjGroup, this.stressProjHit, null, this);
   }
 
   createCrashPits() {
@@ -3449,26 +3375,7 @@ class Game2Scene extends Phaser.Scene {
     }
   }
 
-  createFogBanks() {
-    this.fogBankData = [];
-    for (const fb of L2.fogBanks) {
-      const fog = this.add.graphics();
-      fog.fillStyle(0x8888aa, 0.35);
-      fog.fillRoundedRect(0, 0, fb.w, GAME_H - 56, 20);
-      // Puff details
-      fog.fillStyle(0xaaaacc, 0.15);
-      for (let i = 0; i < 6; i++) {
-        const px = Math.random() * (fb.w - 60);
-        const py = Math.random() * (GAME_H - 120);
-        fog.fillEllipse(px + 30, py + 30, 60 + Math.random() * 40, 30 + Math.random() * 20);
-      }
-      fog.setPosition(fb.x, 56);
-      fog.setDepth(15);
-      this.fogBankData.push({ x: fb.x, w: fb.w, gfx: fog, revealed: false });
-    }
-  }
-
-  createHiddenPath() {
+  createHiddenPathExtras() {
     const hp = L2.hiddenPath;
     const ax = hp.x + hp.w / 2;
     const ay = hp.y;
@@ -3476,36 +3383,46 @@ class Game2Scene extends Phaser.Scene {
     const alcGfx = this.add.graphics();
     alcGfx.fillStyle(0x2a1a0e, 0.6);
     alcGfx.fillRoundedRect(-5, -8, hp.w + 10, 30, 6);
-    alcGfx.fillStyle(0x1a1008, 0.4);
-    alcGfx.fillRoundedRect(0, -4, hp.w, 22, 4);
     alcGfx.setPosition(ax - hp.w / 2, ay - 6).setDepth(1);
 
     const platGfx = this.add.graphics();
-    for (let px = 0; px < hp.w; px += 20) {
-      const shade = (Math.floor(px / 20)) % 2 === 0 ? 0x6d5410 : 0x5a4410;
-      platGfx.fillStyle(shade); platGfx.fillRect(px, 0, 20, 14);
-    }
-    platGfx.lineStyle(2, 0x3a2808); platGfx.strokeRect(0, 0, hp.w, 14);
+    platGfx.fillStyle(0x7a6050);
+    platGfx.fillRect(0, 0, hp.w, 14);
+    platGfx.lineStyle(2, 0x5a4838);
+    platGfx.strokeRect(0, 0, hp.w, 14);
     platGfx.setPosition(ax - hp.w / 2, ay).setDepth(4);
 
     const platBody = this.add.rectangle(ax, ay + 7, hp.w, 14, 0x000000, 0);
     this.platforms.add(platBody); platBody.body.updateFromGameObject();
+    platBody.body.checkCollision.down = false;
+    platBody.body.checkCollision.left = false;
+    platBody.body.checkCollision.right = false;
 
     for (let i = 0; i < 5; i++) {
       const cell = this.cellGroup.create(ax - 32 + i * 16, ay - 12, 'energy_cell');
       cell.body.allowGravity = false; cell.setDepth(5);
     }
 
-    const starHint = this.add.image(ax, ay - 28, 'star_icon').setDepth(5).setAlpha(0.6).setScale(0.7);
-    this.tweens.add({ targets: starHint, y: ay - 32, alpha: 0.9, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.knowledgeStarGot = false;
+
+    const starPx = this.physics.add.sprite(ax, ay - 26, 'star_icon');
+    starPx.body.allowGravity = false;
+    starPx.body.setCircle(12);
+    starPx.setDepth(6);
+    this.physics.add.overlap(this.player, starPx, () => {
+      if (this.knowledgeStarGot) return;
+      this.knowledgeStarGot = true;
+      SFX.starEarned();
+      starPx.destroy();
+      this.showCollectFX(ax, ay - 40, '#f0c040', '★ Knowledge star!');
+    }, null, this);
 
     const alcoveZone = this.add.zone(ax, ay - 10, hp.w + 20, 40);
     this.physics.add.existing(alcoveZone, true);
     this.physics.add.overlap(this.player, alcoveZone, () => {
       if (this.foundHiddenPath) return;
       this.foundHiddenPath = true;
-      this.showCollectFX(ax, ay - 20, '#f0c040', '★ Hidden Path Found!');
-      starHint.destroy();
+      this.showCollectFX(ax, ay - 20, '#f0c040', '★ Hidden path found!');
     }, null, this);
   }
 
@@ -3522,60 +3439,355 @@ class Game2Scene extends Phaser.Scene {
 
   reachFinish() {
     if (this.levelComplete || this.levelFailed) return;
+    if (this.proteinsDeposited < PROTEINS_NEEDED) {
+      if (!this._finHintT || this.time.now - this._finHintT > 1800) {
+        this._finHintT = this.time.now;
+        this.showCollectFX(this.player.x, this.player.y - 50, '#f0c060', `Deposit ${PROTEINS_NEEDED} proteins first!`);
+      }
+      return;
+    }
     this.levelComplete = true;
     SFX.stopMusic();
     SFX.finish();
     const elapsed = (this.time.now - this.startTime) / 1000;
-    const stars = [];
-    if (this.combosTriggered >= 4) stars.push(1);
-    if (this.foundHiddenPath) stars.push(2);
-    if (this.proteinsCollected >= this.totalProteinItems) stars.push(3);
+    const star1 = this.wrongBasketAttempts === 0;
+    const star2 = this.foundHiddenPath;
+    const star3 = this.proteinsPickupCount >= this.totalProteinItems;
     this.scene.start('Result2', {
-      success: true, proteinsCollected: this.proteinsCollected, totalProteins: this.totalProteinItems,
-      combosTriggered: this.combosTriggered,
-      energy: Math.round(this.energy), cells: this.cellsCollected, stars,
-      dmgTaken: this.dmgTaken, neutralCollected: this.neutralCollected,
-      funCollected: this.funCollected, elapsed,
+      success: true,
+      proteinsDeposited: this.proteinsDeposited,
+      sortingCorrectTotal: this.sortingCorrectTotal,
+      wrongBasketAttempts: this.wrongBasketAttempts,
+      energy: Math.round(this.energy),
+      cells: this.cellsCollected,
+      elapsed,
+      star1, star2, star3,
     });
+  }
+
+  collectFood(player, food) {
+    if (!food.active || !food.body) return;
+    const l2type = food.getData('l2type');
+    const id = food.getData('foodId');
+    const name = food.getData('name');
+    const def = FOOD_DEFS[id];
+
+    if (l2type === 'protein') {
+      const empty = this.inventory.findIndex(s => s === null);
+      if (empty < 0) {
+        if (!food.getData('_paused')) {
+          food.setData('_paused', true);
+          if (food.body) food.body.enable = false;
+          food.setAlpha(0.35);
+          this.showHandsFullPopup();
+        }
+        return;
+      }
+      this.inventory[empty] = { id, pSrc: def.pSrc };
+      this.proteinsPickupCount++;
+      this.energy = Math.min(this.ENERGY_MAX, this.energy + ENERGY_PROTEIN);
+      this.showCollectFX(food.x, food.y, '#ee8866', name);
+      SFX.collectProtein();
+      if (this.inventory.findIndex(s => s === null) < 0) {
+        this.showHandsFullPopup();
+      }
+    } else if (l2type === 'fun') {
+      this.funCollected++;
+      this.energy = Math.min(this.ENERGY_MAX, this.energy + ENERGY_FUN);
+      this.showCollectFX(food.x, food.y, '#ff9966', name);
+      SFX.collectFun();
+    } else {
+      this.neutralCollected++;
+      this.energy = Math.min(this.ENERGY_MAX, this.energy + ENERGY_NEUTRAL);
+      this.showCollectFX(food.x, food.y, '#aaaaff', name);
+      SFX.collectStarchy();
+    }
+    food.destroy();
+    this.updateInventoryHud();
+    this.updateHUD();
+  }
+
+  flashInventoryFull() {
+    if (this.invFullTw) this.invFullTw.stop();
+    this.hudInvLabel.setColor('#ff4444');
+    this.invFullTw = this.time.delayedCall(450, () => this.hudInvLabel.setColor('#aaaaaa'));
+  }
+
+  showHandsFullPopup() {
+    if (this._handsFullPopup && this._handsFullPopup.active) return;
+    const cam = this.cameras.main;
+    const msg = this.add.text(cam.scrollX + GAME_W / 2, 90,
+      'Hands full! Find a basket to deposit.', {
+        fontFamily: 'Courier New', fontSize: '13px', color: '#ffe080',
+        stroke: '#000000', strokeThickness: 3, align: 'center',
+        backgroundColor: '#1a1020', padding: { x: 12, y: 6 },
+      }).setOrigin(0.5).setDepth(55).setScrollFactor(0);
+    this._handsFullPopup = msg;
+    this.time.delayedCall(4000, () => {
+      if (!msg.active) return;
+      this.tweens.add({
+        targets: msg, alpha: 0,
+        duration: 800, ease: 'Power2',
+        onComplete: () => msg.destroy(),
+      });
+    });
+    this.flashInventoryFull();
+  }
+
+  tryDeposit() {
+    let near = null;
+    for (const b of this.basketObjs) {
+      if (Math.abs(this.player.x - b.x) <= 60) { near = b; break; }
+    }
+    if (!near) return;
+    for (let i = 0; i < INV_SLOTS; i++) {
+      const slot = this.inventory[i];
+      if (!slot) continue;
+      const def = FOOD_DEFS[slot.id];
+      if (!def || def.pSrc !== 'animal' && def.pSrc !== 'plant') {
+        SFX.depositBerp();
+        continue;
+      }
+      if (def.pSrc === near.type) {
+        this.inventory[i] = null;
+        this.proteinsDeposited++;
+        this.sortingCorrectTotal++;
+        SFX.depositCorrect();
+        this.tweens.add({
+          targets: near.glow, alpha: { from: 0, to: 0.45 }, duration: 90, yoyo: true, repeat: 3,
+          onComplete: () => near.glow.setAlpha(0),
+        });
+      } else {
+        this.wrongBasketAttempts++;
+        SFX.depositWrong();
+        this.tweens.add({
+          targets: near.spr, x: { from: near.x, to: near.x - 6 }, duration: 40, yoyo: true, repeat: 3,
+          onComplete: () => { near.spr.x = near.x; },
+        });
+      }
+    }
+    this.updateInventoryHud();
+    this.updateHUD();
+    this._reEnablePausedFoods();
+  }
+
+  _reEnablePausedFoods() {
+    if (this.inventory.findIndex(s => s === null) < 0) return;
+    this.foodGroup.getChildren().forEach(f => {
+      if (f.active && f.getData('_paused')) {
+        f.setData('_paused', false);
+        f.body.enable = true;
+        f.setAlpha(1);
+      }
+    });
+  }
+
+  collectCell(player, cell) {
+    this.cellsCollected++;
+    this.showCollectFX(cell.x, cell.y, '#f0d860', '+1');
+    SFX.collectCell();
+    cell.destroy();
+    this.updateHUD();
+  }
+
+  phantomHit(player, phantom) {
+    if (!phantom.active || !phantom.body) return;
+    if (this.isInvincible || !phantom.getData('active') || this.levelComplete || this.levelFailed) return;
+    const playerBottom = player.body.y + player.body.height;
+    const phantomTop = phantom.body.y;
+    const isStomp = player.body.velocity.y > 0 && playerBottom < phantomTop + 16;
+    if (isStomp) {
+      player.setVelocityY(PLAYER_JUMP * 0.6);
+      SFX.stomp();
+      this.damagePhantom(phantom, 'Stomped!');
+      return;
+    }
+    this.energy = Math.max(0, this.energy - PHANTOM_DMG);
+    this.dmgTaken = true;
+    this.isInvincible = true;
+    this.showCollectFX(player.x, player.y - 20, '#cc4444', '-Energy!');
+    SFX.playerHurt();
+    this.tweens.add({
+      targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
+      onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
+    });
+    this.updateHUD();
+  }
+
+  stressProjHit(player, spr) {
+    if (!spr.active || !spr.body) return;
+    if (this.isInvincible || this.levelComplete || this.levelFailed) return;
+    const playerBottom = player.body.y + player.body.height;
+    const top = spr.body.y;
+    const isStomp = player.body.velocity.y > 0 && playerBottom < top + 12;
+    if (isStomp) {
+      player.setVelocityY(PLAYER_JUMP * 0.6);
+      SFX.stomp();
+      this.damageStress(spr, true);
+      return;
+    }
+    this.energy = Math.max(0, this.energy - SPRITE_DMG);
+    this.dmgTaken = true;
+    this.isInvincible = true;
+    this.showCollectFX(player.x, player.y - 20, '#cc4444', '-Energy!');
+    SFX.stressBuzz();
+    this.tweens.add({
+      targets: player, alpha: 0.3, duration: 120, yoyo: true, repeat: 8,
+      onComplete: () => { player.setAlpha(1); this.isInvincible = false; },
+    });
+    this.updateHUD();
+    if (this.energy <= 0) this.triggerFail();
+  }
+
+  damagePhantom(phantom, label) {
+    const hp = phantom.getData('hp') - 1;
+    phantom.setData('hp', hp);
+    if (hp <= 0) {
+      this.showCollectFX(phantom.x, phantom.y - 20, '#40e8a0', 'Defeated!');
+      SFX.defeatEnemy();
+      phantom.setData('active', false);
+      this.tweens.add({
+        targets: phantom, alpha: 0, scale: 0.3, duration: 400,
+        onComplete: () => phantom.destroy(),
+      });
+    } else {
+      this.showCollectFX(phantom.x, phantom.y - 20, '#80ccaa', label + ' ' + hp + '/3');
+      SFX.hitEnemy();
+      this.tweens.add({
+        targets: phantom, alpha: 0.3, duration: 80, yoyo: true, repeat: 2,
+        onComplete: () => phantom.setAlpha(1),
+      });
+    }
+  }
+
+  damageStress(spr, stomp) {
+    if (!spr.active) return;
+    const hp = spr.getData('hp') - 1;
+    spr.setData('hp', hp);
+    if (hp <= 0) {
+      this.showCollectFX(spr.x, spr.y - 16, '#40e8a0', stomp ? 'Stomped!' : 'Cleared!');
+      if (stomp) {
+        /* SFX.stomp in caller */
+      } else {
+        SFX.hitEnemy();
+      }
+      spr.destroy();
+    } else {
+      SFX.hitEnemy();
+    }
+  }
+
+  ballHitPhantom(ball, phantom) {
+    if (!phantom.active || !phantom.body || !ball.active) return;
+    if (!phantom.getData('active')) return;
+    this.damagePhantom(phantom, 'Hit!');
+    if (ball.active) ball.destroy();
+  }
+
+  ballHitStress(ball, spr) {
+    if (!spr.active || !ball.active) return;
+    this.damageStress(spr, false);
+    if (ball.active) ball.destroy();
+  }
+
+  fireEnergyBall(pointer) {
+    const BALL_SPEED = 500;
+    if (this.cellsCollected < 1) return;
+    this.cellsCollected--;
+    this.updateHUD();
+    SFX.shootBall();
+    const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const ball = this.ballGroup.create(this.player.x, this.player.y - 10, 'energy_ball');
+    ball.setDepth(11); ball.body.setCircle(6);
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y - 10, worldPoint.x, worldPoint.y);
+    ball.body.setVelocity(Math.cos(angle) * BALL_SPEED, Math.sin(angle) * BALL_SPEED);
+    this.time.delayedCall(2000, () => { if (ball.active) ball.destroy(); });
+  }
+
+  scheduleNextStressEvent() {
+    if (this.levelFailed || this.levelComplete) return;
+    const delay = Phaser.Math.Between(SPRITE_INTERVAL_MIN, SPRITE_INTERVAL_MAX);
+    this.stressTimer = this.time.delayedCall(delay, () => this.runStressEvent());
+  }
+
+  runStressEvent() {
+    if (this.levelFailed || this.levelComplete) return;
+    SFX.stressWarn();
+    const cam = this.cameras.main;
+    const y = Phaser.Math.Clamp(this.player.y, 70, GROUND_Y - 30);
+    const fromLeft = this.spriteStressFromLeft;
+    this.spriteStressFromLeft = !fromLeft;
+    const gx = fromLeft ? cam.scrollX + 16 : cam.scrollX + GAME_W - 16;
+    const glow = this.add.circle(gx, y, 40, 0xffaa66, 0.5).setDepth(40).setStrokeStyle(4, 0xffddaa);
+    this.tweens.add({ targets: glow, alpha: 0, duration: SPRITE_WARN_TIME, onComplete: () => glow.destroy() });
+    this.time.delayedCall(SPRITE_WARN_TIME, () => this.spawnStressProjectile(y, fromLeft));
+    this.scheduleNextStressEvent();
+  }
+
+  spawnStressProjectile(y, fromLeft) {
+    if (this.levelFailed || this.levelComplete) return;
+    const cam = this.cameras.main;
+    const x = fromLeft ? cam.scrollX - 30 : cam.scrollX + GAME_W + 30;
+    const spr = this.stressProjGroup.create(x, y, 'stress_sprite');
+    spr.body.allowGravity = false;
+    spr.setDepth(15);
+    spr.body.setSize(28, 32);
+    spr.setData('hp', 1);
+    spr.setVelocityX(fromLeft ? SPRITE_SPEED : -SPRITE_SPEED);
+  }
+
+  showCollectFX(x, y, color, text) {
+    const fx = this.add.text(x, y - 10, text, {
+      fontFamily: 'Courier New', fontSize: '12px', color, stroke: '#000000', strokeThickness: 2,
+    }).setOrigin(0.5).setDepth(20);
+    this.tweens.add({ targets: fx, y: y - 45, alpha: 0, duration: 1400, ease: 'Power2', onComplete: () => fx.destroy() });
   }
 
   createHUD() {
     this.hudBar = this.add.graphics();
     this.hudBar.fillStyle(0x000000, 0.75);
-    this.hudBar.fillRect(0, 0, GAME_W, 56);
+    this.hudBar.fillRect(0, 0, GAME_W, 70);
     this.hudBar.setScrollFactor(0).setDepth(50);
 
-    this.hudEnergyLabel = this.add.text(16, 8, 'ENERGY', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc4444', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
-    this.hudEnergyBg = this.add.rectangle(16 + 100, 30, 200, 14, 0x333333).setOrigin(0.5).setScrollFactor(0).setDepth(51);
-    this.hudEnergyBorder = this.add.rectangle(16 + 100, 30, 200, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
-    this.hudEnergyFill = this.add.rectangle(17, 24, 196 * 0.72, 10, 0x40cc60).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
+    this.hudEnergyLabel = this.add.text(16, 6, 'ENERGY', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc4444', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
+    this.hudEnergyBg = this.add.rectangle(16 + 100, 28, 200, 14, 0x333333).setOrigin(0.5).setScrollFactor(0).setDepth(51);
+    this.hudEnergyBorder = this.add.rectangle(16 + 100, 28, 200, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
+    this.hudEnergyFill = this.add.rectangle(17, 22, 196 * 0.8, 10, 0x40cc60).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
 
-    this.hudProtLabel = this.add.text(240, 8, 'PROTEIN', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc4444', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
-    this.hudProtBg = this.add.rectangle(240 + 90, 30, 180, 14, 0x333333).setOrigin(0.5).setScrollFactor(0).setDepth(51);
-    this.hudProtBorder = this.add.rectangle(240 + 90, 30, 180, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
-    this.hudProtFill = this.add.rectangle(241, 24, 0, 10, 0xcc4444).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
+    this.hudProtLabel = this.add.text(240, 6, 'PROTEIN SORTED', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc5544', letterSpacing: 1 }).setScrollFactor(0).setDepth(51);
+    this.hudProtBg = this.add.rectangle(240 + 90, 28, 180, 14, 0x332222).setOrigin(0.5).setScrollFactor(0).setDepth(51);
+    this.hudProtBorder = this.add.rectangle(240 + 90, 28, 180, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
+    this.hudProtFill = this.add.rectangle(241, 22, 0, 10, 0xee7766).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
 
-    this.hudComboLabel = this.add.text(240, 42, 'Combos:', { fontFamily: 'Courier New', fontSize: '8px', color: '#ff8800' }).setScrollFactor(0).setDepth(51);
-    this.hudComboCount = this.add.text(295, 42, '0', { fontFamily: 'Courier New', fontSize: '8px', color: '#ff8800' }).setScrollFactor(0).setDepth(51);
+    this.hudInvLabel = this.add.text(GAME_W - 98, 6, 'INVENTORY', { fontFamily: 'Courier New', fontSize: '9px', color: '#aaaaaa', letterSpacing: 1 }).setScrollFactor(0).setDepth(51);
+    this.invSlotBoxes = [];
+    for (let i = 0; i < INV_SLOTS; i++) {
+      const sx = GAME_W - 110 + i * 28;
+      const sy = 28;
+      const box = this.add.rectangle(sx, sy, 22, 22, 0x111111).setStrokeStyle(2, 0x444444).setScrollFactor(0).setDepth(52);
+      const dot = this.add.circle(sx + 8, sy - 8, 3, 0x333333).setScrollFactor(0).setDepth(53);
+      const icon = this.add.image(sx, sy, 'food_egg').setScale(0.35).setScrollFactor(0).setDepth(53).setVisible(false);
+      this.invSlotBoxes.push({ box, dot, icon });
+    }
 
-    this.hudCellIcon = this.add.image(500, 14, 'energy_cell').setScrollFactor(0).setDepth(51).setScale(0.8);
-    this.hudCellText = this.add.text(512, 8, '× 0', { fontFamily: 'Courier New', fontSize: '14px', color: '#f0d860', fontStyle: 'bold' }).setScrollFactor(0).setDepth(51);
+    this.hudCellIcon = this.add.image(430, 52, 'energy_cell').setScrollFactor(0).setDepth(51).setScale(0.75);
+    this.hudCellText = this.add.text(442, 46, '× 0', { fontFamily: 'Courier New', fontSize: '13px', color: '#f0d860', fontStyle: 'bold' }).setScrollFactor(0).setDepth(51);
 
     this.hudStars = [];
     for (let i = 0; i < 3; i++) {
-      this.hudStars.push(this.add.text(500 + i * 18, 30, '★', { fontFamily: 'Courier New', fontSize: '14px', color: '#555555' }).setScrollFactor(0).setDepth(51));
+      this.hudStars.push(this.add.text(520 + i * 16, 50, '★', { fontFamily: 'Courier New', fontSize: '13px', color: '#555555' }).setScrollFactor(0).setDepth(51));
     }
 
-    this.hudLevelName = this.add.text(GAME_W - 16, 10, 'L2 — PROTEIN', { fontFamily: 'Courier New', fontSize: '10px', color: '#cc4444', letterSpacing: 2 }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
+    this.hudLevelName = this.add.text(GAME_W - 16, 48, 'L2 — PROTEIN', { fontFamily: 'Courier New', fontSize: '10px', color: '#cc5544', letterSpacing: 2 }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
 
     const pauseBtn = this.add.text(24, GAME_H - 24, '⏸', {
       fontFamily: 'Courier New', fontSize: '18px', color: '#cc4444',
     }).setOrigin(0.5).setScrollFactor(0).setDepth(51).setInteractive({ useHandCursor: true });
 
     this.pauseOverlay = this.add.rectangle(GAME_W / 2, GAME_H / 2, GAME_W, GAME_H, 0x000000, 0.6).setScrollFactor(0).setDepth(100).setVisible(false);
-    this.pauseText = this.add.text(GAME_W / 2, GAME_H / 2 - 30, 'PAUSED', { fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: '28px', color: '#cc4444', letterSpacing: 4 }).setOrigin(0.5).setScrollFactor(0).setDepth(101).setVisible(false);
+    const SF = '"Special Elite", "Courier New", monospace';
+    this.pauseText = this.add.text(GAME_W / 2, GAME_H / 2 - 30, 'PAUSED', { fontFamily: SF, fontSize: '28px', color: '#cc4444', letterSpacing: 4 }).setOrigin(0.5).setScrollFactor(0).setDepth(101).setVisible(false);
 
-    const SF = "'Special Elite', 'Courier New', monospace";
     const resumeBtn = this.add.rectangle(GAME_W / 2, GAME_H / 2 + 20, 180, 36, 0xcc4444)
       .setScrollFactor(0).setDepth(101).setVisible(false).setInteractive({ useHandCursor: true });
     const resumeLabel = this.add.text(GAME_W / 2, GAME_H / 2 + 20, '[ RESUME ]', {
@@ -3593,7 +3805,7 @@ class Game2Scene extends Phaser.Scene {
       pauseElements.forEach(el => el.setVisible(this.isPaused));
       this.physics.world.isPaused = this.isPaused;
     };
-    this.input.keyboard.on('keydown-P', togglePause);
+    this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC).on('down', togglePause);
     pauseBtn.on('pointerdown', togglePause);
     resumeBtn.on('pointerover', () => resumeBtn.setFillStyle(0xdd5555));
     resumeBtn.on('pointerout', () => resumeBtn.setFillStyle(0xcc4444));
@@ -3612,155 +3824,69 @@ class Game2Scene extends Phaser.Scene {
     hudSfxIcon.on('pointerdown', () => {
       const m = SFX.toggleSfx(); hudSfxIcon.setTexture(m ? 'sfx_off' : 'sfx_on');
     });
+
+    this.updateInventoryHud();
+  }
+
+  updateInventoryHud() {
+    for (let i = 0; i < INV_SLOTS; i++) {
+      const slot = this.inventory[i];
+      const { box, dot, icon } = this.invSlotBoxes[i];
+      if (!slot) {
+        icon.setVisible(false);
+        box.setStrokeStyle(2, 0x444444);
+        dot.setFillStyle(0x333333);
+      } else {
+        const ps = FOOD_DEFS[slot.id].pSrc;
+        icon.setTexture('food_' + slot.id).setVisible(true);
+        box.setStrokeStyle(2, ps === 'animal' ? 0x4488dd : 0x44aa44);
+        dot.setFillStyle(ps === 'animal' ? 0x4488dd : 0x44aa44);
+      }
+    }
   }
 
   updateHUD() {
-    const ePct = Math.max(0, this.energy / 100);
+    const ePct = Math.max(0, this.energy / this.ENERGY_MAX);
     this.hudEnergyFill.setSize(196 * ePct, 10);
     this.hudEnergyFill.setFillStyle(ePct > 0.5 ? 0x40cc60 : ePct > 0.25 ? 0xcccc40 : 0xcc4040);
-    this.hudProtFill.setSize(176 * Math.min(1, this.proteinsCollected / PROTEINS_NEEDED), 10);
-    this.hudComboCount.setText(String(this.combosTriggered));
+    const pPct = Math.min(1, this.proteinsDeposited / PROTEINS_NEEDED);
+    this.hudProtFill.setSize(176 * pPct, 10);
+    const pr = 0xcc + Math.floor((0xee - 0xcc) * pPct);
+    const pg = 0x44 + Math.floor((0x77 - 0x44) * pPct);
+    const pb = 0x44 + Math.floor((0x66 - 0x44) * pPct);
+    this.hudProtFill.setFillStyle((pr << 16) | (pg << 8) | pb);
     this.hudCellText.setText('× ' + this.cellsCollected);
-  }
-
-  createEnergyBalls() {
-    this.ballGroup = this.physics.add.group({ allowGravity: false });
-    this.physics.add.overlap(this.ballGroup, this.phantomGroup, this.ballHitEnemy, null, this);
-    this.physics.add.overlap(this.ballGroup, this.spriteGroup, this.ballHitEnemy, null, this);
-  }
-
-  fireEnergyBall(pointer) {
-    const BALL_SPEED = 500;
-    if (this.cellsCollected < 1) return;
-    this.cellsCollected--;
-    this.updateHUD();
-    SFX.shootBall();
-    const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-    const ball = this.ballGroup.create(this.player.x, this.player.y - 10, 'energy_ball');
-    ball.setDepth(11); ball.body.setCircle(6);
-    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y - 10, worldPoint.x, worldPoint.y);
-    ball.body.setVelocity(Math.cos(angle) * BALL_SPEED, Math.sin(angle) * BALL_SPEED);
-    this.time.delayedCall(2000, () => { if (ball.active) ball.destroy(); });
-  }
-
-  ballHitEnemy(ball, enemy) {
-    if (!enemy.getData('active')) return;
-    this.damageEnemy(enemy, 'Hit!');
-    ball.destroy();
-  }
-
-  update(time, delta) {
-    if (this.levelComplete || this.levelFailed || this.isPaused) return;
-    const dt = delta / 1000;
-    const onGround = this.player.body.blocked.down || this.player.body.touching.down;
-
-    const speed = this.getPlayerSpeed();
-    const moveLeft = this.cursors.left.isDown || this.keyA.isDown;
-    const moveRight = this.cursors.right.isDown || this.keyD.isDown;
-    const jumpDown = this.cursors.up.isDown || this.spaceKey.isDown || this.keyW.isDown;
-    const downDown = this.cursors.down.isDown || this.keyS.isDown;
-    const isMoving = moveLeft || moveRight;
-    if (isMoving) this.hasStartedMoving = true;
-
-    // Ladder logic
-    this.onLadder = false;
-    for (const l of this.ladderZones) {
-      const pBounds = this.player.getBounds();
-      const lBounds = l.zone.getBounds();
-      if (Phaser.Geom.Rectangle.Overlaps(pBounds, lBounds)) {
-        if (jumpDown || downDown) {
-          this.onLadder = true;
-          this.player.body.allowGravity = false;
-          if (jumpDown) this.player.setVelocityY(-160);
-          else if (downDown) this.player.setVelocityY(160);
-          if (!isMoving) this.player.setVelocityX(0);
-          if (!this.hasStartedMoving) this.hasStartedMoving = true;
-          break;
-        }
-      }
-    }
-    if (!this.onLadder) this.player.body.allowGravity = true;
-
-    if (this.hasStartedMoving) {
-      const drain = (isMoving || this.onLadder) ? ENERGY_DRAIN : ENERGY_DRAIN_IDLE;
-      this.energy -= drain * dt;
-      if (this.energy <= 0) { this.energy = 0; this.triggerFail(); return; }
-    }
-
-    if (!this.onLadder) {
-      if (moveLeft) { this.player.setVelocityX(-speed); this.player.setFlipX(true); }
-      else if (moveRight) { this.player.setVelocityX(speed); this.player.setFlipX(false); }
-      else { this.player.setVelocityX(0); }
-
-      if (jumpDown && onGround) {
-        if (!this.hasStartedMoving) this.hasStartedMoving = true;
-        this.player.setVelocityY(this.getJumpPower());
-      }
-    } else {
-      if (moveLeft) { this.player.setVelocityX(-speed * 0.5); this.player.setFlipX(true); }
-      else if (moveRight) { this.player.setVelocityX(speed * 0.5); this.player.setFlipX(false); }
-    }
-
-    this.updatePlayerState();
-    const maxY = GROUND_Y - 22;
-    if (this.player.y > maxY && onGround) this.player.y = maxY;
-
-    this.checkCrashPits();
-    this.updatePhantoms(dt);
-    this.updateStressSprites(dt);
-    this.updateComboTimer(dt);
-    this.checkFogBanks();
-    this.updateHUD();
-  }
-
-  getPlayerSpeed() { return this.energy < 30 ? PLAYER_SPEED * 0.7 : PLAYER_SPEED; }
-  getJumpPower() { return this.energy < 30 ? PLAYER_JUMP * 0.8 : PLAYER_JUMP; }
-
-  updatePlayerState() {
-    if (this.isInvincible) return;
-    this.player.setTexture(this.energy > 80 ? 'nibble_energized' : this.energy < 30 ? 'nibble_tired' : 'nibble');
-  }
-
-  checkCrashPits() {
-    for (const cp of L2.crashPits) {
-      if (this.player.x > cp.x && this.player.x < cp.x + cp.w && this.player.y > GROUND_Y - 30) {
-        this.player.setVelocityX(this.player.body.velocity.x * 0.5);
-        if (!cp.drained) {
-          cp.drained = true;
-          const drain = this.energy * 0.33;
-          this.energy = Math.max(0, this.energy - drain);
-          this.showCollectFX(this.player.x, this.player.y - 20, '#cc6644', 'Energy Crash!');
-          SFX.crashPit();
-          this.updateHUD();
-          if (this.energy <= 0) { this.triggerFail(); return; }
-        }
-        return;
-      } else {
-        cp.drained = false;
-      }
-    }
+    const s1 = this.wrongBasketAttempts === 0;
+    const s2 = this.foundHiddenPath;
+    const s3 = this.proteinsPickupCount >= this.totalProteinItems;
+    [s1, s2, s3].forEach((ok, i) => this.hudStars[i].setColor(ok ? '#f0c040' : '#555555'));
   }
 
   updatePhantoms(dt) {
     const px = this.player.x;
     for (const phantom of this.phantomData) {
-      if (!phantom.active) continue;
+      if (!phantom.active || !phantom.body) continue;
+      let telegraph, isActive, originX;
+      try {
+        telegraph = phantom.getData('telegraph');
+        isActive = phantom.getData('active');
+        originX = phantom.getData('originX');
+      } catch (_) { continue; }
       const dist = Math.abs(px - phantom.x);
-      const telegraph = phantom.getData('telegraph');
-      const isActive = phantom.getData('active');
       if (!isActive && dist < PHANTOM_DETECT + 100) {
-        if (telegraph.alpha < 0.6) {
-          telegraph.setAlpha(Math.min(0.6, telegraph.alpha + dt * 0.5));
-          telegraph.setPosition(phantom.getData('originX'), GROUND_Y - 35);
-        }
-        if (telegraph.alpha >= 0.5) {
-          phantom.setData('active', true); phantom.setAlpha(1);
-          this.tweens.add({ targets: telegraph, alpha: 0, duration: 500 });
+        if (telegraph && telegraph.active) {
+          if (telegraph.alpha < 0.6) {
+            telegraph.setAlpha(Math.min(0.6, telegraph.alpha + dt * 0.5));
+            telegraph.setPosition(originX, GROUND_Y - 35);
+          }
+          if (telegraph.alpha >= 0.5) {
+            phantom.setData('active', true); phantom.setAlpha(1);
+            this.tweens.add({ targets: telegraph, alpha: 0, duration: 500 });
+          }
         }
       }
       if (isActive) {
         const dir = px < phantom.x ? -1 : 1;
-        const originX = phantom.getData('originX');
         if (dist < PHANTOM_DETECT) {
           const newX = phantom.x + dir * L2_PHANTOM_SPEED * dt;
           if (Math.abs(newX - originX) < 200) phantom.x = newX;
@@ -3768,79 +3894,103 @@ class Game2Scene extends Phaser.Scene {
           const toOrigin = originX - phantom.x;
           if (Math.abs(toOrigin) > 2) phantom.x += Math.sign(toOrigin) * L2_PHANTOM_SPEED * 0.5 * dt;
         }
-        phantom.y = GROUND_Y - 35 + Math.sin(this.time.now / 600 + phantom.getData('originX')) * 5;
+        phantom.y = GROUND_Y - 35 + Math.sin(this.time.now / 600 + originX) * 5;
       }
     }
   }
 
-  updateStressSprites(dt) {
+  updateStressProjectiles() {
+    const cam = this.cameras.main;
+    const toRemove = [];
+    this.stressProjGroup.getChildren().forEach(spr => {
+      if (!spr.active) return;
+      if (spr.x < cam.scrollX - 120 || spr.x > cam.scrollX + GAME_W + 120) toRemove.push(spr);
+    });
+    toRemove.forEach(s => s.destroy());
+  }
+
+  updateBasketPrompts() {
+    for (const b of this.basketObjs) {
+      const near = Math.abs(this.player.x - b.x) <= 60;
+      b.prompt.setVisible(near);
+      if (near) {
+        b.prompt.setText('Press E to deposit');
+        b.glow.setAlpha(0.15 + Math.sin(this.time.now / 200) * 0.08);
+        b.glow.setStrokeStyle(2, b.type === 'animal' ? 0x6699ff : 0x66cc66, 1);
+      } else {
+        b.glow.setAlpha(0);
+      }
+    }
+  }
+
+  checkFogProximity() {
     const px = this.player.x;
-    for (const sprite of this.spriteData) {
-      if (!sprite.active) continue;
-      const dist = Math.abs(px - sprite.getData('originX'));
-      const telegraph = sprite.getData('telegraph');
-      const isActive = sprite.getData('active');
-
-      if (!isActive && dist < 400) {
-        if (telegraph.alpha < 0.6) {
-          telegraph.setAlpha(Math.min(0.6, telegraph.alpha + dt * 0.8));
-          telegraph.setPosition(sprite.getData('originX'), sprite.getData('originY'));
-        }
-        if (telegraph.alpha >= 0.5) {
-          sprite.setData('active', true); sprite.setAlpha(1);
-          this.tweens.add({ targets: telegraph, alpha: 0, duration: 400 });
-        }
-      }
-
-      if (isActive) {
-        // Erratic zigzag movement
-        let changeTimer = sprite.getData('changeTimer') - dt;
-        if (changeTimer <= 0) {
-          sprite.setData('dx', (Math.random() - 0.5) * SPRITE_SPEED * 2);
-          sprite.setData('dy', (Math.random() - 0.5) * SPRITE_SPEED * 1.5);
-          sprite.setData('changeTimer', 0.2 + Math.random() * 0.4);
-        } else {
-          sprite.setData('changeTimer', changeTimer);
-        }
-
-        const originX = sprite.getData('originX');
-        const originY = sprite.getData('originY');
-        sprite.x += sprite.getData('dx') * dt;
-        sprite.y += sprite.getData('dy') * dt;
-
-        if (Math.abs(sprite.x - originX) > 80) sprite.setData('dx', -sprite.getData('dx'));
-        if (Math.abs(sprite.y - originY) > 50) sprite.setData('dy', -sprite.getData('dy'));
-        if (sprite.y < 60) sprite.setData('dy', Math.abs(sprite.getData('dy')));
-        if (sprite.y > GROUND_Y - 20) sprite.setData('dy', -Math.abs(sprite.getData('dy')));
+    for (const fb of this.fogBankState) {
+      if (fb.triggered || fb.running) continue;
+      if (Math.abs(px - fb.cx) < 300 + fb.w / 2) {
+        fb.triggered = true;
+        fb.running = true;
+        this.playFogSequence(fb);
       }
     }
   }
 
-  updateComboTimer(dt) {
-    if (!this.activeCombo) return;
-    this.activeCombo.timer -= dt * 1000;
-    if (this.comboTimerFill) {
-      const pct = Math.max(0, this.activeCombo.timer / COMBO_TIMEOUT);
-      this.comboTimerFill.setSize(58 * pct, 3);
+  playFogSequence(fb) {
+    SFX.fogWind();
+    const g = this.add.graphics();
+    g.setDepth(24);
+    const puffs = [
+      { dx: 0,    dy: -40, rx: 100, ry: 50 },
+      { dx: -50,  dy: 0,   rx: 80,  ry: 45 },
+      { dx: 50,   dy: 10,  rx: 90,  ry: 40 },
+      { dx: -20,  dy: 40,  rx: 70,  ry: 35 },
+      { dx: 30,   dy: -20, rx: 85,  ry: 42 },
+      { dx: -60,  dy: 30,  rx: 75,  ry: 38 },
+      { dx: 60,   dy: -30, rx: 65,  ry: 35 },
+      { dx: 0,    dy: 50,  rx: 90,  ry: 45 },
+    ];
+    for (const p of puffs) {
+      g.fillStyle(0xaabbcc, 0.4);
+      g.fillEllipse(fb.cx + p.dx, GAME_H / 2 + p.dy, p.rx, p.ry);
     }
-    if (this.activeCombo.timer <= 0) {
-      this.activeCombo = null;
-      this.hideComboSlot();
-    }
+    g.setAlpha(0);
+    this.tweens.add({
+      targets: g,
+      alpha: 0.75,
+      duration: FOG_FADE_IN,
+      onComplete: () => {
+        this.time.delayedCall(FOG_HOLD, () => {
+          this.tweens.add({
+            targets: g,
+            alpha: 0,
+            duration: FOG_FADE_OUT,
+            onComplete: () => {
+              g.destroy();
+              fb.running = false;
+            },
+          });
+        });
+      },
+    });
   }
 
-  checkFogBanks() {
-    const px = this.player.x;
-    for (const fb of this.fogBankData) {
-      if (!fb.revealed && px >= fb.x && px <= fb.x + fb.w) {
-        fb.revealed = true;
-        for (const food of this.fogHiddenFoods) {
-          if (food.active && food.x >= fb.x && food.x <= fb.x + fb.w) {
-            this.tweens.add({ targets: food, alpha: 1, duration: 400 });
-            const tag = food.getData('tag');
-            if (tag) this.tweens.add({ targets: tag, alpha: 1, duration: 400 });
-          }
+  checkCrashPits() {
+    this.inCrashPit = false;
+    for (const cp of L2.crashPits) {
+      if (this.player.x > cp.x && this.player.x < cp.x + cp.w && this.player.y > GROUND_Y - 30) {
+        this.inCrashPit = true;
+        if (!cp.drained) {
+          cp.drained = true;
+          const drain = this.energy * 0.33;
+          this.energy = Math.max(0, this.energy - drain);
+          this.showCollectFX(this.player.x, this.player.y - 20, '#cc6644', 'Energy dip!');
+          SFX.crashPit();
+          this.updateHUD();
+          if (this.energy <= 0) { this.triggerFail(); return; }
         }
+        return;
+      } else {
+        cp.drained = false;
       }
     }
   }
@@ -3878,16 +4028,197 @@ class Game2Scene extends Phaser.Scene {
 
     this.time.delayedCall(2000, () => {
       this.scene.start('Result2', {
-        success: false, nearMiss: progress > 0.75,
-        proteinsCollected: this.proteinsCollected, totalProteins: this.totalProteinItems,
-        combosTriggered: this.combosTriggered,
-        energy: 0, cells: this.cellsCollected, stars: [],
-        dmgTaken: this.dmgTaken, neutralCollected: this.neutralCollected,
-        funCollected: this.funCollected, elapsed,
+        success: false,
+        nearMiss: progress > 0.75,
+        proteinsDeposited: this.proteinsDeposited,
+        sortingCorrectTotal: this.sortingCorrectTotal,
+        wrongBasketAttempts: this.wrongBasketAttempts,
+        energy: 0,
+        cells: this.cellsCollected,
+        elapsed,
+        star1: false,
+        star2: this.foundHiddenPath,
+        star3: false,
       });
     });
   }
+
+  update(time, delta) {
+    if (!this._dbgText) {
+      this._dbgText = this.add.text(4, GAME_H - 14, '', {
+        fontSize: '10px', color: '#00ff00', backgroundColor: '#000000',
+        padding: { x: 4, y: 2 },
+      }).setScrollFactor(0).setDepth(999);
+      this._dbgFrames = 0;
+      this._dbgTime = 0;
+      this._dbgFps = 0;
+    }
+    this._dbgFrames++;
+    this._dbgTime += delta;
+    if (this._dbgTime >= 1000) {
+      this._dbgFps = Math.round(this._dbgFrames * 1000 / this._dbgTime);
+      this._dbgFrames = 0;
+      this._dbgTime = 0;
+    }
+    const st = this.levelComplete ? 'COMPLETE' : this.levelFailed ? 'FAILED' : this.isPaused ? 'PAUSED' : 'RUNNING';
+    const pb = this.player && this.player.body;
+    const mv = pb ? (pb.moves ? 'Y' : 'N') : '?';
+    const vx = pb ? Math.round(pb.velocity.x) : 0;
+    const vy = pb ? Math.round(pb.velocity.y) : 0;
+    const lad = this.onLadder ? 'Y' : 'N';
+    const inv = this.inventory ? this.inventory.filter(s => s !== null).length : 0;
+    const blk = pb ? `${pb.blocked.left ? 'L' : ''}${pb.blocked.right ? 'R' : ''}${pb.blocked.up ? 'U' : ''}${pb.blocked.down ? 'D' : ''}` : '';
+    this._dbgText.setText(`FPS:${this._dbgFps} ST:${st} MV:${mv} VX:${vx} VY:${vy} LAD:${lad} BLK:${blk} INV:${inv}/3`);
+
+    if (this.levelComplete || this.levelFailed || this.isPaused) return;
+    try { this._doUpdate(time, delta); } catch (e) {
+      console.error('Game2 update error:', e);
+      if (!this._errShown) {
+        this._errShown = true;
+        this.add.text(10, GAME_H - 30, 'ERR: ' + e.message, { fontSize: '11px', color: '#ff4444', backgroundColor: '#000' }).setScrollFactor(0).setDepth(999);
+      }
+    }
+  }
+
+  _doUpdate(time, delta) {
+    const dt = delta / 1000;
+    const onGround = this.player.body.blocked.down || this.player.body.touching.down;
+    let speed = this.getPlayerSpeed();
+    if (this.inCrashPit) speed *= 0.5;
+
+    const moveLeft = this.cursors.left.isDown || this.keyA.isDown;
+    const moveRight = this.cursors.right.isDown || this.keyD.isDown;
+    const upKey = this.cursors.up.isDown || this.keyW.isDown;
+    const jumpPressed = this.spaceKey.isDown || upKey;
+    const downKey = this.cursors.down.isDown || this.keyS.isDown;
+    const isMoving = moveLeft || moveRight;
+
+    if (this.player.x > L2.spriteTriggerX && this.spriteUnlockPending) {
+      this.spriteUnlockPending = false;
+      this.scheduleNextStressEvent();
+    }
+
+    if (this.keyE.isDown && !this._eDown) {
+      this.tryDeposit();
+    }
+    this._eDown = this.keyE.isDown;
+
+    const prevOnLadder = this.onLadder;
+    this.onLadder = false;
+    const climbSpeed = 160 * dt;
+    const px = this.player.x;
+    const feetY = this.player.y + this.player.body.halfHeight;
+    for (const l of this.ladderZones) {
+      const lb = l.bounds;
+      const inX = px > lb.x - 8 && px < lb.right + 8;
+      const inY = feetY > l.topY - 20 && feetY < l.botY + 10;
+      if (!inX || !inY) { l._mounted = false; continue; }
+      if (l._mounted) continue;
+      if (!(upKey || downKey)) continue;
+      this.onLadder = true;
+      this.hasStartedMoving = true;
+      this.player.body.moves = false;
+      this.player.body.velocity.set(0);
+      if (upKey) {
+        if (feetY > l.topY + 2) {
+          this.player.y -= climbSpeed;
+        } else {
+          this.player.y = l.topY - this.player.body.halfHeight - 2;
+          this.player.body.moves = true;
+          this.player.body.velocity.set(0);
+          this.onLadder = false;
+          l._mounted = true;
+        }
+      }
+      if (downKey) {
+        if (feetY < l.botY - 6) {
+          this.player.y += climbSpeed;
+        }
+      }
+      break;
+    }
+    if (!this.onLadder && prevOnLadder) {
+      this.player.body.moves = true;
+      this.player.body.velocity.set(0);
+      this._ladderJumpLock = true;
+    }
+    if (!this.onLadder && !this.player.body.moves) {
+      this.player.body.moves = true;
+    }
+    if (this._ladderJumpLock && isMoving) {
+      this._ladderJumpLock = false;
+    }
+
+    const canDuck = onGround && downKey && !this.onLadder;
+    if (canDuck !== this.isDucking) {
+      this.isDucking = canDuck;
+      if (canDuck) {
+        this.player.body.setSize(32, 22);
+        this.player.body.setOffset(8, 29);
+        this.player.setScale(1, 0.92);
+        if (!this.hasStartedMoving) this.hasStartedMoving = true;
+      } else {
+        this.player.body.setSize(32, 44);
+        this.player.body.setOffset(8, 7);
+        this.player.setScale(1, 1);
+      }
+    }
+
+    if (isMoving || this.onLadder || jumpPressed || canDuck) {
+      if (moveLeft || moveRight || this.onLadder || jumpPressed || canDuck) this.hasStartedMoving = true;
+    }
+
+    if (this.hasStartedMoving) {
+      const movingNow = isMoving || this.onLadder || (jumpPressed && !onGround) || canDuck;
+      const drain = movingNow ? this.L2_DRAIN : this.L2_IDLE;
+      this.energy -= drain * dt;
+      if (this.energy <= 0) {
+        this.energy = 0;
+        this.triggerFail();
+        return;
+      }
+    }
+
+    if (!this.onLadder) {
+      let vx = 0;
+      if (moveLeft) { vx = -speed; this.player.setFlipX(true); }
+      else if (moveRight) { vx = speed; this.player.setFlipX(false); }
+      if (this.inCrashPit && vx !== 0) vx *= 0.5;
+      this.player.setVelocityX(vx);
+      if ((this.spaceKey.isDown || upKey) && onGround && !canDuck && !this._ladderJumpLock) {
+        if (!this.hasStartedMoving) this.hasStartedMoving = true;
+        this.player.setVelocityY(this.getJumpPower());
+      }
+    } else {
+      if (moveLeft) { this.player.setVelocityX(-speed * 0.45); this.player.setFlipX(true); }
+      else if (moveRight) { this.player.setVelocityX(speed * 0.45); this.player.setFlipX(false); }
+    }
+
+    this.updatePlayerState();
+    const maxY = GROUND_Y - 22;
+    if (this.player.y > maxY && onGround && !this.onLadder) this.player.y = maxY;
+
+    this.checkCrashPits();
+    this.checkFogProximity();
+    this.updatePhantoms(dt);
+    this.updateStressProjectiles();
+    this.updateBasketPrompts();
+    this.updateHUD();
+  }
+
+  getPlayerSpeed() { return this.energy < 30 ? PLAYER_SPEED * 0.7 : PLAYER_SPEED; }
+  getJumpPower() { return this.energy < 30 ? PLAYER_JUMP * 0.8 : PLAYER_JUMP; }
+
+  updatePlayerState() {
+    if (this.isInvincible) return;
+    if (this.isDucking) {
+      this.player.setTexture(this.energy < 30 ? 'nibble_tired' : 'nibble');
+      return;
+    }
+    this.player.setTexture(this.energy > 80 ? 'nibble_energized' : this.energy < 30 ? 'nibble_tired' : 'nibble');
+  }
 }
+
 
 // =================================================================
 // RESULT 2 SCENE — End-of-level feedback for L2 Protein
@@ -3897,165 +4228,193 @@ class Result2Scene extends Phaser.Scene {
   constructor() { super('Result2'); }
   init(data) { this.resultData = data; }
 
+  drawSunsetBg() {
+    const cx = GAME_W / 2, cy = GAME_H / 2;
+    const bg = this.add.graphics();
+    const stops = [
+      { y: 0,    c: 0x1a1040 },
+      { y: 0.15, c: 0x4a2060 },
+      { y: 0.35, c: 0xcc5544 },
+      { y: 0.55, c: 0xee8844 },
+      { y: 0.70, c: 0xf0c060 },
+      { y: 1.0,  c: 0xf0c060 },
+    ];
+    for (let i = 0; i < stops.length - 1; i++) {
+      const y0 = Math.floor(stops[i].y * GAME_H);
+      const y1 = Math.floor(stops[i + 1].y * GAME_H);
+      const h = y1 - y0;
+      if (h <= 0) continue;
+      bg.fillGradientStyle(stops[i].c, stops[i].c, stops[i + 1].c, stops[i + 1].c, 1);
+      bg.fillRect(0, y0, GAME_W, h);
+    }
+    for (let i = 0; i < 6; i++) {
+      const cxC = 80 + i * 170;
+      const cyC = 40 + (i % 3) * 25;
+      bg.fillStyle(0xffccaa, 1);
+      bg.fillEllipse(cxC, cyC, 100 + i * 8, 36 + i * 4);
+      bg.fillEllipse(cxC + 30, cyC + 6, 70, 28);
+    }
+    bg.setDepth(0);
+    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.35).setDepth(1);
+  }
+
   create() {
+    const SF = '"Special Elite", "Courier New", monospace';
+
     const d = this.resultData;
     const cx = GAME_W / 2, cy = GAME_H / 2;
-    const SF = "'Special Elite', 'Courier New', monospace";
 
-    this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x0e0e1a);
-    const panelW = 580, panelH = 490;
-    this.add.rectangle(cx, cy, panelW + 6, panelH + 6, 0xcc4444, 0.35);
-    this.add.rectangle(cx, cy, panelW, panelH, 0x0c0c18);
-    this.add.rectangle(cx, cy - panelH / 2 + 1.5, panelW, 3, 0xcc4444);
+    this.drawSunsetBg();
 
-    if (d.success) this.showSuccess(cx, cy, d, SF, panelW, panelH);
-    else if (d.nearMiss) this.showNearMiss(cx, cy, d, SF, panelW, panelH);
-    else this.showFail(cx, cy, d, SF, panelW, panelH);
+    const panelW = 580;
+    const panelH = d.success ? 508 : 474;
+    const panelLeft = cx - panelW / 2;
 
-    const btnY = cy + panelH / 2 - 35;
+    const backdrop = this.add.graphics().setDepth(2);
+    backdrop.fillStyle(0x140818, 0.92);
+    backdrop.fillRoundedRect(panelLeft, cy - panelH / 2, panelW, panelH, 12);
+    backdrop.lineStyle(3, 0xcc6644, 0.85);
+    backdrop.strokeRoundedRect(panelLeft, cy - panelH / 2, panelW, panelH, 12);
+
+    const headerY = cy - panelH / 2 + 36;
+
+    if (d.success) this.showSuccess(cx, cy, headerY, d, SF, panelW, panelH);
+    else if (d.nearMiss) this.showNearMiss(cx, cy, headerY, d, SF, panelW, panelH);
+    else this.showFail(cx, cy, headerY, d, SF, panelW, panelH);
+
+    const btnY = cy + panelH / 2 - 36;
     const makeBtn = (x, label, color, scene) => {
-      const bg = this.add.rectangle(x, btnY, 180, 36, color).setInteractive({ useHandCursor: true });
+      const bg = this.add.rectangle(x, btnY, 170, 34, color).setInteractive({ useHandCursor: true }).setDepth(4);
       this.add.text(x, btnY, label, {
-        fontFamily: SF, fontSize: '13px', color: '#1a1a2e', fontStyle: 'bold', letterSpacing: 2,
-      }).setOrigin(0.5);
-      bg.on('pointerover', () => bg.setFillStyle(Phaser.Display.Color.ValueToColor(color).lighten(15).color));
+        fontFamily: SF, fontSize: '12px', color: '#1a1020', fontStyle: 'bold', letterSpacing: 2,
+      }).setOrigin(0.5).setDepth(5);
+      bg.on('pointerover', () => bg.setFillStyle(Phaser.Display.Color.ValueToColor(color).lighten(12).color));
       bg.on('pointerout', () => bg.setFillStyle(color));
       bg.on('pointerdown', () => this.scene.start(scene));
     };
 
-    makeBtn(cx - 140, '[ REPLAY ]', 0x888888, 'Game2');
+    makeBtn(cx - 170, '[ REPLAY ]', 0x888888, 'Game2');
     makeBtn(cx, '[ MENU ]', 0x6688aa, 'LevelSelect');
-    if (d.success) {
-      makeBtn(cx + 140, '[ CONTINUE ]', 0xcc4444, 'Splash2');
-    } else {
-      makeBtn(cx + 140, '[ TRY AGAIN ]', 0xcc4444, 'Game2');
-    }
+    makeBtn(cx + 170, d.success ? '[ CONTINUE ]' : '[ TRY AGAIN ]', 0xcc5544, d.success ? 'LevelSelect' : 'Game2');
 
-    const rMusicIcon = this.add.image(GAME_W - 54, GAME_H - 24, SFX.musicMuted ? 'music_off' : 'music_on')
+    const rMusicIcon = this.add.image(GAME_W - 36, GAME_H - 26, SFX.musicMuted ? 'music_off' : 'music_on')
       .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
-    rMusicIcon.on('pointerdown', function () {
-      const m = SFX.toggleMusic(); this.setTexture(m ? 'music_off' : 'music_on');
-    });
-    const rSfxIcon = this.add.image(GAME_W - 24, GAME_H - 24, SFX.sfxMuted ? 'sfx_off' : 'sfx_on')
-      .setDepth(100).setInteractive({ useHandCursor: true }).setScale(1.2);
-    rSfxIcon.on('pointerdown', function () {
-      const m = SFX.toggleSfx(); this.setTexture(m ? 'sfx_off' : 'sfx_on');
+    rMusicIcon.on('pointerdown', () => {
+      SFX.init();
+      const m = SFX.toggleMusic();
+      rMusicIcon.setTexture(m ? 'music_off' : 'music_on');
     });
   }
 
-  showSuccess(cx, cy, d, SF, panelW, panelH) {
-    const headerY = cy - panelH / 2 + 40;
-    this.add.text(cx, headerY, 'Built Strong!', {
-      fontFamily: SF, fontSize: '30px', color: '#cc4444', letterSpacing: 3,
-    }).setOrigin(0.5);
-    this.add.rectangle(cx, headerY + 20, 80, 2, 0xcc4444, 0.27);
+  sortingPct(d) {
+    const denom = (d.sortingCorrectTotal || 0) + (d.wrongBasketAttempts || 0);
+    if (!denom) return 100;
+    return Math.round(100 * (d.sortingCorrectTotal || 0) / denom);
+  }
 
-    this.add.text(cx, headerY + 55, '"Excellent! You collected the protein your\nbody uses to build and repair tissue —\nmuscle, skin, immune cells, and more."', {
-      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
-    }).setOrigin(0.5);
-
-    const statY = headerY + 110;
-    const stats = [
-      `Protein items collected: ${d.proteinsCollected} / ${d.totalProteins}`,
-      `Combos triggered: ${d.combosTriggered}`,
-      `Energy at finish: ${d.energy}%`,
-      `Energy Cells: ${d.cells}`,
-      `Time: ${d.elapsed.toFixed(1)}s`,
-    ];
-    stats.forEach((s, i) => this.add.text(cx, statY + i * 20, s, {
-      fontFamily: SF, fontSize: '13px', color: '#aaaaaa',
-    }).setOrigin(0.5));
-
-    if (d.combosTriggered > 0) {
-      const comboY = statY + stats.length * 20 + 8;
-      this.add.text(cx, comboY, '"You paired plant proteins for complete combos!\nPlant proteins can team up to give your body\neverything it needs."', {
-        fontFamily: SF, fontSize: '12px', color: '#ff8800', align: 'center', lineSpacing: 4,
-      }).setOrigin(0.5);
-    }
-
-    const starLabelY = statY + stats.length * 20 + (d.combosTriggered > 0 ? 58 : 14);
-    this.add.text(cx, starLabelY, 'KNOWLEDGE STARS', {
-      fontFamily: SF, fontSize: '11px', color: '#cc4444', letterSpacing: 3,
-    }).setOrigin(0.5);
-
+  animateStars(cx, starRowY, d) {
     const starDescs = [
-      { id: 1, text: 'Triggered 4+ protein combos' },
-      { id: 2, text: 'Found the hidden path behind the Fog Bank' },
-      { id: 3, text: 'Collected every protein item (100%)' },
+      { id: 1, text: '100% sorting accuracy (no wrong-basket tries)' },
+      { id: 2, text: 'Discovered the hidden path behind the fog bank' },
+      { id: 3, text: 'Collected every protein pickup (100%)' },
     ];
 
-    const starRowY = starLabelY + 32;
     starDescs.forEach((s, i) => {
-      const earned = d.stars.includes(s.id);
-      const rowY = starRowY + i * 32;
-      const starImg = this.add.image(cx - 150, rowY, earned ? 'result_star_earned' : 'result_star_empty')
-        .setOrigin(0.5).setScale(0).setAlpha(0);
-      const label = this.add.text(cx - 126, rowY, s.text, {
-        fontFamily: SF, fontSize: '13px', color: earned ? '#cc4444' : '#555555',
-      }).setOrigin(0, 0.5).setAlpha(0);
-      const delay = 400 + i * 500;
+      const earned = [d.star1, d.star2, d.star3][i];
+      const rowY = starRowY + i * 30;
+      const starImg = this.add.image(cx - 154, rowY, earned ? 'result_star_earned' : 'result_star_empty')
+        .setOrigin(0.5).setScale(0).setAlpha(0).setDepth(3);
+      const label = this.add.text(cx - 128, rowY, s.text, {
+        fontFamily: '"Special Elite", "Courier New", monospace', fontSize: '12px', color: earned ? '#ee7766' : '#555555',
+      }).setOrigin(0, 0.5).setAlpha(0).setDepth(3);
+      const delay = 350 + i * 420;
       this.time.delayedCall(delay, () => {
         label.setAlpha(1);
-        this.tweens.add({ targets: starImg, scale: earned ? 1 : 0.75, alpha: 1, duration: 400, ease: 'Back.easeOut' });
+        this.tweens.add({ targets: starImg, scale: earned ? 1 : 0.75, alpha: 1, duration: 380, ease: 'Back.easeOut' });
         if (earned) {
           SFX.starEarned();
-          this.tweens.add({ targets: starImg, scale: 1.15, duration: 150, delay: 400, yoyo: true, ease: 'Sine.easeInOut' });
+          this.tweens.add({ targets: starImg, scale: 1.12, duration: 140, delay: 360, yoyo: true, ease: 'Sine.easeInOut' });
         }
       });
     });
-
-    if (!d.dmgTaken) {
-      const bonusY = starRowY + starDescs.length * 32 + 8;
-      const bonusText = this.add.text(cx, bonusY, 'No damage taken! +5 bonus cells', {
-        fontFamily: SF, fontSize: '12px', color: '#80ffcc',
-      }).setOrigin(0.5).setAlpha(0);
-      this.time.delayedCall(400 + starDescs.length * 500 + 300, () => {
-        this.tweens.add({ targets: bonusText, alpha: 1, duration: 400 });
-      });
-    }
   }
 
-  showNearMiss(cx, cy, d, SF, panelW, panelH) {
-    const headerY = cy - panelH / 2 + 40;
-    this.add.image(cx, headerY - 5, 'nibble_fainted').setScale(0.8);
-    this.add.text(cx, headerY + 30, 'So Close!', {
+  showSuccess(cx, cy, headerY, d, SF, panelW, panelH) {
+    this.add.text(cx, headerY, 'Built Strong!', {
+      fontFamily: SF, fontSize: '30px', color: '#f0c060', letterSpacing: 3,
+    }).setOrigin(0.5).setDepth(3);
+    this.add.rectangle(cx, headerY + 22, 96, 2, 0xee6644, 0.7).setDepth(3);
+
+    this.add.text(cx, headerY + 52, 'Excellent! You sorted protein into animal and plant sources.\nYour body uses protein to build and repair every tissue.', {
+      fontFamily: SF, fontSize: '14px', color: '#e8e0d8', align: 'center', lineSpacing: 6,
+    }).setOrigin(0.5).setDepth(3);
+
+    const statY = headerY + 108;
+    const acc = this.sortingPct(d);
+    const lines = [
+      `Proteins deposited: ${d.proteinsDeposited ?? 0} / ${PROTEINS_NEEDED}`,
+      `Sorting accuracy: ${acc}%`,
+      `Energy Cells collected: ${d.cells}`,
+      `Energy at finish: ${d.energy}%`,
+    ];
+    lines.forEach((s, i) => {
+      this.add.text(cx, statY + i * 20, s, { fontFamily: SF, fontSize: '13px', color: '#aaaaaa' }).setOrigin(0.5).setDepth(3);
+    });
+
+    this.add.text(cx, statY + lines.length * 20 + 10, 'KNOWLEDGE STARS', {
+      fontFamily: SF, fontSize: '11px', color: '#cc5544', letterSpacing: 3,
+    }).setOrigin(0.5).setDepth(3);
+
+    const starRowY = statY + lines.length * 20 + 32;
+    this.animateStars(cx, starRowY, d);
+  }
+
+  showNearMiss(cx, cy, headerY, d, SF, panelW, panelH) {
+    this.add.image(cx, headerY - 4, 'nibble_fainted').setScale(0.75).setDepth(3);
+    this.add.text(cx, headerY + 32, 'So Close!', {
       fontFamily: SF, fontSize: '28px', color: '#e8b84c', letterSpacing: 3,
-    }).setOrigin(0.5);
-    this.add.rectangle(cx, headerY + 50, 80, 2, 0xcc4444, 0.27);
-    this.add.text(cx, headerY + 80, '"You almost had it! Your energy ran\nlow right near the end. Collecting protein\ncombos gives a bigger energy boost —\nlook for the pairing hints!"', {
-      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
-    }).setOrigin(0.5);
-    this.add.text(cx, headerY + 155, 'TIP', {
-      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
-    }).setOrigin(0.5);
-    this.add.text(cx, headerY + 177, '"When you collect an incomplete protein,\na faded icon shows what it pairs with.\nGrab the partner within a few seconds!"', {
-      fontFamily: SF, fontSize: '13px', color: '#aaaaaa', align: 'center', lineSpacing: 5,
-    }).setOrigin(0.5);
-    this.showBasicStats(cx, headerY + 240, d, SF);
+    }).setOrigin(0.5).setDepth(3);
+    this.add.rectangle(cx, headerY + 52, 80, 2, 0xcc6644, 0.65).setDepth(3);
+
+    this.add.text(cx, headerY + 72, '"You ran out of energy almost at the finish. Next time,\nsteady pacing and thoughtful sorting will carry you through."', {
+      fontFamily: SF, fontSize: '13px', color: '#d8d0c8', align: 'center', lineSpacing: 5,
+    }).setOrigin(0.5).setDepth(3);
+
+    this.add.text(cx, headerY + 134, 'Try sorting proteins as you find them — carrying a full\ninventory for long stretches leaves fewer chances to deposit.', {
+      fontFamily: SF, fontSize: '12px', color: '#8899aa', align: 'center', lineSpacing: 4,
+    }).setOrigin(0.5).setDepth(3);
+
+    this.showFailStats(cx, headerY + 196, d, SF);
   }
 
-  showFail(cx, cy, d, SF, panelW, panelH) {
-    const headerY = cy - panelH / 2 + 40;
-    this.add.image(cx, headerY - 5, 'nibble_fainted').setScale(0.8);
-    this.add.text(cx, headerY + 30, 'Time to Rebuild', {
-      fontFamily: SF, fontSize: '28px', color: '#cc6666', letterSpacing: 3,
-    }).setOrigin(0.5);
-    this.add.rectangle(cx, headerY + 50, 80, 2, 0xcc4444, 0.27);
-    this.add.text(cx, headerY + 80, '"Your energy gave out — but every attempt\nmakes you stronger, just like protein\nbuilds tissue! Try collecting more\nitems early in the level."', {
-      fontFamily: SF, fontSize: '14px', color: '#d8d0c0', align: 'center', lineSpacing: 6,
-    }).setOrigin(0.5);
-    this.add.text(cx, headerY + 155, 'TIP', {
-      fontFamily: SF, fontSize: '12px', color: '#80cc60', letterSpacing: 3,
-    }).setOrigin(0.5);
-    this.add.text(cx, headerY + 177, '"Stress Sprites move in clusters but don\'t\nchase you. Watch their pattern,\nthen move through when there\'s a gap."', {
-      fontFamily: SF, fontSize: '13px', color: '#aaaaaa', align: 'center', lineSpacing: 5,
-    }).setOrigin(0.5);
-    this.showBasicStats(cx, headerY + 240, d, SF);
+  showFail(cx, cy, headerY, d, SF, panelW, panelH) {
+    this.add.image(cx, headerY - 4, 'nibble_fainted').setScale(0.75).setDepth(3);
+    this.add.text(cx, headerY + 32, 'Time to Rebuild', {
+      fontFamily: SF, fontSize: '28px', color: '#cc6655', letterSpacing: 3,
+    }).setOrigin(0.5).setDepth(3);
+    this.add.rectangle(cx, headerY + 52, 80, 2, 0xaa4444, 0.65).setDepth(3);
+
+    this.add.text(cx, headerY + 72, '"Energy at zero — but that is useful feedback. Recover,\ngather nourishment, and try again with fresh momentum."', {
+      fontFamily: SF, fontSize: '13px', color: '#d8d0c8', align: 'center', lineSpacing: 5,
+    }).setOrigin(0.5).setDepth(3);
+
+    this.add.text(cx, headerY + 134, 'Stress Sprites give a brief warning sound. When you hear\nthe crackle, get ready to jump, duck, or line up a shot.', {
+      fontFamily: SF, fontSize: '12px', color: '#8899aa', align: 'center', lineSpacing: 4,
+    }).setOrigin(0.5).setDepth(3);
+
+    this.showFailStats(cx, headerY + 196, d, SF);
   }
 
-  showBasicStats(cx, y, d, SF) {
-    [`Proteins collected: ${d.proteinsCollected} / ${d.totalProteins}`, `Combos: ${d.combosTriggered}`, `Energy Cells: ${d.cells}`].forEach((s, i) => {
-      this.add.text(cx, y + i * 20, s, { fontFamily: SF, fontSize: '13px', color: '#888888' }).setOrigin(0.5);
+  showFailStats(cx, y, d, SF) {
+    const acc = this.sortingPct(d);
+    [
+      `Proteins deposited: ${d.proteinsDeposited ?? 0} / ${PROTEINS_NEEDED}`,
+      `Sorting accuracy: ${acc}%`,
+      `Energy Cells: ${d.cells}`,
+    ].forEach((s, i) => {
+      this.add.text(cx, y + i * 18, s, {
+        fontFamily: SF, fontSize: '12px', color: '#777788',
+      }).setOrigin(0.5).setDepth(3);
     });
   }
 }
@@ -4078,4 +4437,14 @@ const config = {
   scene: [BootScene, LevelSelectScene, SplashScene, GameScene, ResultScene, Splash2Scene, Game2Scene, Result2Scene],
 };
 
+window.addEventListener('error', (e) => {
+  console.error('GLOBAL ERROR:', e.message, e.filename, e.lineno, e.error);
+});
+
 const game = new Phaser.Game(config);
+game.events.on('postrender', () => { window._lastFrame = performance.now(); });
+setInterval(() => {
+  if (window._lastFrame && performance.now() - window._lastFrame > 2000) {
+    console.error('FREEZE DETECTED — last frame was', Math.round(performance.now() - window._lastFrame), 'ms ago');
+  }
+}, 1000);

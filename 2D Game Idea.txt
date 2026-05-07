@@ -1,5 +1,7 @@
 2D Game Idea: 
 https://www.youtube.com/watch?v=Q52XlYaqqUM
+https://gamemaker.io/de/blog/how-to-make-a-2d-game
+
 I would like to create a 2D style game, similar to the simple Mario game where he jumps along and has to collect coins and avoid negative things. 
 
 This 2D game will be based on Nutrition pricinples. For example, the first level will focus on "collect all the Carbs" Next level "Collect Protein" then "Collect Fats". The Concepts and learning woul dbe like:
@@ -88,8 +90,9 @@ add to the game plan the idea of having "rarity items"--treasure chests that wil
 
 
 -protein notes:
-change the behaviour of stress sprites. Instead, these appear suddenly--on the level the avatar is at--and move quickly in a straight line towards the avatar. The avatar has to jump, duck (we need to work on this feature) or shoot the sprite. Once the stress sprite shoots across the screen, it disappears, until another one shows up. Unlike the fantoms that stay the whole time. 
-- Change the fog.  A sound will come on before fog apperas. it needs to be more more dense (less transparent) sot hat it is harder for the user to see the foods behind. 
--follow the rules set for placemment of food items and energy orbs--not overlapping, consistent spacing. 
 - we need to change the game idea of complete vs non complete proteins. This is outdated and plant proteins do not need to be paired with a carb. lets remove that feature from the game. Maybe instead we can introduce the game feature of dropping off items into a spot. (which will come in fibre) (reference: https://zoe.com/learn/how-much-protein?srsltid=AfmBOopw-2gvhEqKWNMqLze7bbrEb8rE96WuDTLea02zFgfXm9YaIMA4   st.philips).
--maybe there can be two baskets (or several throughout as the user walks along) and the user needs to drop all animal proteins into one basket (blue?) and plant proteins (Green or brown?) into the other. Dropping other food items (carbs etc) gives an error sound (berp) and it falls to the ground instead. which keyboard button should be used to drop food items into the basket? Perhasp the user can collect up to three foods to drop in a bsket? THis is just an idea. Ananlyze it and tell me if this could work in the game. 
+-maybe there can be two baskets (or several throughout as the user walks along) and the user needs to drop all animal proteins into one basket (blue?) and plant proteins (Green or brown?) into the other (or three box with one box for "pretty processed" where the nugget goes?). Dropping other food items (carbs etc) gives an error sound (berp) and it falls to the ground instead. which keyboard button should be used to drop food items into the basket? Perhasp the user can collect up to three foods to drop in a bsket? THis is just an idea. Ananlyze it and tell me if this could work in the game. 
+--change the behaviour of stress sprites. Instead, these appear suddenly--on the level the avatar is at--and move quickly in a straight line towards the avatar, liking shooting toward him. The avatar has to jump, duck (we need to work on this feature) or shoot the sprite. Once the stress sprite speeds across the screen, it disappears, until another one shows up. Unlike the fantoms that stay the whole time. 
+- Change the fog.  A sound will come on before fog appear. Have the fog start appearing--lightly transparent until it's quite dense so that it is harder for the user to see the foods behind. Fog should look like a large grey cloud, not a box. after 3 seconds or so the fog starts to fade away.
+-follow the rules set for placemment of food items and energy orbs--not overlapping, consistent spacing. 
+-Before making any changes to the game, let's rework the L2 Protein md file. Let's create a new one based on these notes. I'll go over the new file before we work on the game further.
