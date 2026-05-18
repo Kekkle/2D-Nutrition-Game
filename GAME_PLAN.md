@@ -107,6 +107,42 @@ Enemies are **abstract physiological threats** — not food items. No food is th
 | **Inflammation Zones** | Pulsing red areas that damage over time | Chronic inflammation from poor diet |
 | **Misleading Labels** | Items that look healthy but aren't (granola bars, "fruit" juice) | Food marketing literacy |
 
+### 4.3 Platform Jump Spacing (mandatory for all levels)
+
+Every platform-to-platform hop must be reachable at **low energy** (reduced jump height and speed). Constants live in `game/game.js` as `PLATFORM_MAX_RISE`, `PLATFORM_MAX_JUMP_H`, `PLATFORM_SAME_TIER_H`, and `PLATFORM_SAME_TIER_Y`. **Never exceed these limits** when placing or moving platforms.
+
+| Constant | Value | Meaning |
+|---|---|---|
+| `PLATFORM_MAX_RISE` | **72 px** | Max upward step: `fromPlatform.y − toPlatform.y` (Phaser Y grows downward; smaller `y` = higher). |
+| `PLATFORM_MAX_JUMP_H` | **180 px** | Max horizontal distance between platform **centers** when the player must jump **up** (any positive rise up to 72 px). |
+| `PLATFORM_SAME_TIER_H` | **200 px** | Max center-to-center horizontal when both platforms are at nearly the same height (`|Δy| ≤ 20 px`). |
+| `PLATFORM_SAME_TIER_Y` | **20 px** | “Same tier” height tolerance used with `PLATFORM_SAME_TIER_H`. |
+
+**How these were derived:** gravity `900`, jump velocity `-520`, speed `250`. At minimum jump (~70% of full height when energy is low), apex ≈ **73 px**. Design caps at **72 px** rise so jumps stay fair at low energy. Horizontal caps assume a running jump from the leading edge of one platform.
+
+**Layout rules for agents:**
+
+1. Prefer **tighter spacing** on existing platforms — do **not** add extra “stepping stone” platforms when a chain fails; move platforms closer first.
+2. Never stack two platforms at the **same X** (causes collision wedging).
+3. After editing platforms, verify each intended hop: rise ≤ 72, and horizontal center gap ≤ 180 when rising, ≤ 200 when same tier.
+4. Ground-level running gaps are separate; these limits apply to **platform chains** and optional platform routes (e.g. hidden alcoves).
+
+### 4.4 Crash-Pit Floating Food (mandatory)
+
+Food (and energy cells) over crash pits must be collectible **while jumping across the pit** — the player must **not** need to walk through the pit zone on the ground.
+
+Constants in `game/game.js`: `PIT_FOOD_Y`, `PIT_FOOD_INSET`, `PIT_FOOD_JUMP_H` (same 180 px horizontal reach as `PLATFORM_MAX_JUMP_H`). Use `pitFoodReachable(pit, foodX)` when validating layouts.
+
+| Rule | Value / behavior |
+|---|---|
+| **Height** | `aboveY: PIT_FOOD_Y` (**58 px** above ground surface — `GROUND_Y - 58`). Low enough to snag at minimum jump height. |
+| **Horizontal (left approach)** | `pit.x + 40` ≤ `food.x` ≤ `pit.x + 180` — reachable from a running jump starting at the ground lip **before** the pit. |
+| **Never on pit floor** | No `onGround` (or ground-level) collectibles with `x` inside `[pit.x, pit.x + pit.w]`. |
+| **Multiple items per pit** | Each must sit in the reachable band; keep **≥ 60 px** apart (same as item-spacing rule). Prefer **one** item per pit unless the pit is wide enough for two jumps without entering the pit. |
+| **Wide pits** | If `pit.w > PIT_FOOD_JUMP_H + 2 × PIT_FOOD_INSET`, only place food in the left-reach band unless you also verify a right-edge jump-in band for backtracking routes. |
+
+**Layout pattern:** `{ id: 'oats', x: pit.x + 80, aboveY: PIT_FOOD_Y }` — tune `x` with `pitFoodReachable`, not by eyeballing the pit center.
+
 ---
 
 ## 5. Collectibles & Economy

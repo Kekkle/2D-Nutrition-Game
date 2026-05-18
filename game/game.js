@@ -13,6 +13,38 @@ const GROUND_H = 120;
 const PLAYER_SPEED = 250;
 const PLAYER_JUMP = -520;
 const PHANTOM_SPEED = 55;
+
+// Platform layout limits — see GAME_PLAN.md §4.1 and .cursor/rules/gameplay-mechanics.mdc
+// Derived from jump physics (g=900, min jump ≈70% of PLAYER_JUMP at low energy).
+const PLATFORM_MAX_RISE = 72;
+const PLATFORM_MAX_JUMP_H = 180;
+const PLATFORM_SAME_TIER_H = 200;
+const PLATFORM_SAME_TIER_Y = 20;
+
+// Crash-pit floating food — see GAME_PLAN.md §4.4
+const PIT_FOOD_Y = GROUND_Y - 58;
+const PIT_FOOD_INSET = 40;
+const PIT_FOOD_JUMP_H = PLATFORM_MAX_JUMP_H;
+
+function pitFoodReachable(pit, foodX) {
+  return foodX >= pit.x + PIT_FOOD_INSET && foodX <= pit.x + PIT_FOOD_JUMP_H;
+}
+
+function foodInsidePit(pits, x) {
+  return pits.some((p) => x >= p.x && x <= p.x + p.w);
+}
+
+function platformOverlapX(player, plat) {
+  return Math.min(player.body.right, plat.body.right) - Math.max(player.body.left, plat.body.left);
+}
+
+function platformColliderProcess(player, plat) {
+  if (platformOverlapX(player, plat) < player.body.width * 0.35) return false;
+  if (player.body.velocity.y < 0) {
+    return player.body.top <= plat.body.bottom + 6 && player.body.bottom < plat.body.top - 8;
+  }
+  return player.body.bottom <= plat.body.top + 6;
+}
 const PHANTOM_DETECT = 280;
 
 const ENERGY_START = 100;
@@ -145,11 +177,11 @@ const L1 = {
     { id: 'cookie',      x: 1440, onGround: true, fun: true },
     { id: 'fries',       x: 2960, onGround: true, fun: true },
     { id: 'donut',       x: 5360, onGround: true, fun: true },
-    // Above crash pits (reachable by jumping)
-    { id: 'banana',      x: 2060, aboveY: GROUND_Y - 70 },
-    { id: 'oats',        x: 2150, aboveY: GROUND_Y - 70 },
-    { id: 'orange',      x: 4920, aboveY: GROUND_Y - 70 },
-    { id: 'apple',       x: 5020, aboveY: GROUND_Y - 70 },
+    // Above crash pits — x within pitFoodReachable zone; use PIT_FOOD_Y
+    { id: 'banana',      x: 2070, aboveY: PIT_FOOD_Y },
+    { id: 'oats',        x: 2140, aboveY: PIT_FOOD_Y },
+    { id: 'orange',      x: 4950, aboveY: PIT_FOOD_Y },
+    { id: 'apple',       x: 5010, aboveY: PIT_FOOD_Y },
   ],
   energyCells: [
     500, 940, 1350, 1780, 2260, 2680,
@@ -185,10 +217,10 @@ const FIBRE_IDS = [
 
 const L2_LEVEL_W = 9200;
 const ENERGY_PROTEIN = 8;
+const L2_FINISH_RATIO = 0.8;
 const SPRITE_SPEED = 420;
 const SPRITE_DMG = 8;
 const L2_PHANTOM_SPEED = 70;
-const PROTEINS_NEEDED = 10;
 const INV_SLOTS = 3;
 const SPRITE_WARN_TIME = 500;
 const SPRITE_INTERVAL_MIN = 12000;
@@ -206,24 +238,24 @@ const L2 = {
     { x: 300,  y: 340, w: 120 },
     { x: 600,  y: 280, w: 100 },
     { x: 950,  y: 320, w: 130 },
-    { x: 1250, y: 240, w: 120 },
-    { x: 1250, y: 340, w: 100 },
+    { x: 1150, y: 240, w: 120 },
+    { x: 1360, y: 340, w: 100 },
     { x: 1600, y: 300, w: 110 },
     { x: 1950, y: 250, w: 120 },
     { x: 2300, y: 340, w: 130 },
-    { x: 2650, y: 280, w: 110 },
-    { x: 2650, y: 180, w: 100 },
+    { x: 2550, y: 280, w: 110 },
+    { x: 2750, y: 180, w: 100 },
     { x: 3000, y: 330, w: 140 },
-    { x: 3350, y: 260, w: 110 },
-    { x: 3700, y: 190, w: 120 },
-    { x: 4050, y: 310, w: 120 },
-    { x: 4400, y: 250, w: 110 },
+    { x: 3160, y: 278, w: 110 },
+    { x: 3320, y: 222, w: 110 },
+    { x: 3490, y: 272, w: 120 },
+    { x: 3660, y: 238, w: 110 },
     { x: 4700, y: 340, w: 130 },
     { x: 5050, y: 280, w: 120 },
     { x: 5400, y: 200, w: 110 },
     { x: 5750, y: 330, w: 120 },
-    { x: 6100, y: 260, w: 110 },
-    { x: 6450, y: 180, w: 120 },
+    { x: 5880, y: 275, w: 110 },
+    { x: 6020, y: 210, w: 100 },
     { x: 6800, y: 310, w: 140 },
     { x: 7150, y: 250, w: 110 },
     { x: 7500, y: 340, w: 120 },
@@ -232,74 +264,64 @@ const L2 = {
     { x: 8500, y: 320, w: 140 },
     { x: 8850, y: 340, w: 100 },
   ],
-  ladders: [
-    { x: 1290, topY: 240, botY: GROUND_Y },
-    { x: 2690, topY: 180, botY: 280 },
-    { x: 3740, topY: 190, botY: GROUND_Y },
-    { x: 5440, topY: 200, botY: GROUND_Y },
-    { x: 6490, topY: 180, botY: 260 },
-    { x: 8190, topY: 190, botY: GROUND_Y },
-  ],
-  baskets: [
-    { x: 4500, type: 'animal' },
-    { x: 6200, type: 'plant' },
-  ],
+  // Ladders disabled — were soft-locking at bottom (body.moves=false while holding W/S).
+  // Re-enable after verifying ladder dismount fix in _doUpdate.
+  ladders: [],
   foods: [
-    // Animal proteins — ground
-    { id: 'chicken',     x: 420,  onGround: true, l2type: 'protein' },
-    { id: 'egg',         x: 1100, onGround: true, l2type: 'protein' },
-    { id: 'steak',       x: 2550, onGround: true, l2type: 'protein' },
-    { id: 'cheese',      x: 4150, onGround: true, l2type: 'protein' },
-    { id: 'yogurt',      x: 5800, onGround: true, l2type: 'protein' },
-    { id: 'salmon',      x: 8600, onGround: true, l2type: 'protein' },
-    // Animal proteins — platforms
-    { id: 'salmon',      x: 640,  platIdx: 1,  l2type: 'protein' },
-    { id: 'cheese',      x: 7190, platIdx: 22, l2type: 'protein' },
-    // Plant proteins — ground
-    { id: 'black_beans', x: 1550, onGround: true, l2type: 'protein' },
-    { id: 'lentils',     x: 2950, onGround: true, l2type: 'protein' },
-    { id: 'peanuts',     x: 4650, onGround: true, l2type: 'protein' },
-    { id: 'kidney_beans',x: 6750, onGround: true, l2type: 'protein' },
-    { id: 'chickpeas',   x: 8100, onGround: true, l2type: 'protein' },
-    // Plant proteins — platforms
-    { id: 'tofu',        x: 1290, platIdx: 3,  l2type: 'protein' },
-    { id: 'quinoa',      x: 3390, platIdx: 11, l2type: 'protein' },
-    { id: 'chickpeas',   x: 5090, platIdx: 16, l2type: 'protein' },
-    { id: 'lentils',     x: 6140, platIdx: 19, l2type: 'protein' },
-    { id: 'black_beans', x: 8540, platIdx: 26, l2type: 'protein' },
-    // Neutral items (non-protein, auto-consumed)
-    { id: 'banana',      x: 350,  onGround: true, l2type: 'neutral' },
-    { id: 'potato',      x: 1040, onGround: true, l2type: 'neutral' },
-    { id: 'pasta',       x: 1780, onGround: true, l2type: 'neutral' },
-    { id: 'apple',       x: 2200, onGround: true, l2type: 'neutral' },
-    { id: 'orange',      x: 2830, onGround: true, l2type: 'neutral' },
-    { id: 'avocado',     x: 3710, platIdx: 12, l2type: 'neutral' },
-    { id: 'brown_rice',  x: 4010, onGround: true, l2type: 'neutral' },
-    { id: 'oats',        x: 4750, onGround: true, l2type: 'neutral' },
-    { id: 'olive_oil',   x: 5350, onGround: true, l2type: 'neutral' },
-    { id: 'sweetpotato', x: 6020, onGround: true, l2type: 'neutral' },
-    { id: 'white_rice',  x: 6500, onGround: true, l2type: 'neutral' },
-    { id: 'tortilla',    x: 7180, onGround: true, l2type: 'neutral' },
-    { id: 'white_bread', x: 7800, onGround: true, l2type: 'neutral' },
-    { id: 'banana',      x: 8350, onGround: true, l2type: 'neutral' },
-    // Fun foods (auto-consumed)
-    { id: 'cookie',      x: 3250, onGround: true, l2type: 'fun' },
-    { id: 'croissant',   x: 6850, onGround: true, l2type: 'fun' },
+    // Proteins — ground
+    { id: 'chicken',      x: 420,  onGround: true, l2type: 'protein' },
+    { id: 'egg',          x: 1100, onGround: true, l2type: 'protein' },
+    { id: 'steak',        x: 2450, aboveY: PIT_FOOD_Y, l2type: 'protein' },
+    { id: 'yogurt',       x: 5920, onGround: true, l2type: 'protein' },
+    { id: 'salmon',       x: 8720, onGround: true, l2type: 'protein' },
+    // Proteins — platforms
+    { id: 'salmon',       x: 650,  platIdx: 1,  l2type: 'protein' },
+    { id: 'tofu',         x: 1010, platIdx: 2,  l2type: 'protein' },
+    { id: 'black_beans',  x: 1210, platIdx: 3,  l2type: 'protein' },
+    { id: 'lentils',      x: 1660, platIdx: 5,  l2type: 'protein' },
+    { id: 'quinoa',       x: 2010, platIdx: 6,  l2type: 'protein' },
+    { id: 'peanuts',      x: 2360, platIdx: 7,  l2type: 'protein' },
+    { id: 'chickpeas',    x: 3080, platIdx: 10, l2type: 'protein' },
+    { id: 'kidney_beans', x: 3370, platIdx: 12, l2type: 'protein' },
+    { id: 'cheese',       x: 3710, platIdx: 14, l2type: 'protein' },
+    { id: 'lentils',      x: 5110, platIdx: 16, l2type: 'protein' },
+    { id: 'black_beans',  x: 5810, platIdx: 18, l2type: 'protein' },
+    { id: 'chickpeas',    x: 6070, platIdx: 19, l2type: 'protein' },
+    { id: 'quinoa',       x: 7210, platIdx: 22, l2type: 'protein' },
+    { id: 'cheese',       x: 7900, platIdx: 24, l2type: 'protein' },
+    { id: 'tofu',         x: 8570, platIdx: 26, l2type: 'protein' },
+    // Neutral — ground
+    { id: 'banana',       x: 350,  onGround: true, l2type: 'neutral' },
+    { id: 'potato',       x: 820,  onGround: true, l2type: 'neutral' },
+    { id: 'pasta',        x: 1520, onGround: true, l2type: 'neutral' },
+    { id: 'apple',        x: 2180, onGround: true, l2type: 'neutral' },
+    { id: 'orange',       x: 2840, onGround: true, l2type: 'neutral' },
+    { id: 'brown_rice',   x: 4120, onGround: true, l2type: 'neutral' },
+    { id: 'oats',         x: 5380, onGround: true, l2type: 'neutral' },
+    { id: 'sweetpotato',  x: 6180, onGround: true, l2type: 'neutral' },
+    { id: 'white_rice',   x: 7020, onGround: true, l2type: 'neutral' },
+    { id: 'white_bread',  x: 8320, onGround: true, l2type: 'neutral' },
+    // Neutral — platforms
+    { id: 'avocado',      x: 1410, platIdx: 4,  l2type: 'neutral' },
+    { id: 'olive_oil',    x: 3210, platIdx: 11, l2type: 'neutral' },
+    { id: 'tortilla',     x: 4760, platIdx: 15, l2type: 'neutral' },
+    { id: 'banana',       x: 5910, platIdx: 19, l2type: 'neutral' },
+    // Fun foods
+    { id: 'cookie',       x: 3320, onGround: true, l2type: 'fun' },
+    { id: 'croissant',    x: 6940, platIdx: 21, l2type: 'fun' },
   ],
   energyCells: [
-    520, 960, 1380, 1700, 2340, 2750, 3150, 3520,
-    3920, 4290, 4520, 4960, 5530, 5930, 6310, 6680,
-    7060, 7600,
+    520, 960, 1380, 1700, 2340, 3150, 3920, 4290, 4520, 5530, 5930, 6220, 6360, 6680, 7060, 7600,
   ],
   cellsOnPlats: [
-    { x: 720,  pi: 1 },
-    { x: 1370, pi: 3 },
+    { x: 360,  pi: 0 },
+    { x: 650,  pi: 1 },
+    { x: 1000, pi: 2 },
     { x: 2720, pi: 8 },
-    { x: 2720, pi: 9 },
+    { x: 3080, pi: 10 },
     { x: 3780, pi: 12 },
     { x: 5160, pi: 16 },
     { x: 5480, pi: 17 },
-    { x: 6530, pi: 20 },
     { x: 8260, pi: 25 },
   ],
   phantoms: [
@@ -315,7 +337,7 @@ const L2 = {
     { x: 6300, w: 450 },
     { x: 7600, w: 400 },
   ],
-  hiddenPath: { x: 6500, y: 120, w: 100 },
+  hiddenPath: { x: 6120, y: 168, w: 100 },
   finishX: 9000,
 };
 
@@ -1951,9 +1973,9 @@ class GameScene extends Phaser.Scene {
     this.player.body.setSize(32, 44); this.player.body.setOffset(8, 7);
     this.player.setDepth(10);
     this.physics.add.collider(this.player, this.ground);
-    this.physics.add.collider(this.player, this.platforms, null, (player, plat) => {
-      return player.body.velocity.y >= 0 && player.body.y + player.body.height - 4 <= plat.body.y;
-    }, this);
+    this.physics.add.collider(this.player, this.platforms, (player) => {
+      if (player.body.blocked.up) player.setVelocityY(0);
+    }, platformColliderProcess, this);
   }
 
   createFoods() {
@@ -2775,7 +2797,7 @@ class ResultScene extends Phaser.Scene {
 }
 
 // =================================================================
-// SPLASH 2 SCENE — Instruction splash for L2 (Protein – Basket Sort)
+// SPLASH 2 SCENE — Instruction splash for L2 (Protein)
 // =================================================================
 
 class Splash2Scene extends Phaser.Scene {
@@ -2834,7 +2856,7 @@ class Splash2Scene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(5);
 
     const factStr = 'Protein is your body\'s building material. Every tissue — muscle, skin, organs — is built and repaired with protein.';
-    const missionStr = 'Collect protein foods. Sort them into the right basket: blue for animal, green for plant. Press E near a basket to deposit.';
+    const missionStr = 'Collect protein foods as you run. Track animal (blue) and plant (green) in the HUD. Reach the finish once you have most of each — the third star needs every pickup.';
     const hazardStr = 'Stress Sprites shoot across the screen without warning. Jump, duck, or shoot them!';
 
     const factText = this.add.text(px - panelW / 2 + 36, py - panelH / 2 + 72, '', {
@@ -2851,11 +2873,15 @@ class Splash2Scene extends Phaser.Scene {
     this.add.text(px - panelW / 2 + 36, py - panelH / 2 + 232, 'HAZARDS', { fontFamily: SF, fontSize: '11px', color: '#cc8888', letterSpacing: 3 }).setDepth(5);
 
     const bx = px + panelW / 2 - 100;
-    const by = py - 10;
-    this.add.image(bx - 44, by, 'basket_animal').setScale(0.85).setDepth(5);
-    this.add.image(bx + 44, by, 'basket_plant').setScale(0.85).setDepth(5);
-    this.add.text(bx - 44, by + 44, 'animal', { fontFamily: SF, fontSize: '10px', color: '#6688cc' }).setOrigin(0.5).setDepth(5);
-    this.add.text(bx + 44, by + 44, 'plant', { fontFamily: SF, fontSize: '10px', color: '#66aa66' }).setOrigin(0.5).setDepth(5);
+    const by = py - 4;
+    this.add.text(bx - 52, by, 'Animal:', { fontFamily: SF, fontSize: '10px', color: '#88aaff' }).setDepth(5);
+    for (let i = 0; i < 6; i++) {
+      this.add.circle(bx - 20 + i * 12, by + 2, 4, 0x333333).setStrokeStyle(1, 0x4488dd).setDepth(5);
+    }
+    this.add.text(bx - 52, by + 22, 'Plant:', { fontFamily: SF, fontSize: '10px', color: '#88dd88' }).setDepth(5);
+    for (let i = 0; i < 7; i++) {
+      this.add.circle(bx - 20 + i * 12, by + 24, 4, 0x333333).setStrokeStyle(1, 0x44aa44).setDepth(5);
+    }
 
     const startBtn = this.add.rectangle(px, py + panelH / 2 - 36, 200, 40, 0xcc5544)
       .setInteractive({ useHandCursor: true }).setDepth(6);
@@ -2938,14 +2964,13 @@ class Game2Scene extends Phaser.Scene {
     this.L2_IDLE = 0.35;
     this.energy = 100;
     this.ENERGY_MAX = 100;
-    this.proteinsDeposited = 0;
-    this.proteinsPickupCount = 0;
-    this.wrongBasketAttempts = 0;
-    this.sortingCorrectTotal = 0;
+    this.animalCollected = 0;
+    this.plantCollected = 0;
+    this.totalAnimalProteins = 0;
+    this.totalPlantProteins = 0;
     this.neutralCollected = 0;
     this.funCollected = 0;
     this.cellsCollected = 0;
-    this.totalProteinItems = 0;
     this.dmgTaken = false;
     this.isInvincible = false;
     this.levelComplete = false;
@@ -2959,18 +2984,14 @@ class Game2Scene extends Phaser.Scene {
     this.inCrashPit = false;
     this.spriteStressFromLeft = true;
     this.spriteScheduleActive = false;
-    this.inventory = [null, null, null];
-
     this.startTime = this.time.now;
     this.fogHudBlock = null;
 
     this.drawBackground();
     this.createGround();
     this.createPlatforms();
-    this.createLadders();
     this.initFogBanks();
     this.createPlayer();
-    this.createBaskets();
     this.createFoods();
     this.createEnergyCells();
     this.createPhantoms();
@@ -2992,8 +3013,6 @@ class Game2Scene extends Phaser.Scene {
     this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-    this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-
     this.input.on('pointerdown', (pointer, targets) => {
       if (this.levelComplete || this.levelFailed || this.isPaused) return;
       if (targets.length > 0) return;
@@ -3001,7 +3020,7 @@ class Game2Scene extends Phaser.Scene {
     });
 
     this.createTutorialOverlay();
-    this.startL2Music();
+    this.time.delayedCall(100, () => this.startL2Music());
 
     if (this.player.x <= L2.spriteTriggerX) {
       this.spriteUnlockPending = true;
@@ -3094,7 +3113,7 @@ class Game2Scene extends Phaser.Scene {
   createTutorialOverlay() {
     const cx = GAME_W / 2, cy = GAME_H / 2;
     const SF = '"Special Elite", "Courier New", monospace';
-    const pW = 520, pH = 300;
+    const pW = 520, pH = 260;
     const dim = this.add.rectangle(cx, cy, GAME_W, GAME_H, 0x000000, 0.7).setScrollFactor(0).setDepth(200);
     const panel = this.add.rectangle(cx, cy, pW, pH, 0x0c0c18, 0.95).setScrollFactor(0).setDepth(201);
     const border = this.add.rectangle(cx, cy, pW, pH).setStrokeStyle(2, 0xcc5544, 0.5).setScrollFactor(0).setDepth(201);
@@ -3105,8 +3124,6 @@ class Game2Scene extends Phaser.Scene {
       { key: 'A / D  or  ← →', action: 'Move left / right' },
       { key: 'W  or  SPACE', action: 'Jump' },
       { key: 'S / ↓ (ground)', action: 'Duck' },
-      { key: 'W / S on ladder', action: 'Climb up / down' },
-      { key: 'E', action: 'Deposit at basket' },
       { key: 'CLICK', action: 'Energy ball (costs 1 cell)' },
       { key: 'ESC', action: 'Pause' },
     ];
@@ -3261,60 +3278,61 @@ class Game2Scene extends Phaser.Scene {
     this.player.body.setSize(32, 44); this.player.body.setOffset(8, 7);
     this.player.setDepth(10);
     this.physics.add.collider(this.player, this.ground);
-    this.platCollider = this.physics.add.collider(this.player, this.platforms, null, (player, plat) => {
-      if (this.onLadder) return false;
-      return player.body.velocity.y >= 0 && player.body.y + player.body.height - 4 <= plat.body.y;
-    }, this);
-  }
-
-  createBaskets() {
-    this.basketObjs = [];
-    this.basketGroup = this.physics.add.staticGroup();
-    for (const b of L2.baskets) {
-      const key = b.type === 'animal' ? 'basket_animal' : 'basket_plant';
-      const spr = this.basketGroup.create(b.x, GROUND_Y, key).setOrigin(0.5, 1).setDepth(6);
-      spr.body.updateFromGameObject();
-      const label = this.add.text(b.x, GROUND_Y - 48, b.type === 'animal' ? 'ANIMAL' : 'PLANT', {
-        fontFamily: 'Courier New', fontSize: '9px', fontStyle: 'bold',
-        color: b.type === 'animal' ? '#aaccff' : '#88dd88',
-        stroke: '#000', strokeThickness: 2,
-      }).setOrigin(0.5).setDepth(7);
-      const glow = this.add.rectangle(b.x, GROUND_Y - 20, 56, 44, 0xaaccff, 0)
-        .setStrokeStyle(2, 0xffffff, 0).setDepth(5);
-      const prompt = this.add.text(b.x, GROUND_Y - 62, '', {
-        fontFamily: 'Courier New', fontSize: '11px', color: '#f0e0c0', stroke: '#000', strokeThickness: 3,
-      }).setOrigin(0.5).setDepth(25).setVisible(false);
-      this.basketObjs.push({ x: b.x, type: b.type, spr, glow, prompt, label });
-    }
-    this.physics.add.collider(this.player, this.basketGroup, null, (player, basket) => {
-      return player.body.velocity.y >= 0 && player.body.y + player.body.height - 4 <= basket.body.y;
-    }, this);
+    this.physics.add.collider(this.player, this.platforms, (player) => {
+      if (player.body.blocked.up) player.setVelocityY(0);
+    }, platformColliderProcess, this);
   }
 
   createFoods() {
-    this.foodGroup = this.physics.add.group({ allowGravity: false });
+    this.foodGroup = this.add.group();
     for (const f of L2.foods) {
       const def = FOOD_DEFS[f.id];
       if (!def) continue;
       let y;
-      if (f.onGround) {
+      if (f.aboveY) {
+        y = f.aboveY - def.h / 2;
+      } else if (f.onGround) {
         y = GROUND_Y - def.h / 2 - 4;
       } else {
         const plat = L2.platforms[f.platIdx];
         y = plat.y - def.h / 2 - 4;
       }
-      const sprite = this.foodGroup.create(f.x, y, 'food_' + f.id);
+      const sprite = this.add.image(f.x, y, 'food_' + f.id).setDepth(5);
       sprite.setData('foodId', f.id);
       sprite.setData('l2type', f.l2type);
       sprite.setData('name', def.name);
-      sprite.body.setSize(def.w, def.h); sprite.setDepth(5);
       this.tweens.add({
         targets: sprite, y: '-=4',
         duration: 1200 + Math.random() * 400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
       });
-      if (f.l2type === 'protein') this.totalProteinItems++;
+      this.foodGroup.add(sprite);
+      if (f.l2type === 'protein') {
+        if (def.pSrc === 'animal') this.totalAnimalProteins++;
+        else if (def.pSrc === 'plant') this.totalPlantProteins++;
+      }
     }
-    this.physics.add.overlap(this.player, this.foodGroup, this.collectFood, null, this);
+  }
+
+  proteinsReady() {
+    return this.animalCollected >= this.totalAnimalProteins
+      && this.plantCollected >= this.totalPlantProteins;
+  }
+
+  finishProteinsOk() {
+    const needA = Math.max(1, Math.ceil(this.totalAnimalProteins * L2_FINISH_RATIO));
+    const needP = Math.max(1, Math.ceil(this.totalPlantProteins * L2_FINISH_RATIO));
+    return this.animalCollected >= needA && this.plantCollected >= needP;
+  }
+
+  checkFoodPickup() {
+    const px = this.player.x;
+    const py = this.player.y - 8;
+    for (const food of this.foodGroup.getChildren()) {
+      if (!food.active) continue;
+      if (Math.abs(px - food.x) < 28 && Math.abs(py - food.y) < 32) {
+        this.collectFood(this.player, food);
+      }
+    }
   }
 
   createEnergyCells() {
@@ -3392,11 +3410,9 @@ class Game2Scene extends Phaser.Scene {
     platGfx.strokeRect(0, 0, hp.w, 14);
     platGfx.setPosition(ax - hp.w / 2, ay).setDepth(4);
 
-    const platBody = this.add.rectangle(ax, ay + 7, hp.w, 14, 0x000000, 0);
-    this.platforms.add(platBody); platBody.body.updateFromGameObject();
-    platBody.body.checkCollision.down = false;
-    platBody.body.checkCollision.left = false;
-    platBody.body.checkCollision.right = false;
+    const platBody = this.add.rectangle(ax, ay + 7, hp.w, 8, 0x000000, 0);
+    this.platforms.add(platBody);
+    platBody.body.updateFromGameObject();
 
     for (let i = 0; i < 5; i++) {
       const cell = this.cellGroup.create(ax - 32 + i * 16, ay - 12, 'energy_cell');
@@ -3439,10 +3455,16 @@ class Game2Scene extends Phaser.Scene {
 
   reachFinish() {
     if (this.levelComplete || this.levelFailed) return;
-    if (this.proteinsDeposited < PROTEINS_NEEDED) {
+    if (!this.finishProteinsOk()) {
       if (!this._finHintT || this.time.now - this._finHintT > 1800) {
         this._finHintT = this.time.now;
-        this.showCollectFX(this.player.x, this.player.y - 50, '#f0c060', `Deposit ${PROTEINS_NEEDED} proteins first!`);
+        const needA = Math.max(0, Math.ceil(this.totalAnimalProteins * L2_FINISH_RATIO) - this.animalCollected);
+        const needP = Math.max(0, Math.ceil(this.totalPlantProteins * L2_FINISH_RATIO) - this.plantCollected);
+        let msg = 'Collect more protein!';
+        if (needA > 0 && needP > 0) msg = `Need ${needA} more animal & ${needP} plant`;
+        else if (needA > 0) msg = `Need ${needA} more animal protein`;
+        else if (needP > 0) msg = `Need ${needP} more plant protein`;
+        this.showCollectFX(this.player.x, this.player.y - 50, '#f0c060', msg);
       }
       return;
     }
@@ -3450,14 +3472,15 @@ class Game2Scene extends Phaser.Scene {
     SFX.stopMusic();
     SFX.finish();
     const elapsed = (this.time.now - this.startTime) / 1000;
-    const star1 = this.wrongBasketAttempts === 0;
+    const star1 = !this.dmgTaken;
     const star2 = this.foundHiddenPath;
-    const star3 = this.proteinsPickupCount >= this.totalProteinItems;
+    const star3 = this.proteinsReady();
     this.scene.start('Result2', {
       success: true,
-      proteinsDeposited: this.proteinsDeposited,
-      sortingCorrectTotal: this.sortingCorrectTotal,
-      wrongBasketAttempts: this.wrongBasketAttempts,
+      animalCollected: this.animalCollected,
+      totalAnimal: this.totalAnimalProteins,
+      plantCollected: this.plantCollected,
+      totalPlant: this.totalPlantProteins,
       energy: Math.round(this.energy),
       cells: this.cellsCollected,
       elapsed,
@@ -3466,31 +3489,19 @@ class Game2Scene extends Phaser.Scene {
   }
 
   collectFood(player, food) {
-    if (!food.active || !food.body) return;
+    if (!food.active) return;
     const l2type = food.getData('l2type');
     const id = food.getData('foodId');
     const name = food.getData('name');
     const def = FOOD_DEFS[id];
 
     if (l2type === 'protein') {
-      const empty = this.inventory.findIndex(s => s === null);
-      if (empty < 0) {
-        if (!food.getData('_paused')) {
-          food.setData('_paused', true);
-          if (food.body) food.body.enable = false;
-          food.setAlpha(0.35);
-          this.showHandsFullPopup();
-        }
-        return;
-      }
-      this.inventory[empty] = { id, pSrc: def.pSrc };
-      this.proteinsPickupCount++;
+      if (def.pSrc === 'animal') this.animalCollected++;
+      else if (def.pSrc === 'plant') this.plantCollected++;
       this.energy = Math.min(this.ENERGY_MAX, this.energy + ENERGY_PROTEIN);
-      this.showCollectFX(food.x, food.y, '#ee8866', name);
+      const fxColor = def.pSrc === 'animal' ? '#88bbff' : '#88dd88';
+      this.showCollectFX(food.x, food.y, fxColor, name);
       SFX.collectProtein();
-      if (this.inventory.findIndex(s => s === null) < 0) {
-        this.showHandsFullPopup();
-      }
     } else if (l2type === 'fun') {
       this.funCollected++;
       this.energy = Math.min(this.ENERGY_MAX, this.energy + ENERGY_FUN);
@@ -3503,83 +3514,7 @@ class Game2Scene extends Phaser.Scene {
       SFX.collectStarchy();
     }
     food.destroy();
-    this.updateInventoryHud();
     this.updateHUD();
-  }
-
-  flashInventoryFull() {
-    if (this.invFullTw) this.invFullTw.stop();
-    this.hudInvLabel.setColor('#ff4444');
-    this.invFullTw = this.time.delayedCall(450, () => this.hudInvLabel.setColor('#aaaaaa'));
-  }
-
-  showHandsFullPopup() {
-    if (this._handsFullPopup && this._handsFullPopup.active) return;
-    const cam = this.cameras.main;
-    const msg = this.add.text(cam.scrollX + GAME_W / 2, 90,
-      'Hands full! Find a basket to deposit.', {
-        fontFamily: 'Courier New', fontSize: '13px', color: '#ffe080',
-        stroke: '#000000', strokeThickness: 3, align: 'center',
-        backgroundColor: '#1a1020', padding: { x: 12, y: 6 },
-      }).setOrigin(0.5).setDepth(55).setScrollFactor(0);
-    this._handsFullPopup = msg;
-    this.time.delayedCall(4000, () => {
-      if (!msg.active) return;
-      this.tweens.add({
-        targets: msg, alpha: 0,
-        duration: 800, ease: 'Power2',
-        onComplete: () => msg.destroy(),
-      });
-    });
-    this.flashInventoryFull();
-  }
-
-  tryDeposit() {
-    let near = null;
-    for (const b of this.basketObjs) {
-      if (Math.abs(this.player.x - b.x) <= 60) { near = b; break; }
-    }
-    if (!near) return;
-    for (let i = 0; i < INV_SLOTS; i++) {
-      const slot = this.inventory[i];
-      if (!slot) continue;
-      const def = FOOD_DEFS[slot.id];
-      if (!def || def.pSrc !== 'animal' && def.pSrc !== 'plant') {
-        SFX.depositBerp();
-        continue;
-      }
-      if (def.pSrc === near.type) {
-        this.inventory[i] = null;
-        this.proteinsDeposited++;
-        this.sortingCorrectTotal++;
-        SFX.depositCorrect();
-        this.tweens.add({
-          targets: near.glow, alpha: { from: 0, to: 0.45 }, duration: 90, yoyo: true, repeat: 3,
-          onComplete: () => near.glow.setAlpha(0),
-        });
-      } else {
-        this.wrongBasketAttempts++;
-        SFX.depositWrong();
-        this.tweens.add({
-          targets: near.spr, x: { from: near.x, to: near.x - 6 }, duration: 40, yoyo: true, repeat: 3,
-          onComplete: () => { near.spr.x = near.x; },
-        });
-      }
-    }
-    this.updateInventoryHud();
-    this.updateHUD();
-    this._reEnablePausedFoods();
-  }
-
-  _reEnablePausedFoods() {
-    if (this.inventory.findIndex(s => s === null) < 0) return;
-    this.foodGroup.getChildren().forEach(f => {
-      if (f.active && f.getData('_paused')) {
-        f.setData('_paused', false);
-        f.body.enable = true;
-        f.setAlpha(1);
-      }
-    });
   }
 
   collectCell(player, cell) {
@@ -3746,7 +3681,7 @@ class Game2Scene extends Phaser.Scene {
   createHUD() {
     this.hudBar = this.add.graphics();
     this.hudBar.fillStyle(0x000000, 0.75);
-    this.hudBar.fillRect(0, 0, GAME_W, 70);
+    this.hudBar.fillRect(0, 0, GAME_W, 64);
     this.hudBar.setScrollFactor(0).setDepth(50);
 
     this.hudEnergyLabel = this.add.text(16, 6, 'ENERGY', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc4444', letterSpacing: 1.5 }).setScrollFactor(0).setDepth(51);
@@ -3754,31 +3689,34 @@ class Game2Scene extends Phaser.Scene {
     this.hudEnergyBorder = this.add.rectangle(16 + 100, 28, 200, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
     this.hudEnergyFill = this.add.rectangle(17, 22, 196 * 0.8, 10, 0x40cc60).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
 
-    this.hudProtLabel = this.add.text(240, 6, 'PROTEIN SORTED', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc5544', letterSpacing: 1 }).setScrollFactor(0).setDepth(51);
+    this.hudProtLabel = this.add.text(240, 6, 'PROTEIN COLLECTED', { fontFamily: 'Courier New', fontSize: '9px', color: '#cc5544', letterSpacing: 1 }).setScrollFactor(0).setDepth(51);
     this.hudProtBg = this.add.rectangle(240 + 90, 28, 180, 14, 0x332222).setOrigin(0.5).setScrollFactor(0).setDepth(51);
     this.hudProtBorder = this.add.rectangle(240 + 90, 28, 180, 14).setOrigin(0.5).setScrollFactor(0).setDepth(51).setStrokeStyle(2, 0xcc4444);
     this.hudProtFill = this.add.rectangle(241, 22, 0, 10, 0xee7766).setOrigin(0, 0).setScrollFactor(0).setDepth(52);
 
-    this.hudInvLabel = this.add.text(GAME_W - 98, 6, 'INVENTORY', { fontFamily: 'Courier New', fontSize: '9px', color: '#aaaaaa', letterSpacing: 1 }).setScrollFactor(0).setDepth(51);
-    this.invSlotBoxes = [];
-    for (let i = 0; i < INV_SLOTS; i++) {
-      const sx = GAME_W - 110 + i * 28;
-      const sy = 28;
-      const box = this.add.rectangle(sx, sy, 22, 22, 0x111111).setStrokeStyle(2, 0x444444).setScrollFactor(0).setDepth(52);
-      const dot = this.add.circle(sx + 8, sy - 8, 3, 0x333333).setScrollFactor(0).setDepth(53);
-      const icon = this.add.image(sx, sy, 'food_egg').setScale(0.35).setScrollFactor(0).setDepth(53).setVisible(false);
-      this.invSlotBoxes.push({ box, dot, icon });
+    this.hudAnimalLabel = this.add.text(240, 42, 'Animal:', { fontFamily: 'Courier New', fontSize: '8px', color: '#88aaff' }).setScrollFactor(0).setDepth(51);
+    this.animalDots = [];
+    for (let i = 0; i < this.totalAnimalProteins; i++) {
+      const dot = this.add.circle(288 + i * 10, 46, 3, 0x333333).setScrollFactor(0).setDepth(51).setStrokeStyle(1, 0x4488dd);
+      this.animalDots.push(dot);
     }
 
-    this.hudCellIcon = this.add.image(430, 52, 'energy_cell').setScrollFactor(0).setDepth(51).setScale(0.75);
+    this.hudPlantLabel = this.add.text(240, 54, 'Plant:', { fontFamily: 'Courier New', fontSize: '8px', color: '#88dd88' }).setScrollFactor(0).setDepth(51);
+    this.plantDots = [];
+    for (let i = 0; i < this.totalPlantProteins; i++) {
+      const dot = this.add.circle(288 + i * 10, 58, 3, 0x333333).setScrollFactor(0).setDepth(51).setStrokeStyle(1, 0x44aa44);
+      this.plantDots.push(dot);
+    }
+
+    this.hudCellIcon = this.add.image(500, 52, 'energy_cell').setScrollFactor(0).setDepth(51).setScale(0.75);
     this.hudCellText = this.add.text(442, 46, '× 0', { fontFamily: 'Courier New', fontSize: '13px', color: '#f0d860', fontStyle: 'bold' }).setScrollFactor(0).setDepth(51);
 
     this.hudStars = [];
     for (let i = 0; i < 3; i++) {
-      this.hudStars.push(this.add.text(520 + i * 16, 50, '★', { fontFamily: 'Courier New', fontSize: '13px', color: '#555555' }).setScrollFactor(0).setDepth(51));
+      this.hudStars.push(this.add.text(560 + i * 16, 50, '★', { fontFamily: 'Courier New', fontSize: '13px', color: '#555555' }).setScrollFactor(0).setDepth(51));
     }
 
-    this.hudLevelName = this.add.text(GAME_W - 16, 48, 'L2 — PROTEIN', { fontFamily: 'Courier New', fontSize: '10px', color: '#cc5544', letterSpacing: 2 }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
+    this.hudLevelName = this.add.text(GAME_W - 16, 10, 'L2 — PROTEIN', { fontFamily: 'Courier New', fontSize: '10px', color: '#cc5544', letterSpacing: 2 }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
 
     const pauseBtn = this.add.text(24, GAME_H - 24, '⏸', {
       fontFamily: 'Courier New', fontSize: '18px', color: '#cc4444',
@@ -3825,40 +3763,30 @@ class Game2Scene extends Phaser.Scene {
       const m = SFX.toggleSfx(); hudSfxIcon.setTexture(m ? 'sfx_off' : 'sfx_on');
     });
 
-    this.updateInventoryHud();
-  }
-
-  updateInventoryHud() {
-    for (let i = 0; i < INV_SLOTS; i++) {
-      const slot = this.inventory[i];
-      const { box, dot, icon } = this.invSlotBoxes[i];
-      if (!slot) {
-        icon.setVisible(false);
-        box.setStrokeStyle(2, 0x444444);
-        dot.setFillStyle(0x333333);
-      } else {
-        const ps = FOOD_DEFS[slot.id].pSrc;
-        icon.setTexture('food_' + slot.id).setVisible(true);
-        box.setStrokeStyle(2, ps === 'animal' ? 0x4488dd : 0x44aa44);
-        dot.setFillStyle(ps === 'animal' ? 0x4488dd : 0x44aa44);
-      }
-    }
   }
 
   updateHUD() {
     const ePct = Math.max(0, this.energy / this.ENERGY_MAX);
     this.hudEnergyFill.setSize(196 * ePct, 10);
     this.hudEnergyFill.setFillStyle(ePct > 0.5 ? 0x40cc60 : ePct > 0.25 ? 0xcccc40 : 0xcc4040);
-    const pPct = Math.min(1, this.proteinsDeposited / PROTEINS_NEEDED);
+    const total = this.totalAnimalProteins + this.totalPlantProteins;
+    const collected = this.animalCollected + this.plantCollected;
+    const pPct = total > 0 ? Math.min(1, collected / total) : 0;
     this.hudProtFill.setSize(176 * pPct, 10);
     const pr = 0xcc + Math.floor((0xee - 0xcc) * pPct);
     const pg = 0x44 + Math.floor((0x77 - 0x44) * pPct);
     const pb = 0x44 + Math.floor((0x66 - 0x44) * pPct);
     this.hudProtFill.setFillStyle((pr << 16) | (pg << 8) | pb);
+    for (let i = 0; i < this.animalDots.length; i++) {
+      this.animalDots[i].setFillStyle(i < this.animalCollected ? 0x4488dd : 0x333333);
+    }
+    for (let i = 0; i < this.plantDots.length; i++) {
+      this.plantDots[i].setFillStyle(i < this.plantCollected ? 0x44aa44 : 0x333333);
+    }
     this.hudCellText.setText('× ' + this.cellsCollected);
-    const s1 = this.wrongBasketAttempts === 0;
+    const s1 = !this.dmgTaken;
     const s2 = this.foundHiddenPath;
-    const s3 = this.proteinsPickupCount >= this.totalProteinItems;
+    const s3 = this.proteinsReady();
     [s1, s2, s3].forEach((ok, i) => this.hudStars[i].setColor(ok ? '#f0c040' : '#555555'));
   }
 
@@ -3907,20 +3835,6 @@ class Game2Scene extends Phaser.Scene {
       if (spr.x < cam.scrollX - 120 || spr.x > cam.scrollX + GAME_W + 120) toRemove.push(spr);
     });
     toRemove.forEach(s => s.destroy());
-  }
-
-  updateBasketPrompts() {
-    for (const b of this.basketObjs) {
-      const near = Math.abs(this.player.x - b.x) <= 60;
-      b.prompt.setVisible(near);
-      if (near) {
-        b.prompt.setText('Press E to deposit');
-        b.glow.setAlpha(0.15 + Math.sin(this.time.now / 200) * 0.08);
-        b.glow.setStrokeStyle(2, b.type === 'animal' ? 0x6699ff : 0x66cc66, 1);
-      } else {
-        b.glow.setAlpha(0);
-      }
-    }
   }
 
   checkFogProximity() {
@@ -3976,8 +3890,10 @@ class Game2Scene extends Phaser.Scene {
 
   checkCrashPits() {
     this.inCrashPit = false;
+    const feetY = this.player.body.bottom;
+    const onGroundLevel = feetY >= GROUND_Y - 18;
     for (const cp of L2.crashPits) {
-      if (this.player.x > cp.x && this.player.x < cp.x + cp.w && this.player.y > GROUND_Y - 30) {
+      if (this.player.x > cp.x && this.player.x < cp.x + cp.w && onGroundLevel) {
         this.inCrashPit = true;
         if (!cp.drained) {
           cp.drained = true;
@@ -4030,9 +3946,10 @@ class Game2Scene extends Phaser.Scene {
       this.scene.start('Result2', {
         success: false,
         nearMiss: progress > 0.75,
-        proteinsDeposited: this.proteinsDeposited,
-        sortingCorrectTotal: this.sortingCorrectTotal,
-        wrongBasketAttempts: this.wrongBasketAttempts,
+        animalCollected: this.animalCollected,
+        totalAnimal: this.totalAnimalProteins,
+        plantCollected: this.plantCollected,
+        totalPlant: this.totalPlantProteins,
         energy: 0,
         cells: this.cellsCollected,
         elapsed,
@@ -4044,33 +3961,8 @@ class Game2Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (!this._dbgText) {
-      this._dbgText = this.add.text(4, GAME_H - 14, '', {
-        fontSize: '10px', color: '#00ff00', backgroundColor: '#000000',
-        padding: { x: 4, y: 2 },
-      }).setScrollFactor(0).setDepth(999);
-      this._dbgFrames = 0;
-      this._dbgTime = 0;
-      this._dbgFps = 0;
-    }
-    this._dbgFrames++;
-    this._dbgTime += delta;
-    if (this._dbgTime >= 1000) {
-      this._dbgFps = Math.round(this._dbgFrames * 1000 / this._dbgTime);
-      this._dbgFrames = 0;
-      this._dbgTime = 0;
-    }
-    const st = this.levelComplete ? 'COMPLETE' : this.levelFailed ? 'FAILED' : this.isPaused ? 'PAUSED' : 'RUNNING';
-    const pb = this.player && this.player.body;
-    const mv = pb ? (pb.moves ? 'Y' : 'N') : '?';
-    const vx = pb ? Math.round(pb.velocity.x) : 0;
-    const vy = pb ? Math.round(pb.velocity.y) : 0;
-    const lad = this.onLadder ? 'Y' : 'N';
-    const inv = this.inventory ? this.inventory.filter(s => s !== null).length : 0;
-    const blk = pb ? `${pb.blocked.left ? 'L' : ''}${pb.blocked.right ? 'R' : ''}${pb.blocked.up ? 'U' : ''}${pb.blocked.down ? 'D' : ''}` : '';
-    this._dbgText.setText(`FPS:${this._dbgFps} ST:${st} MV:${mv} VX:${vx} VY:${vy} LAD:${lad} BLK:${blk} INV:${inv}/3`);
-
     if (this.levelComplete || this.levelFailed || this.isPaused) return;
+    if (!this.isPaused && this.physics.world.isPaused) this.physics.world.isPaused = false;
     try { this._doUpdate(time, delta); } catch (e) {
       console.error('Game2 update error:', e);
       if (!this._errShown) {
@@ -4088,8 +3980,9 @@ class Game2Scene extends Phaser.Scene {
 
     const moveLeft = this.cursors.left.isDown || this.keyA.isDown;
     const moveRight = this.cursors.right.isDown || this.keyD.isDown;
-    const upKey = this.cursors.up.isDown || this.keyW.isDown;
-    const jumpPressed = this.spaceKey.isDown || upKey;
+    const jumpDown = Phaser.Input.Keyboard.JustDown(this.spaceKey)
+      || Phaser.Input.Keyboard.JustDown(this.cursors.up)
+      || Phaser.Input.Keyboard.JustDown(this.keyW);
     const downKey = this.cursors.down.isDown || this.keyS.isDown;
     const isMoving = moveLeft || moveRight;
 
@@ -4098,58 +3991,7 @@ class Game2Scene extends Phaser.Scene {
       this.scheduleNextStressEvent();
     }
 
-    if (this.keyE.isDown && !this._eDown) {
-      this.tryDeposit();
-    }
-    this._eDown = this.keyE.isDown;
-
-    const prevOnLadder = this.onLadder;
-    this.onLadder = false;
-    const climbSpeed = 160 * dt;
-    const px = this.player.x;
-    const feetY = this.player.y + this.player.body.halfHeight;
-    for (const l of this.ladderZones) {
-      const lb = l.bounds;
-      const inX = px > lb.x - 8 && px < lb.right + 8;
-      const inY = feetY > l.topY - 20 && feetY < l.botY + 10;
-      if (!inX || !inY) { l._mounted = false; continue; }
-      if (l._mounted) continue;
-      if (!(upKey || downKey)) continue;
-      this.onLadder = true;
-      this.hasStartedMoving = true;
-      this.player.body.moves = false;
-      this.player.body.velocity.set(0);
-      if (upKey) {
-        if (feetY > l.topY + 2) {
-          this.player.y -= climbSpeed;
-        } else {
-          this.player.y = l.topY - this.player.body.halfHeight - 2;
-          this.player.body.moves = true;
-          this.player.body.velocity.set(0);
-          this.onLadder = false;
-          l._mounted = true;
-        }
-      }
-      if (downKey) {
-        if (feetY < l.botY - 6) {
-          this.player.y += climbSpeed;
-        }
-      }
-      break;
-    }
-    if (!this.onLadder && prevOnLadder) {
-      this.player.body.moves = true;
-      this.player.body.velocity.set(0);
-      this._ladderJumpLock = true;
-    }
-    if (!this.onLadder && !this.player.body.moves) {
-      this.player.body.moves = true;
-    }
-    if (this._ladderJumpLock && isMoving) {
-      this._ladderJumpLock = false;
-    }
-
-    const canDuck = onGround && downKey && !this.onLadder;
+    const canDuck = onGround && downKey;
     if (canDuck !== this.isDucking) {
       this.isDucking = canDuck;
       if (canDuck) {
@@ -4164,12 +4006,11 @@ class Game2Scene extends Phaser.Scene {
       }
     }
 
-    if (isMoving || this.onLadder || jumpPressed || canDuck) {
-      if (moveLeft || moveRight || this.onLadder || jumpPressed || canDuck) this.hasStartedMoving = true;
-    }
+    const jumpHeld = this.spaceKey.isDown || this.cursors.up.isDown || this.keyW.isDown;
+    if (isMoving || jumpHeld || canDuck) this.hasStartedMoving = true;
 
     if (this.hasStartedMoving) {
-      const movingNow = isMoving || this.onLadder || (jumpPressed && !onGround) || canDuck;
+      const movingNow = isMoving || (jumpHeld && !onGround) || canDuck;
       const drain = movingNow ? this.L2_DRAIN : this.L2_IDLE;
       this.energy -= drain * dt;
       if (this.energy <= 0) {
@@ -4179,35 +4020,36 @@ class Game2Scene extends Phaser.Scene {
       }
     }
 
-    if (!this.onLadder) {
-      let vx = 0;
-      if (moveLeft) { vx = -speed; this.player.setFlipX(true); }
-      else if (moveRight) { vx = speed; this.player.setFlipX(false); }
-      if (this.inCrashPit && vx !== 0) vx *= 0.5;
-      this.player.setVelocityX(vx);
-      if ((this.spaceKey.isDown || upKey) && onGround && !canDuck && !this._ladderJumpLock) {
-        if (!this.hasStartedMoving) this.hasStartedMoving = true;
-        this.player.setVelocityY(this.getJumpPower());
-      }
-    } else {
-      if (moveLeft) { this.player.setVelocityX(-speed * 0.45); this.player.setFlipX(true); }
-      else if (moveRight) { this.player.setVelocityX(speed * 0.45); this.player.setFlipX(false); }
+    if (moveLeft) { this.player.setVelocityX(-speed); this.player.setFlipX(true); }
+    else if (moveRight) { this.player.setVelocityX(speed); this.player.setFlipX(false); }
+    else { this.player.setVelocityX(0); }
+
+    if (jumpDown && onGround && !canDuck) {
+      if (!this.hasStartedMoving) this.hasStartedMoving = true;
+      this.player.setVelocityY(this.getJumpPower());
     }
 
     this.updatePlayerState();
     const maxY = GROUND_Y - 22;
-    if (this.player.y > maxY && onGround && !this.onLadder) this.player.y = maxY;
+    if (this.player.y > maxY && onGround) this.player.y = maxY;
 
+    this.checkFoodPickup();
     this.checkCrashPits();
     this.checkFogProximity();
     this.updatePhantoms(dt);
     this.updateStressProjectiles();
-    this.updateBasketPrompts();
     this.updateHUD();
   }
 
-  getPlayerSpeed() { return this.energy < 30 ? PLAYER_SPEED * 0.7 : PLAYER_SPEED; }
-  getJumpPower() { return this.energy < 30 ? PLAYER_JUMP * 0.8 : PLAYER_JUMP; }
+  getPlayerSpeed() {
+    const t = Phaser.Math.Clamp(this.energy / this.ENERGY_MAX, 0, 1);
+    return PLAYER_SPEED * (0.72 + 0.28 * t);
+  }
+
+  getJumpPower() {
+    const t = Phaser.Math.Clamp(this.energy / this.ENERGY_MAX, 0, 1);
+    return PLAYER_JUMP * (0.7 + 0.3 * t);
+  }
 
   updatePlayerState() {
     if (this.isInvincible) return;
@@ -4306,17 +4148,11 @@ class Result2Scene extends Phaser.Scene {
     });
   }
 
-  sortingPct(d) {
-    const denom = (d.sortingCorrectTotal || 0) + (d.wrongBasketAttempts || 0);
-    if (!denom) return 100;
-    return Math.round(100 * (d.sortingCorrectTotal || 0) / denom);
-  }
-
   animateStars(cx, starRowY, d) {
     const starDescs = [
-      { id: 1, text: '100% sorting accuracy (no wrong-basket tries)' },
+      { id: 1, text: 'Finished without taking damage from hazards' },
       { id: 2, text: 'Discovered the hidden path behind the fog bank' },
-      { id: 3, text: 'Collected every protein pickup (100%)' },
+      { id: 3, text: 'Collected every animal and plant protein in the level' },
     ];
 
     starDescs.forEach((s, i) => {
@@ -4345,15 +4181,14 @@ class Result2Scene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(3);
     this.add.rectangle(cx, headerY + 22, 96, 2, 0xee6644, 0.7).setDepth(3);
 
-    this.add.text(cx, headerY + 52, 'Excellent! You sorted protein into animal and plant sources.\nYour body uses protein to build and repair every tissue.', {
+    this.add.text(cx, headerY + 52, 'Excellent! You gathered protein from animal and plant sources.\nYour body uses protein to build and repair every tissue.', {
       fontFamily: SF, fontSize: '14px', color: '#e8e0d8', align: 'center', lineSpacing: 6,
     }).setOrigin(0.5).setDepth(3);
 
     const statY = headerY + 108;
-    const acc = this.sortingPct(d);
     const lines = [
-      `Proteins deposited: ${d.proteinsDeposited ?? 0} / ${PROTEINS_NEEDED}`,
-      `Sorting accuracy: ${acc}%`,
+      `Animal protein: ${d.animalCollected ?? 0} / ${d.totalAnimal ?? 0}`,
+      `Plant protein: ${d.plantCollected ?? 0} / ${d.totalPlant ?? 0}`,
       `Energy Cells collected: ${d.cells}`,
       `Energy at finish: ${d.energy}%`,
     ];
@@ -4376,11 +4211,11 @@ class Result2Scene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(3);
     this.add.rectangle(cx, headerY + 52, 80, 2, 0xcc6644, 0.65).setDepth(3);
 
-    this.add.text(cx, headerY + 72, '"You ran out of energy almost at the finish. Next time,\nsteady pacing and thoughtful sorting will carry you through."', {
+    this.add.text(cx, headerY + 72, '"You ran out of energy almost at the finish. Next time,\nsteady pacing and picking up proteins along the way will carry you through."', {
       fontFamily: SF, fontSize: '13px', color: '#d8d0c8', align: 'center', lineSpacing: 5,
     }).setOrigin(0.5).setDepth(3);
 
-    this.add.text(cx, headerY + 134, 'Try sorting proteins as you find them — carrying a full\ninventory for long stretches leaves fewer chances to deposit.', {
+    this.add.text(cx, headerY + 134, 'Pick up protein foods as you go — the HUD tracks\nanimal and plant sources separately.', {
       fontFamily: SF, fontSize: '12px', color: '#8899aa', align: 'center', lineSpacing: 4,
     }).setOrigin(0.5).setDepth(3);
 
@@ -4406,10 +4241,9 @@ class Result2Scene extends Phaser.Scene {
   }
 
   showFailStats(cx, y, d, SF) {
-    const acc = this.sortingPct(d);
     [
-      `Proteins deposited: ${d.proteinsDeposited ?? 0} / ${PROTEINS_NEEDED}`,
-      `Sorting accuracy: ${acc}%`,
+      `Animal protein: ${d.animalCollected ?? 0} / ${d.totalAnimal ?? 0}`,
+      `Plant protein: ${d.plantCollected ?? 0} / ${d.totalPlant ?? 0}`,
       `Energy Cells: ${d.cells}`,
     ].forEach((s, i) => {
       this.add.text(cx, y + i * 18, s, {
