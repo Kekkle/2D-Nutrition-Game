@@ -622,7 +622,10 @@ class BootScene extends Phaser.Scene {
     this.generateStressSprite();
     this.generateBaskets();
     document.fonts.load('16px "Special Elite"').then(() => {
-      this.scene.start('LevelSelect');
+      const level = new URLSearchParams(window.location.search).get('level');
+      if (level === '2') this.scene.start('Splash2');
+      else if (level === '1') this.scene.start('Splash');
+      else this.scene.start('LevelSelect');
     });
   }
 
